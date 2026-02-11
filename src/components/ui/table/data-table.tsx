@@ -3,7 +3,6 @@ import type * as React from 'react';
 
 import { DataTablePagination } from '@/components/ui/table/data-table-pagination';
 import {
-  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -29,7 +28,7 @@ export function DataTable<TData>({
       <div className='relative flex flex-1'>
         <div className='absolute inset-0 flex overflow-hidden rounded-lg border'>
           <ScrollArea className='h-full w-full'>
-            <Table>
+            <table className='w-full caption-bottom text-sm'>
               <TableHeader className='bg-muted sticky top-0 z-10'>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
@@ -85,7 +84,7 @@ export function DataTable<TData>({
                   </TableRow>
                 )}
               </TableBody>
-            </Table>
+            </table>
             <ScrollBar orientation='horizontal' />
           </ScrollArea>
         </div>

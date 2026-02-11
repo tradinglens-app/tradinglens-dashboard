@@ -1,0 +1,62 @@
+'use client';
+
+import { useState } from 'react';
+import { SymbolData } from '../services/symbol.service';
+import { getColumns } from './symbol-tables/columns';
+import { useDataTable } from '@/hooks/use-data-table';
+import { DataTable } from '@/components/ui/table/data-table';
+import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
+import { SymbolFormModal } from './symbol-form-modal';
+import { parseAsInteger, useQueryState } from 'nuqs';
+
+interface SymbolListingProps {
+  data: SymbolData[];
+  totalCount: number;
+}
+
+export function SymbolListing({ data, totalCount }: SymbolListingProps) {
+  const [editingSymbol, setEditingSymbol] = useState<SymbolData | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [pageSize] = useQueryState('perPage', parseAsInteger.withDefault(10));
+
+  const handleEdit = (symbol: SymbolData) => {
+    setEditingSymbol(symbol);
+    setIsFormOpen(true);
+  };
+
+  const columns = getColumns(handleEdit);
+
+  const { table } = useDataTable({
+    data,
+    columns,
+    pageCount: Math.ceil(totalCount / pageSize),
+    shallow: false,
+    debounceMs: 500,
+    enableAdvancedFilter: false,
+    initialState: {
+      columnVisibility: {
+        actions: true,
+        symbol: true,
+        name: true,
+        exchange: true,
+        type: true
+      }
+    }
+  });
+
+  return (
+    <div className='flex flex-1 flex-col space-y-4'>
+      <DataTable table={table}>
+        <DataTableToolbar table={table} searchKey='symbol' />
+      </DataTable>
+      <SymbolFormModal
+        open={isFormOpen}
+        onOpenChange={(open: boolean) => {
+          setIsFormOpen(open);
+          if (!open) setEditingSymbol(null);
+        }}
+        initialData={editingSymbol}
+      />
+    </div>
+  );
+}
