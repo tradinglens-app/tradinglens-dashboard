@@ -60,35 +60,164 @@ export const navItems: NavItem[] = [
     // access: { requireOrg: true, permission: 'org:teams:view' }
   },
   {
-    title: 'Product',
-    url: '/dashboard/product',
-    icon: 'product',
-    shortcut: ['p', 'p'],
-    isActive: false,
-    items: []
-  },
-  {
-    title: 'Kanban',
-    url: '/dashboard/kanban',
-    icon: 'kanban',
-    shortcut: ['k', 'k'],
-    isActive: false,
-    items: []
-  },
-  {
-    title: 'Pro',
+    title: 'Reports Center',
     url: '#', // Placeholder as there is no direct link for the parent
-    icon: 'pro',
+    icon: 'post',
     isActive: true,
     items: [
       {
-        title: 'Exclusive',
-        url: '/dashboard/exclusive',
-        icon: 'exclusive',
-        shortcut: ['m', 'm']
+        title: 'Bug Reports',
+        url: '/dashboard/reports/bugs',
+        icon: 'userPen',
+        shortcut: ['b', 'b']
+      },
+      {
+        title: 'Post Reports',
+        url: '/dashboard/reports/posts',
+        icon: 'post',
+        shortcut: ['p', 'p']
+      },
+      {
+        title: 'User Reports',
+        url: '/dashboard/reports/users',
+        icon: 'user',
+        shortcut: ['u', 'u']
       }
     ]
   },
+  {
+    title: 'Community Moderation',
+    url: '#',
+    icon: 'teams',
+    isActive: true,
+    items: [
+      {
+        title: 'Posts',
+        url: '/dashboard/community/posts',
+        icon: 'posts',
+        shortcut: ['p', 'o']
+      },
+      {
+        title: 'Comments',
+        url: '/dashboard/community/comments',
+        icon: 'comments',
+        shortcut: ['c', 'm']
+      },
+      {
+        title: 'Users',
+        url: '/dashboard/community/users',
+        icon: 'users',
+        shortcut: ['u', 's']
+      }
+    ]
+  },
+
+  // {
+  //   title: 'Product',
+  //   url: '/dashboard/product',
+  //   icon: 'product',
+  //   shortcut: ['p', 'p'],
+  //   isActive: false,
+  //   items: []
+  // },
+  // {
+  //   title: 'Kanban',
+  //   url: '/dashboard/kanban',
+  //   icon: 'kanban',
+  //   shortcut: ['k', 'k'],
+  //   isActive: false,
+  //   items: []
+  // },
+  {
+    title: 'User Verification',
+    url: '#', // Placeholder
+    icon: 'users',
+    isActive: true,
+    items: [
+      {
+        title: 'Badge',
+        url: '/dashboard/user-verification/badge',
+        icon: 'badge'
+      }
+    ]
+  },
+  {
+    title: 'News & Articles',
+    url: '/dashboard/news-articles',
+    icon: 'article',
+    shortcut: ['n', 'a'],
+    items: []
+  },
+  {
+    title: 'Ads Manager',
+    url: '/dashboard/ads-manager',
+    icon: 'adsManager',
+    items: []
+  },
+  {
+    title: 'Symbols Database',
+    url: '/dashboard/symbols-database',
+    icon: 'database',
+    items: []
+  },
+  {
+    title: 'Campaigns',
+    url: '/dashboard/campaigns',
+    icon: 'campaign',
+    items: []
+  },
+  {
+    title: 'Notifications Center',
+    url: '/dashboard/notifications',
+    icon: 'notification',
+    items: []
+  },
+  {
+    title: 'Settings',
+    url: '#',
+    icon: 'settings',
+    items: [
+      {
+        title: 'RBAC',
+        url: '/dashboard/settings/rbac',
+        icon: 'rbac',
+        shortcut: ['r', 'b']
+      },
+      {
+        title: 'Rules',
+        url: '/dashboard/settings/rules',
+        icon: 'rules',
+        shortcut: ['r', 'u']
+      },
+      {
+        title: 'Integrations',
+        url: '/dashboard/settings/integrations',
+        icon: 'integrations',
+        shortcut: ['i', 'n']
+      },
+      {
+        title: 'Audit Logs',
+        url: '/dashboard/settings/audit-logs',
+        icon: 'audit',
+        shortcut: ['a', 'l']
+      }
+    ]
+  },
+
+  // {
+  //   title: 'Pro',
+  //   url: '#', // Placeholder as there is no direct link for the parent
+  //   icon: 'pro',
+  //   isActive: true,
+  //   items: [
+  //     {
+  //       title: 'Exclusive',
+  //       url: '/dashboard/exclusive',
+  //       icon: 'exclusive',
+  //       shortcut: ['m', 'm']
+  //     }
+  //   ]
+  // },
   {
     title: 'Account',
     url: '#', // Placeholder as there is no direct link for the parent

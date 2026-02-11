@@ -36,7 +36,20 @@ import {
   IconCrown,
   IconStar,
   IconBox,
-  IconPalette
+  IconPalette,
+  IconUserCheck,
+  IconSpeakerphone,
+  IconArticle,
+  IconMessage,
+  IconMessageCircle,
+  IconId,
+  IconDatabase,
+  IconFlag,
+  IconBell,
+  IconLock,
+  IconGavel,
+  IconPlug,
+  IconHistory
 } from '@tabler/icons-react';
 
 export type Icon = React.ComponentType<IconProps>;
@@ -79,5 +92,22 @@ export const Icons = {
   pro: IconCrown,
   exclusive: IconStar,
   account: IconUserCircle,
-  profile: IconUser
+  profile: IconUser,
+  userCheck: IconUserCheck,
+  users: IconUsers,
+  userX: IconUserX,
+  news: IconFileText,
+  ads: IconSpeakerphone,
+  article: IconArticle,
+  posts: IconMessage,
+  comments: IconMessageCircle,
+  badge: IconId,
+  adsManager: IconSpeakerphone,
+  database: IconDatabase,
+  campaign: IconFlag,
+  notification: IconBell,
+  rbac: IconLock,
+  rules: IconGavel,
+  integrations: IconPlug,
+  audit: IconHistory
 };
