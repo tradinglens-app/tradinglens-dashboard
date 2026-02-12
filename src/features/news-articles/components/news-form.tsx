@@ -38,6 +38,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const newsFormSchema = z.object({
   title: z.string().min(2, {
@@ -48,6 +49,9 @@ const newsFormSchema = z.object({
   }),
   content: z.string().optional(),
   summary: z.string().optional(),
+  titleTh: z.string().optional(),
+  contentTh: z.string().optional(),
+  summaryTh: z.string().optional(),
   imageUrl: z.string().optional(), // Simplify until complex validation is needed
   sourceUrl: z.string().optional(), // Simplify until complex validation is needed
   publisher: z.string().optional(),
@@ -70,11 +74,18 @@ export function NewsForm({ initialData }: NewsFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
+  const thaiTranslation = initialData?.translations?.find(
+    (t) => t.language === 'th'
+  );
+
   const defaultValues: Partial<NewsFormValues> = {
     title: initialData?.title || '',
     symbol: initialData?.symbol || '',
     content: initialData?.content || '',
     summary: initialData?.summary || '',
+    titleTh: thaiTranslation?.title || '',
+    contentTh: thaiTranslation?.content || '',
+    summaryTh: thaiTranslation?.summary || '',
     imageUrl: initialData?.imageUrl || '',
     sourceUrl: initialData?.sourceUrl || '',
     publisher: initialData?.publisher || '',
@@ -104,6 +115,18 @@ export function NewsForm({ initialData }: NewsFormProps) {
       setLoading(true);
 
       // Transform tags and categories back to array/json
+      // Prepare translations array
+      const translations = [];
+      if (data.titleTh || data.contentTh || data.summaryTh) {
+        translations.push({
+          language: 'th',
+          title: data.titleTh || '',
+          content: data.contentTh || '',
+          summary: data.summaryTh || ''
+        });
+      }
+
+      // Transform tags and categories back to array/json
       const formattedData = {
         ...data,
         id: initialData?.id,
@@ -118,7 +141,8 @@ export function NewsForm({ initialData }: NewsFormProps) {
               .split(',')
               .map((t) => t.trim())
               .filter(Boolean)
-          : []
+          : [],
+        translations
       };
 
       const result = await saveNewsAction(formattedData);
@@ -152,272 +176,404 @@ export function NewsForm({ initialData }: NewsFormProps) {
           onSubmit={form.handleSubmit(onSubmit)}
           className='space-y-6'
         >
-          <div className='grid gap-4 md:grid-cols-2'>
-            <FormField
-              control={form.control}
-              name='title'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Title</FormLabel>
-                  <FormControl>
-                    <Input placeholder='News title' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='symbol'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Symbol</FormLabel>
-                  <FormControl>
-                    <Input placeholder='Stock symbol (e.g. AAPL)' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          <div className='grid grid-cols-1 gap-8 md:grid-cols-2'>
+            {/* Left Column: Main Content */}
+            <div className='space-y-8'>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Content</CardTitle>
+                </CardHeader>
+                <CardContent className='space-y-4'>
+                  <Tabs defaultValue='en' className='w-full'>
+                    <TabsList className='grid w-full grid-cols-2'>
+                      <TabsTrigger value='en'>English (Default)</TabsTrigger>
+                      <TabsTrigger value='th'>Thai</TabsTrigger>
+                    </TabsList>
 
-          <div className='grid gap-4 md:grid-cols-2'>
-            <FormField
-              control={form.control}
-              name='publisher'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Publisher</FormLabel>
-                  <FormControl>
-                    <Input placeholder='Publisher name' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='language'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Language</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder='Select language' />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value='en'>English</SelectItem>
-                      <SelectItem value='th'>Thai</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <FormField
-            control={form.control}
-            name='publishedDate'
-            render={({ field }) => (
-              <FormItem className='flex flex-col'>
-                <FormLabel>Published Date</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant={'outline'}
-                        className={cn(
-                          'w-[240px] pl-3 text-left font-normal',
-                          !field.value && 'text-muted-foreground'
+                    {/* English Tab */}
+                    <TabsContent value='en' className='space-y-4'>
+                      <FormField
+                        control={form.control}
+                        name='title'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Title (EN)</FormLabel>
+                            <FormControl>
+                              <Input
+                                disabled={loading}
+                                placeholder='News Title'
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
                         )}
-                      >
-                        {field.value ? (
-                          format(field.value, 'PPP')
-                        ) : (
-                          <span>Pick a date</span>
+                      />
+                      <FormField
+                        control={form.control}
+                        name='summary'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Summary (EN)</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                disabled={loading}
+                                placeholder='Brief summary...'
+                                className='min-h-[100px]'
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
                         )}
-                        <CalendarIcon className='ml-auto h-4 w-4 opacity-50' />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className='w-auto p-0' align='start'>
-                    <Calendar
-                      mode='single'
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      disabled={(date) =>
-                        date > new Date() || date < new Date('1900-01-01')
-                      }
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                      />
+                      <FormField
+                        control={form.control}
+                        name='content'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Content (EN)</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                disabled={loading}
+                                placeholder='Full content (Markdown supported)'
+                                className='min-h-[200px] font-mono'
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              Markdown is supported.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </TabsContent>
 
-          <FormField
-            control={form.control}
-            name='summary'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Summary</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder='Brief summary of the news'
-                    className='h-20'
-                    {...field}
+                    {/* Thai Tab */}
+                    <TabsContent value='th' className='space-y-4'>
+                      <FormField
+                        control={form.control}
+                        name='titleTh'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Title (TH)</FormLabel>
+                            <FormControl>
+                              <Input
+                                disabled={loading}
+                                placeholder='Thai News Title'
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name='summaryTh'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Summary (TH)</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                disabled={loading}
+                                placeholder='Thai summary...'
+                                className='min-h-[100px]'
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name='contentTh'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Content (TH)</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                disabled={loading}
+                                placeholder='Thai content (Markdown supported)'
+                                className='min-h-[200px] font-mono'
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              Markdown is supported.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </TabsContent>
+                  </Tabs>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right Column: Settings & Original Metadata */}
+            <div className='space-y-8'>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Metadata</CardTitle>
+                </CardHeader>
+                <CardContent className='space-y-4'>
+                  <FormField
+                    control={form.control}
+                    name='symbol'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Symbol</FormLabel>
+                        <FormControl>
+                          <Input
+                            disabled={loading}
+                            placeholder='e.g. AAPL'
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name='content'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Content</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder='Full content (Markdown supported)'
-                    className='h-64'
-                    {...field}
+                  <FormField
+                    control={form.control}
+                    name='publisher'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Publisher</FormLabel>
+                        <FormControl>
+                          <Input
+                            disabled={loading}
+                            placeholder='e.g. Bloomberg'
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  <FormField
+                    control={form.control}
+                    name='language'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Language (Original)</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder='Select language' />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value='en'>English</SelectItem>
+                            <SelectItem value='th'>Thai</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name='publishedDate'
+                    render={({ field }) => (
+                      <FormItem className='flex flex-col'>
+                        <FormLabel>Published Date</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={'outline'}
+                                className={cn(
+                                  'w-full pl-3 text-left font-normal',
+                                  !field.value && 'text-muted-foreground'
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, 'PPP')
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className='ml-auto h-4 w-4 opacity-50' />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className='w-auto p-0' align='start'>
+                            <Calendar
+                              mode='single'
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date > new Date() ||
+                                date < new Date('1900-01-01')
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name='imageUrl'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Image URL</FormLabel>
+                        <FormControl>
+                          <Input
+                            disabled={loading}
+                            placeholder='https://example.com/image.jpg'
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name='sourceUrl'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Source URL</FormLabel>
+                        <FormControl>
+                          <Input
+                            disabled={loading}
+                            placeholder='https://example.com/news/123'
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
 
-          <div className='grid gap-4 md:grid-cols-2'>
-            <FormField
-              control={form.control}
-              name='imageUrl'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Image URL</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder='https://example.com/image.jpg'
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='sourceUrl'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Source URL</FormLabel>
-                  <FormControl>
-                    <Input placeholder='https://source.com/news/1' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Organization</CardTitle>
+                </CardHeader>
+                <CardContent className='space-y-4'>
+                  <FormField
+                    control={form.control}
+                    name='tags'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tags</FormLabel>
+                        <FormControl>
+                          <Input
+                            disabled={loading}
+                            placeholder='Comma separated tags'
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Separate tags with commas
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name='categories'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Categories</FormLabel>
+                        <FormControl>
+                          <Input
+                            disabled={loading}
+                            placeholder='Comma separated categories'
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Separate categories with commas
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
 
-          <div className='grid gap-4 md:grid-cols-2'>
-            <FormField
-              control={form.control}
-              name='tags'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tags</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder='Comma separated tags (e.g. market, tech)'
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='categories'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Categories</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder='Comma separated categories'
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className='flex flex-wrap gap-6 pt-4'>
-            <FormField
-              control={form.control}
-              name='isActive'
-              render={({ field }) => (
-                <FormItem className='flex w-[200px] flex-row items-center justify-between rounded-lg border p-4 shadow-sm'>
-                  <div className='space-y-0.5'>
-                    <FormLabel className='text-base'>Active</FormLabel>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='isFeatured'
-              render={({ field }) => (
-                <FormItem className='flex w-[200px] flex-row items-center justify-between rounded-lg border p-4 shadow-sm'>
-                  <div className='space-y-0.5'>
-                    <FormLabel className='text-base'>Featured</FormLabel>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='isHot'
-              render={({ field }) => (
-                <FormItem className='flex w-[200px] flex-row items-center justify-between rounded-lg border p-4 shadow-sm'>
-                  <div className='space-y-0.5'>
-                    <FormLabel className='text-base'>Hot</FormLabel>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Settings</CardTitle>
+                </CardHeader>
+                <CardContent className='space-y-4'>
+                  <FormField
+                    control={form.control}
+                    name='isActive'
+                    render={({ field }) => (
+                      <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+                        <div className='space-y-0.5'>
+                          <FormLabel className='text-base'>Active</FormLabel>
+                          <FormDescription>
+                            Show this news article in the app.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name='isFeatured'
+                    render={({ field }) => (
+                      <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+                        <div className='space-y-0.5'>
+                          <FormLabel className='text-base'>Featured</FormLabel>
+                          <FormDescription>
+                            Highlight this article on the dashboard.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name='isHot'
+                    render={({ field }) => (
+                      <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+                        <div className='space-y-0.5'>
+                          <FormLabel className='text-base'>Hot</FormLabel>
+                          <FormDescription>
+                            Mark this article as trending or hot.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+            </div>
           </div>
 
           <div className='flex justify-end gap-4'>

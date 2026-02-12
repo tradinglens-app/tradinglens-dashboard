@@ -9,7 +9,8 @@ import {
   createNews,
   updateNews,
   deleteNews,
-  toggleNewsActive
+  toggleNewsActive,
+  CreateNewsInput
 } from '../services/news.service';
 
 export async function getNewsAction(params: GetNewsParams) {
@@ -30,9 +31,7 @@ export async function getNewsByIdAction(id: string) {
   }
 }
 
-export async function saveNewsAction(
-  data: Partial<NewsArticle> & { id?: string }
-) {
+export async function saveNewsAction(data: CreateNewsInput & { id?: string }) {
   try {
     if (data.id) {
       await updateNews(data.id, data);

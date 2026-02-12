@@ -20,6 +20,13 @@ export interface NewsArticle {
   isActive: boolean;
   tags: string[];
   categories: any;
+  translations?: {
+    id: string;
+    language: string;
+    title: string;
+    content: string | null;
+    summary: string | null;
+  }[];
   createdAt: Date | null;
   updatedAt: Date | null;
 }
@@ -138,7 +145,10 @@ export async function getNews(params: GetNewsParams = {}) {
       where,
       take: pageSize,
       skip: (page - 1) * pageSize,
-      orderBy
+      orderBy,
+      include: {
+        stock_news_translation: true
+      }
     }),
     prisma.stock_news.count({ where })
   ]);
@@ -163,6 +173,13 @@ export async function getNews(params: GetNewsParams = {}) {
     isActive: n.is_active ?? true,
     tags: n.tags,
     categories: n.categories,
+    translations: n.stock_news_translation.map((t) => ({
+      id: t.id,
+      language: t.language,
+      title: t.title,
+      content: t.content,
+      summary: t.summary
+    })),
     createdAt: n.created_at,
     updatedAt: n.updated_at
   }));
@@ -176,7 +193,10 @@ export async function getNews(params: GetNewsParams = {}) {
 
 export async function getNewsById(id: string) {
   const news = await prisma.stock_news.findUnique({
-    where: { id }
+    where: { id },
+    include: {
+      stock_news_translation: true
+    }
   });
 
   if (!news) return null;
@@ -201,17 +221,33 @@ export async function getNewsById(id: string) {
     isActive: news.is_active ?? true,
     tags: news.tags,
     categories: news.categories,
+    translations: news.stock_news_translation.map((t) => ({
+      id: t.id,
+      language: t.language,
+      title: t.title,
+      content: t.content,
+      summary: t.summary
+    })),
     createdAt: news.created_at,
     updatedAt: news.updated_at
   };
 }
 
-export async function createNews(data: Partial<NewsArticle>) {
+export type CreateNewsInput = Omit<Partial<NewsArticle>, 'translations'> & {
+  translations?: {
+    language: string;
+    title: string;
+    content?: string;
+    summary?: string;
+  }[];
+};
+
+export async function createNews(data: CreateNewsInput) {
   if (!data.symbol || !data.title) {
     throw new Error('Symbol and title are required');
   }
 
-  return prisma.stock_news.create({
+  const news = await prisma.stock_news.create({
     data: {
       symbol: data.symbol,
       exchange: data.exchange,
@@ -230,10 +266,28 @@ export async function createNews(data: Partial<NewsArticle>) {
       categories: data.categories
     }
   });
+
+  if (data.translations && data.translations.length > 0) {
+    await Promise.all(
+      data.translations.map((t) =>
+        prisma.stock_news_translation.create({
+          data: {
+            news_id: news.id,
+            language: t.language,
+            title: t.title,
+            content: t.content,
+            summary: t.summary
+          }
+        })
+      )
+    );
+  }
+
+  return news;
 }
 
-export async function updateNews(id: string, data: Partial<NewsArticle>) {
-  return prisma.stock_news.update({
+export async function updateNews(id: string, data: CreateNewsInput) {
+  const news = await prisma.stock_news.update({
     where: { id },
     data: {
       symbol: data.symbol,
@@ -254,6 +308,43 @@ export async function updateNews(id: string, data: Partial<NewsArticle>) {
       updated_at: new Date()
     }
   });
+
+  if (data.translations && data.translations.length > 0) {
+    await Promise.all(
+      data.translations.map(async (t) => {
+        const existing = await prisma.stock_news_translation.findFirst({
+          where: {
+            news_id: id,
+            language: t.language
+          }
+        });
+
+        if (existing) {
+          return prisma.stock_news_translation.update({
+            where: { id: existing.id },
+            data: {
+              title: t.title,
+              content: t.content,
+              summary: t.summary,
+              updated_at: new Date()
+            }
+          });
+        } else {
+          return prisma.stock_news_translation.create({
+            data: {
+              news_id: id,
+              language: t.language,
+              title: t.title,
+              content: t.content,
+              summary: t.summary
+            }
+          });
+        }
+      })
+    );
+  }
+
+  return news;
 }
 
 export async function toggleNewsActive(id: string, isActive: boolean) {
