@@ -17,13 +17,15 @@ export default async function SymbolsDatabasePage({
   const type = searchParamsCache.get('type');
   const exchange = searchParamsCache.get('exchange');
   const pageSize = searchParamsCache.get('perPage');
+  const createdAt = searchParamsCache.get('createdAt');
 
   const { data, totalCount } = await getSymbols({
     page,
     pageSize,
     search: search || undefined,
     type: type || undefined,
-    exchange: exchange || undefined
+    exchange: exchange || undefined,
+    createdAt: createdAt || undefined
   });
 
   return (

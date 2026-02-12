@@ -23,7 +23,8 @@ export const searchParams = {
   publisher: parseAsString.withDefault(''),
   createdAt: parseAsArrayOf(parseAsInteger).withDefault([]),
   isActive: parseAsArrayOf(parseAsString).withDefault([]),
-  q: parseAsString.withDefault('')
+  q: parseAsString.withDefault(''),
+  content: parseAsString.withDefault('')
 };
 
 export const searchParamsCache = createSearchParamsCache(searchParams);

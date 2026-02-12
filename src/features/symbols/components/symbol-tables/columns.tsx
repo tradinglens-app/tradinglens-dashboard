@@ -1,4 +1,4 @@
-'use client';
+import { format } from 'date-fns';
 
 import { ColumnDef } from '@tanstack/react-table';
 import { SymbolData } from '@/features/symbols/services/symbol.service';
@@ -89,6 +89,23 @@ export const getColumns = (
       ]
     }
   },
+  {
+    accessorKey: 'createdAt',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Created At' />
+    ),
+    cell: ({ row }) => {
+      const date = row.original.createdAt;
+      if (!date) return 'N/A';
+      return format(new Date(date), 'PP');
+    },
+    enableColumnFilter: true,
+    meta: {
+      label: 'Created At',
+      variant: 'dateRange'
+    }
+  },
+
   {
     id: 'actions',
     header: ({ column }) => <DataTableColumnHeader column={column} title='' />,

@@ -17,10 +17,11 @@ export interface GetSymbolsParams {
   search?: string;
   type?: string;
   exchange?: string;
+  createdAt?: number[];
 }
 
 export async function getSymbols(params: GetSymbolsParams = {}) {
-  const { page = 1, pageSize = 10, search, type, exchange } = params;
+  const { page = 1, pageSize = 10, search, type, exchange, createdAt } = params;
 
   const where: any = {};
 
@@ -37,6 +38,13 @@ export async function getSymbols(params: GetSymbolsParams = {}) {
 
   if (exchange) {
     where.exchange_short_name = exchange;
+  }
+
+  if (createdAt && createdAt.length === 2) {
+    where.created_at = {
+      gte: new Date(createdAt[0]),
+      lte: new Date(createdAt[1])
+    };
   }
 
   const [symbols, totalCount] = await Promise.all([

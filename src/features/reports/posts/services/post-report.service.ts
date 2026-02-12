@@ -1,25 +1,39 @@
-import { prisma } from '@/lib/prisma';
+import { prismaThread } from '@/lib/prisma-thread';
 import { PostReport } from '../components/columns';
 
 export const getPostReports = async (): Promise<PostReport[]> => {
-  const comments = await prisma.comments.findMany({
+  const reports = await prismaThread.threadReports.findMany({
     take: 20,
-    orderBy: { created_at: 'desc' },
-    include: {
-      // Assuming we might want user details later, but for now just ID
+    orderBy: { created_at: 'desc' }
+  });
+
+  // Fetch related threads to get content
+  const threadIds = reports.map((r) => r.threads_id);
+  const threads = await prismaThread.threads.findMany({
+    where: {
+      id: { in: threadIds }
+    },
+    select: {
+      id: true,
+      content: true
     }
   });
 
-  return comments.map((comment) => ({
-    id: comment.id.toString(),
-    postTitle:
-      comment.content.substring(0, 50) +
-      (comment.content.length > 50 ? '...' : ''),
-    reason: 'Auto-flagged', // Placeholder as we don't have real reports
-    reporter: `User ${comment.user_id}`,
-    status: 'Pending', // Placeholder
-    date: comment.created_at
-      ? new Date(comment.created_at).toISOString().split('T')[0]
-      : new Date().toISOString().split('T')[0]
-  }));
+  const threadMap = new Map(threads.map((t) => [t.id, t]));
+
+  return reports.map((report) => {
+    const thread = threadMap.get(report.threads_id);
+    const content = thread?.content || 'Content not found';
+
+    return {
+      id: report.id,
+      postTitle: content.substring(0, 50) + (content.length > 50 ? '...' : ''),
+      reason: report.reason || 'No reason provided',
+      reporter: report.reported_by ? `User ${report.reported_by}` : 'Anonymous',
+      status: report.deleted_at ? 'Resolved' : 'Pending',
+      date: report.created_at
+        ? new Date(report.created_at).toISOString().split('T')[0]
+        : new Date().toISOString().split('T')[0]
+    };
+  });
 };
