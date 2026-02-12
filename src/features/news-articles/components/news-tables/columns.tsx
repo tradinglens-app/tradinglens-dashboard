@@ -7,8 +7,22 @@ import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-h
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
 import { format } from 'date-fns';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 
 export const getColumns = (
+  onDetail?: (news: NewsArticle) => void,
   onEdit?: (news: NewsArticle) => void,
   onDelete?: (news: NewsArticle) => void
 ): ColumnDef<NewsArticle>[] => [
@@ -18,17 +32,52 @@ export const getColumns = (
       <DataTableColumnHeader column={column} title='Title' />
     ),
     cell: ({ row }) => (
-      <div className='max-w-[300px]'>
-        <div className='truncate font-medium'>{row.getValue('title')}</div>
-        {row.original.summary && (
-          <div className='text-muted-foreground mt-1 truncate text-xs'>
-            {row.original.summary.substring(0, 80)}...
-          </div>
-        )}
-      </div>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className='flex max-w-[500px] cursor-pointer gap-3'>
+              {row.original.imageUrl && (
+                <img
+                  src={row.original.imageUrl}
+                  alt={row.original.title}
+                  className='h-12 w-12 rounded-full object-cover'
+                />
+              )}
+              <div className='flex min-w-0 flex-1 flex-col justify-center'>
+                <div className='line-clamp-2 truncate text-sm leading-tight font-medium'>
+                  {row.getValue('title')}
+                </div>
+                {row.original.summary && (
+                  <div className='text-muted-foreground mt-1 truncate text-xs'>
+                    {row.original.summary}
+                  </div>
+                )}
+              </div>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent className='max-w-md'>
+            <div className='space-y-2'>
+              {row.original.imageUrl && (
+                <img
+                  src={row.original.imageUrl}
+                  alt={row.original.title}
+                  className='w-full rounded object-cover'
+                />
+              )}
+              <h4 className='font-semibold'>{row.original.title}</h4>
+              {row.original.summary && (
+                <p className='text-muted-foreground text-sm'>
+                  {row.original.summary}
+                </p>
+              )}
+            </div>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     ),
     enableSorting: true,
-    enableHiding: false
+    enableHiding: false,
+    size: 500
   },
   {
     accessorKey: 'symbol',
@@ -56,7 +105,12 @@ export const getColumns = (
         {row.getValue('publisher') || 'N/A'}
       </div>
     ),
-    enableSorting: true
+    enableSorting: true,
+    meta: {
+      label: 'Publisher',
+      variant: 'text'
+    },
+    enableColumnFilter: true
   },
   {
     accessorKey: 'publishedDate',
@@ -85,18 +139,7 @@ export const getColumns = (
     ),
     enableSorting: false
   },
-  {
-    accessorKey: 'viewCount',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Views' />
-    ),
-    cell: ({ row }) => (
-      <div className='text-right font-medium'>
-        {(row.getValue('viewCount') as number).toLocaleString()}
-      </div>
-    ),
-    enableSorting: true
-  },
+
   {
     accessorKey: 'isFeatured',
     header: ({ column }) => (
@@ -125,47 +168,105 @@ export const getColumns = (
           )}
         </div>
       );
-    },
+    }
+  },
+  {
+    accessorKey: 'isActive',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Status' />
+    ),
+    cell: ({ row }) => (
+      <Badge variant={row.getValue('isActive') ? 'default' : 'secondary'}>
+        {row.getValue('isActive') ? 'Active' : 'Hidden'}
+      </Badge>
+    ),
+    enableSorting: true,
     filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
+      return value.includes(String(row.getValue(id)));
     },
     meta: {
-      label: 'Featured',
-      variant: 'multiSelect',
+      label: 'Status',
+      variant: 'select',
       options: [
-        { label: 'Featured', value: 'true' },
-        { label: 'Regular', value: 'false' }
+        { label: 'Active', value: 'true' },
+        { label: 'Hidden', value: 'false' }
       ]
     },
     enableColumnFilter: true
   },
   {
+    accessorKey: 'createdAt',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Created At' />
+    ),
+    cell: ({ row }) => {
+      const date = row.getValue('createdAt') as Date;
+      return date ? format(new Date(date), 'MMM dd, yyyy HH:mm') : '-';
+    },
+    enableSorting: true,
+    meta: {
+      label: 'Created At',
+      variant: 'dateRange'
+    },
+    enableColumnFilter: true
+  },
+  {
     id: 'actions',
-    header: () => <div className='text-right'>Actions</div>,
+    header: () => null,
     cell: ({ row }) => {
       const news = row.original;
+      const isActive = news.isActive;
+
       return (
-        <div className='flex justify-end gap-2'>
-          {onEdit && (
-            <Button
-              variant='ghost'
-              size='icon'
-              onClick={() => onEdit(news)}
-              className='h-8 w-8'
-            >
-              <Icons.edit className='h-4 w-4' />
-            </Button>
-          )}
-          {onDelete && (
-            <Button
-              variant='ghost'
-              size='icon'
-              onClick={() => onDelete(news)}
-              className='h-8 w-8 text-red-600 hover:text-red-700'
-            >
-              <Icons.trash className='h-4 w-4' />
-            </Button>
-          )}
+        <div className='flex justify-end'>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant='ghost' size='icon' className='h-8 w-8'>
+                <Icons.moreVertical className='h-4 w-4' />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end'>
+              {onDetail && (
+                <DropdownMenuItem
+                  onClick={() => onDetail(news)}
+                  className='cursor-pointer'
+                >
+                  <Icons.fileText className='mr-2 h-4 w-4' />
+                  Detail
+                </DropdownMenuItem>
+              )}
+              {onEdit && (
+                <DropdownMenuItem
+                  onClick={() => onEdit(news)}
+                  className='cursor-pointer'
+                >
+                  {isActive ? (
+                    <>
+                      <Icons.eyeOff className='mr-2 h-4 w-4' />
+                      Hide
+                    </>
+                  ) : (
+                    <>
+                      <Icons.eye className='mr-2 h-4 w-4' />
+                      Unhide
+                    </>
+                  )}
+                </DropdownMenuItem>
+              )}
+              {onDelete && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => onDelete(news)}
+                    className='cursor-pointer text-red-600 focus:text-red-600'
+                  >
+                    <Icons.trash className='mr-2 h-4 w-4' />
+                    Delete
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       );
     }

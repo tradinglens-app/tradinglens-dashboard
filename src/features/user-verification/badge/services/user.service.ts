@@ -10,7 +10,24 @@ export interface VerificationRequest {
   date: string;
   accountStatus: string | null;
   lastLogin: string | null;
+  // Additional fields
+  googleId: string | null;
+  profilePic: string | null;
+  updatedAt: string | null;
+  stripeCustomerId: string | null;
+  hasUsedTrial: boolean;
+  trialUsedAt: string | null;
+  bio: string | null;
+  statusMessage: string | null;
+  birthdate: string | null;
+  languagePreference: string;
+  themePreference: string | null;
+  onboardingCompleted: boolean;
+  activeWatchlistId: number | null;
+  isPrivate: boolean;
+  appleId: string | null;
 }
+
 export interface GetVerificationRequestsParams {
   page?: number;
   pageSize?: number;
@@ -28,6 +45,8 @@ export async function getVerificationRequests(
   totalCount: number;
   pageCount: number;
 }> {
+  // ... (params destructuring and where clause logic remains same) ...
+
   const {
     page = 1,
     pageSize = 10,
@@ -89,6 +108,7 @@ export async function getVerificationRequests(
     accountStatus: 'account_status',
     lastLogin: 'last_login_at',
     date: 'created_at',
+    createdAt: 'created_at',
     id: 'user_id'
   };
 
@@ -136,7 +156,29 @@ export async function getVerificationRequests(
     accountStatus: user.account_status,
     lastLogin: user.last_login_at
       ? format(new Date(user.last_login_at), 'yyyy-MM-dd HH:mm')
-      : 'N/A'
+      : 'N/A',
+    // Mapping additional fields
+    googleId: user.google_id,
+    profilePic: user.profile_pic,
+    updatedAt: user.updated_at
+      ? format(new Date(user.updated_at), 'yyyy-MM-dd HH:mm')
+      : null,
+    stripeCustomerId: user.stripe_customer_id,
+    hasUsedTrial: user.has_used_trial,
+    trialUsedAt: user.trial_used_at
+      ? format(new Date(user.trial_used_at), 'yyyy-MM-dd HH:mm')
+      : null,
+    bio: user.bio,
+    statusMessage: user.status_message,
+    birthdate: user.birthdate
+      ? format(new Date(user.birthdate), 'yyyy-MM-dd')
+      : null,
+    languagePreference: user.language_preference,
+    themePreference: user.theme_preference,
+    onboardingCompleted: user.onboarding_completed,
+    activeWatchlistId: user.active_watchlist_id,
+    isPrivate: user.is_private,
+    appleId: user.apple_id
   }));
 
   return {

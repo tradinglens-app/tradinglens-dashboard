@@ -1,5 +1,6 @@
 'use client';
 
+import { SymbolDetailSheet } from './symbol-detail-sheet';
 import { useState } from 'react';
 import { SymbolData } from '../services/symbol.service';
 import { getColumns } from './symbol-tables/columns';
@@ -24,6 +25,15 @@ export function SymbolListing({ data, totalCount }: SymbolListingProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  // Detail Sheet State
+  const [selectedSymbol, setSelectedSymbol] = useState<SymbolData | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+  const handleDetail = (symbol: SymbolData) => {
+    setSelectedSymbol(symbol);
+    setIsDetailOpen(true);
+  };
 
   const handleEdit = (symbol: SymbolData) => {
     setEditingSymbol(symbol);
@@ -51,7 +61,7 @@ export function SymbolListing({ data, totalCount }: SymbolListingProps) {
     }
   };
 
-  const columns = getColumns(handleEdit, handleDelete);
+  const columns = getColumns(handleDetail, handleEdit, handleDelete);
 
   const { table } = useDataTable({
     data,
@@ -92,6 +102,11 @@ export function SymbolListing({ data, totalCount }: SymbolListingProps) {
         }}
         onConfirm={onConfirm}
         loading={loading}
+      />
+      <SymbolDetailSheet
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        symbol={selectedSymbol}
       />
     </div>
   );

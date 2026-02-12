@@ -8,8 +8,12 @@ import { DataTable } from '@/components/ui/table/data-table';
 import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { AlertModal } from '@/components/modal/alert-modal';
-import { deleteNewsAction } from '../actions/news-actions';
+import {
+  deleteNewsAction,
+  toggleNewsActiveAction
+} from '../actions/news-actions';
 import { toast } from 'sonner';
+import { NewsDetailSheet } from './news-detail-sheet';
 
 interface NewsListingProps {
   data: NewsArticle[];
@@ -21,14 +25,23 @@ export function NewsListing({ data, totalCount }: NewsListingProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [actionType, setActionType] = useState<'toggle' | 'delete'>('delete');
+  const [toggleToActive, setToggleToActive] = useState(false);
 
-  const handleEdit = (news: NewsArticle) => {
-    // TODO: Implement edit modal
-    toast.info('Edit functionality coming soon');
+  // Sheet state
+  const [selectedNews, setSelectedNews] = useState<NewsArticle | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+  const handleToggleActive = (news: NewsArticle) => {
+    setDeleteId(news.id);
+    setActionType('toggle');
+    setToggleToActive(!news.isActive); // Toggle to opposite state
+    setOpen(true);
   };
 
   const handleDelete = (news: NewsArticle) => {
     setDeleteId(news.id);
+    setActionType('delete');
     setOpen(true);
   };
 
@@ -36,13 +49,23 @@ export function NewsListing({ data, totalCount }: NewsListingProps) {
     try {
       setLoading(true);
       if (deleteId) {
-        const result = await deleteNewsAction(deleteId);
+        const result =
+          actionType === 'toggle'
+            ? await toggleNewsActiveAction(deleteId, toggleToActive)
+            : await deleteNewsAction(deleteId);
+
         if (result.success) {
-          toast.success('News article deleted successfully.');
+          toast.success(
+            actionType === 'toggle'
+              ? toggleToActive
+                ? 'News article unhidden successfully.'
+                : 'News article hidden successfully.'
+              : 'News article deleted successfully.'
+          );
           setOpen(false);
           setDeleteId(null);
         } else {
-          toast.error(result.error || 'Failed to delete news article.');
+          toast.error(result.error || 'Failed to update news article.');
         }
       }
     } catch (error) {
@@ -52,7 +75,12 @@ export function NewsListing({ data, totalCount }: NewsListingProps) {
     }
   };
 
-  const columns = getColumns(handleEdit, handleDelete);
+  const handleDetail = (news: NewsArticle) => {
+    setSelectedNews(news);
+    setIsDetailOpen(true);
+  };
+
+  const columns = getColumns(handleDetail, handleToggleActive, handleDelete);
 
   const { table } = useDataTable({
     data,
@@ -70,6 +98,8 @@ export function NewsListing({ data, totalCount }: NewsListingProps) {
         language: true,
         viewCount: true,
         isFeatured: true,
+        isActive: true,
+        createdAt: true,
         actions: true
       }
     }
@@ -88,6 +118,25 @@ export function NewsListing({ data, totalCount }: NewsListingProps) {
         }}
         onConfirm={onConfirm}
         loading={loading}
+        title={
+          actionType === 'toggle'
+            ? toggleToActive
+              ? 'Unhide News Article'
+              : 'Hide News Article'
+            : 'Delete News Article'
+        }
+        description={
+          actionType === 'toggle'
+            ? toggleToActive
+              ? 'Are you sure you want to unhide this news article? It will become visible to users again.'
+              : 'Are you sure you want to hide this news article? It will no longer be visible to users but can be restored later.'
+            : 'Are you sure you want to permanently delete this news article? This action cannot be undone.'
+        }
+      />
+      <NewsDetailSheet
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        news={selectedNews}
       />
     </div>
   );

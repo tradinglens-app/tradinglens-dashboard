@@ -30,6 +30,9 @@ export interface GetNewsParams {
   search?: string;
   symbol?: string;
   language?: string;
+  publisher?: string;
+  from?: Date;
+  to?: Date;
   isFeatured?: boolean;
   isHot?: boolean;
   isActive?: boolean;
@@ -43,13 +46,21 @@ export async function getNews(params: GetNewsParams = {}) {
     search,
     symbol,
     language,
+    publisher,
+    from,
+    to,
     isFeatured,
     isHot,
-    isActive = true,
+    isActive,
     sort
   } = params;
 
-  const where: any = { is_active: isActive };
+  const where: any = {};
+
+  // Active filter - only apply if explicitly provided
+  if (isActive !== undefined) {
+    where.is_active = isActive;
+  }
 
   // Search filter
   if (search) {
@@ -63,6 +74,22 @@ export async function getNews(params: GetNewsParams = {}) {
   // Symbol filter
   if (symbol) {
     where.symbol = { contains: symbol, mode: 'insensitive' };
+  }
+
+  // Publisher filter
+  if (publisher) {
+    where.publisher = { contains: publisher, mode: 'insensitive' };
+  }
+
+  // Date range filter (Created At)
+  if (from || to) {
+    where.created_at = {};
+    if (from) {
+      where.created_at.gte = from;
+    }
+    if (to) {
+      where.created_at.lte = to;
+    }
   }
 
   // Language filter
@@ -81,7 +108,7 @@ export async function getNews(params: GetNewsParams = {}) {
   }
 
   // Sorting
-  let orderBy: any = { published_date: 'desc' };
+  let orderBy: any = { created_at: 'desc' };
 
   if (sort) {
     try {
@@ -93,7 +120,10 @@ export async function getNews(params: GetNewsParams = {}) {
           publishedDate: 'published_date',
           viewCount: 'view_count',
           likeCount: 'like_count',
-          createdAt: 'created_at'
+          createdAt: 'created_at',
+          isFeatured: 'is_featured',
+          isHot: 'is_hot',
+          isActive: 'is_active'
         };
         const dbField = fieldMapping[id] || id;
         orderBy = { [dbField]: desc ? 'desc' : 'asc' };
@@ -221,6 +251,16 @@ export async function updateNews(id: string, data: Partial<NewsArticle>) {
       is_active: data.isActive,
       tags: data.tags,
       categories: data.categories,
+      updated_at: new Date()
+    }
+  });
+}
+
+export async function toggleNewsActive(id: string, isActive: boolean) {
+  return prisma.stock_news.update({
+    where: { id },
+    data: {
+      is_active: isActive,
       updated_at: new Date()
     }
   });

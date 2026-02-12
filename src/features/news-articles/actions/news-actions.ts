@@ -8,7 +8,8 @@ import {
   getNewsById,
   createNews,
   updateNews,
-  deleteNews
+  deleteNews,
+  toggleNewsActive
 } from '../services/news.service';
 
 export async function getNewsAction(params: GetNewsParams) {
@@ -43,6 +44,18 @@ export async function saveNewsAction(
     return { success: true };
   } catch (error: any) {
     console.error('saveNewsAction error:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function toggleNewsActiveAction(id: string, isActive: boolean) {
+  try {
+    await toggleNewsActive(id, isActive);
+    revalidatePath('/dashboard/news');
+    revalidatePath('/dashboard/news-articles');
+    return { success: true };
+  } catch (error: any) {
+    console.error('toggleNewsActiveAction error:', error);
     return { success: false, error: error.message };
   }
 }

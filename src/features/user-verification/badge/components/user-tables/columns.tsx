@@ -3,10 +3,24 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '@/components/ui/badge';
 import { VerificationRequest } from '../../services/user.service';
-import { VerificationActions } from '../verification-actions';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import { Icons } from '@/components/icons';
+import { MoreHorizontal } from 'lucide-react';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 
-export const columns: ColumnDef<VerificationRequest>[] = [
+export const getColumns = (
+  onDetail: (user: VerificationRequest) => void,
+  onVerify: (user: VerificationRequest) => void,
+  onRevoke: (user: VerificationRequest) => void
+): ColumnDef<VerificationRequest>[] => [
   {
     accessorKey: 'id',
     header: ({ column }) => (
@@ -131,17 +145,46 @@ export const columns: ColumnDef<VerificationRequest>[] = [
   },
   {
     id: 'actions',
-    header: () => <div className='text-right'></div>,
     cell: ({ row }) => {
       const user = row.original;
       return (
-        <div className='text-right'>
-          <VerificationActions
-            userId={user.id}
-            userName={user.userName}
-            isVerified={user.status === 'Verified'}
-          />
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant='ghost' className='h-8 w-8 p-0'>
+              <span className='sr-only'>Open menu</span>
+              <MoreHorizontal className='h-4 w-4' />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align='end'>
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem
+              onClick={() => onDetail(user)}
+              className='cursor-pointer'
+            >
+              <Icons.fileText className='mr-2 h-4 w-4' />
+              Detail
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            {user.status !== 'Verified' && (
+              <DropdownMenuItem
+                onClick={() => onVerify(user)}
+                className='cursor-pointer text-green-600 focus:text-green-600'
+              >
+                <Icons.userCheck className='mr-2 h-4 w-4' />
+                Grant Verify
+              </DropdownMenuItem>
+            )}
+            {user.status === 'Verified' && (
+              <DropdownMenuItem
+                onClick={() => onRevoke(user)}
+                className='cursor-pointer text-red-600 focus:text-red-600'
+              >
+                <Icons.userX className='mr-2 h-4 w-4' />
+                Revoke Verify
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       );
     }
   }

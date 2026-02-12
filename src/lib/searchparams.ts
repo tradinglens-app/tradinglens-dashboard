@@ -13,14 +13,16 @@ export const searchParams = {
   userName: parseAsString,
   email: parseAsString,
   status: parseAsArrayOf(parseAsString),
-  sort: parseAsString.withDefault('[{"id":"date","desc":true}]'),
+  sort: parseAsString.withDefault('[{"id":"createdAt","desc":true}]'),
   gender: parseAsString,
   category: parseAsString,
   exchange: parseAsString,
-  type: parseAsString
-  // advanced filter
-  // filters: getFiltersStateParser().withDefault([]),
-  // joinOperator: parseAsStringEnum(['and', 'or']).withDefault('and')
+  type: parseAsString,
+  title: parseAsString.withDefault(''),
+  symbol: parseAsString.withDefault(''),
+  publisher: parseAsString.withDefault(''),
+  createdAt: parseAsArrayOf(parseAsInteger).withDefault([]),
+  isActive: parseAsArrayOf(parseAsString).withDefault([])
 };
 
 export const searchParamsCache = createSearchParamsCache(searchParams);

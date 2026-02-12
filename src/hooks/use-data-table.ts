@@ -181,10 +181,15 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     if (enableAdvancedFilter) return {};
 
     return filterableColumns.reduce<
-      Record<string, Parser<string> | Parser<string[]>>
+      Record<string, Parser<string> | Parser<string[]> | Parser<number[]>>
     >((acc, column) => {
       const colId = getColumnId(column);
-      if (column.meta?.options) {
+      if (column.meta?.variant === 'dateRange') {
+        acc[colId] = parseAsArrayOf(
+          parseAsInteger,
+          ARRAY_SEPARATOR
+        ).withOptions(queryStateOptions);
+      } else if (column.meta?.options) {
         acc[colId] = parseAsArrayOf(parseAsString, ARRAY_SEPARATOR).withOptions(
           queryStateOptions
         );

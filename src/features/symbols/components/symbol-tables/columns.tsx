@@ -14,8 +14,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import { Icons } from '@/components/icons';
 
 export const getColumns = (
+  onDetail: (symbol: SymbolData) => void,
   onEdit: (symbol: SymbolData) => void,
   onDelete: (symbol: SymbolData) => void
 ): ColumnDef<SymbolData>[] => [
@@ -26,12 +28,13 @@ export const getColumns = (
     ),
     cell: ({ row }) => (
       <div className='flex items-center gap-2'>
-        <Avatar className='h-8 w-8 rounded-md'>
+        <Avatar className='h-8 w-8 rounded-full'>
           <AvatarImage
             src={row.original.logo || ''}
             alt={row.original.symbol}
+            className='rounded-full'
           />
-          <AvatarFallback className='rounded-md'>
+          <AvatarFallback className='rounded-full'>
             {row.original.symbol.slice(0, 2)}
           </AvatarFallback>
         </Avatar>
@@ -99,14 +102,26 @@ export const getColumns = (
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end'>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => onEdit(row.original)}>
-            <Edit className='mr-2 h-4 w-4' /> Edit
+          <DropdownMenuItem
+            onClick={() => onDetail(row.original)}
+            className='cursor-pointer'
+          >
+            <Icons.fileText className='mr-2 h-4 w-4' />
+            Detail
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => onEdit(row.original)}
+            className='cursor-pointer'
+          >
+            <Edit className='mr-2 h-4 w-4' />
+            Edit
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => onDelete(row.original)}
-            className='text-red-600 focus:text-red-600'
+            className='cursor-pointer text-red-600 focus:text-red-600'
           >
-            <Trash className='mr-2 h-4 w-4 text-red-600' /> Delete
+            <Trash className='mr-2 h-4 w-4' />
+            Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

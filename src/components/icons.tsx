@@ -50,7 +50,9 @@ import {
   IconGavel,
   IconPlug,
   IconHistory,
-  IconPencil
+  IconPencil,
+  IconEyeOff,
+  IconEye
 } from '@tabler/icons-react';
 
 export type Icon = React.ComponentType<IconProps>;
@@ -111,5 +113,9 @@ export const Icons = {
   rules: IconGavel,
   integrations: IconPlug,
   audit: IconHistory,
-  edit: IconPencil
+  edit: IconPencil,
+  moreVertical: IconDotsVertical,
+  eyeOff: IconEyeOff,
+  eye: IconEye,
+  fileText: IconFileText
 };
