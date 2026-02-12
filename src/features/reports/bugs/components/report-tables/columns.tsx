@@ -5,7 +5,7 @@ import { app_problem_report } from '@prisma/client';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, FileText, CheckCircle } from 'lucide-react';
+import { MoreHorizontal, FileText, CheckCircle, X } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   DropdownMenu,
@@ -15,6 +15,8 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { format } from 'date-fns';
+import { useState } from 'react';
+import { RejectDialog } from '@/components/ui/reject-dialog';
 
 export const getColumns = (
   onDetail: (report: app_problem_report) => void
@@ -123,32 +125,60 @@ export const getColumns = (
   },
   {
     id: 'actions',
-    cell: ({ row }) => (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant='ghost' className='h-8 w-8 p-0'>
-            <span className='sr-only'>Open menu</span>
-            <MoreHorizontal className='h-4 w-4' />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align='end'>
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem
-            onClick={() => onDetail(row.original)}
-            className='cursor-pointer'
-          >
-            <FileText className='mr-2 h-4 w-4' />
-            Detail
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => toast.info('Mark Fixed-in-Version action triggered')}
-            className='cursor-pointer'
-          >
-            <CheckCircle className='mr-2 h-4 w-4' />
-            Mark Fixed-in-Version
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    )
+    cell: function ActionsCell({ row }) {
+      const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
+
+      const handleReject = async (note: string) => {
+        // TODO: Implement reject logic here
+        console.log('Rejecting bug report:', row.original.id, 'Note:', note);
+        toast.success('Bug report rejected');
+      };
+
+      return (
+        <>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant='ghost' className='h-8 w-8 p-0'>
+                <span className='sr-only'>Open menu</span>
+                <MoreHorizontal className='h-4 w-4' />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end'>
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => onDetail(row.original)}
+                className='cursor-pointer'
+              >
+                <FileText className='mr-2 h-4 w-4' />
+                Detail
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() =>
+                  toast.info('Mark Fixed-in-Version action triggered')
+                }
+                className='cursor-pointer'
+              >
+                <CheckCircle className='mr-2 h-4 w-4' />
+                Mark Fixed-in-Version
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setIsRejectDialogOpen(true)}
+                className='text-destructive focus:text-destructive cursor-pointer'
+              >
+                <X className='mr-2 h-4 w-4' />
+                Reject
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <RejectDialog
+            open={isRejectDialogOpen}
+            onOpenChange={setIsRejectDialogOpen}
+            title='Reject Bug Report'
+            itemTitle={row.original.topic || 'Bug Report'}
+            onConfirm={handleReject}
+          />
+        </>
+      );
+    }
   }
 ];

@@ -91,12 +91,12 @@ export const navItems: NavItem[] = [
         icon: 'posts',
         shortcut: ['p', 'o']
       },
-      {
-        title: 'Comments',
-        url: '/dashboard/community/comments',
-        icon: 'comments',
-        shortcut: ['c', 'm']
-      },
+      // {
+      //   title: 'Comments',
+      //   url: '/dashboard/community/comments',
+      //   icon: 'comments',
+      //   shortcut: ['c', 'm']
+      // },
       {
         title: 'Users',
         url: '/dashboard/community/users',
@@ -131,7 +131,8 @@ export const navItems: NavItem[] = [
       {
         title: 'Badge',
         url: '/dashboard/user-verification/badge',
-        icon: 'badge'
+        icon: 'badge',
+        shortcut: ['u', 'v']
       }
     ]
   },
@@ -154,18 +155,18 @@ export const navItems: NavItem[] = [
     icon: 'database',
     items: []
   },
-  {
-    title: 'Campaigns',
-    url: '/dashboard/campaigns',
-    icon: 'campaign',
-    items: []
-  },
-  {
-    title: 'Notifications Center',
-    url: '/dashboard/notifications',
-    icon: 'notification',
-    items: []
-  },
+  // {
+  //   title: 'Campaigns',
+  //   url: '/dashboard/campaigns',
+  //   icon: 'campaign',
+  //   items: []
+  // },
+  // {
+  //   title: 'Notifications Center',
+  //   url: '/dashboard/notifications',
+  //   icon: 'notification',
+  //   items: []
+  // },
   {
     title: 'Settings',
     url: '#',
@@ -196,7 +197,7 @@ export const navItems: NavItem[] = [
         shortcut: ['a', 'l']
       }
     ]
-  },
+  }
 
   // {
   //   title: 'Pro',
@@ -212,34 +213,34 @@ export const navItems: NavItem[] = [
   //     }
   //   ]
   // },
-  {
-    title: 'Account',
-    url: '#', // Placeholder as there is no direct link for the parent
-    icon: 'account',
-    isActive: true,
-    items: [
-      {
-        title: 'Profile',
-        url: '/dashboard/profile',
-        icon: 'profile',
-        shortcut: ['m', 'm']
-      },
-      {
-        title: 'Billing',
-        url: '/dashboard/billing',
-        icon: 'billing',
-        shortcut: ['b', 'b'],
-        // Only show billing if in organization context
-        access: { requireOrg: true }
-        // Alternative: require billing management permission
-        // access: { requireOrg: true, permission: 'org:manage:billing' }
-      },
-      {
-        title: 'Login',
-        shortcut: ['l', 'l'],
-        url: '/',
-        icon: 'login'
-      }
-    ]
-  }
+  // {
+  //   title: 'Account',
+  //   url: '#', // Placeholder as there is no direct link for the parent
+  //   icon: 'account',
+  //   isActive: true,
+  //   items: [
+  //     {
+  //       title: 'Profile',
+  //       url: '/dashboard/profile',
+  //       icon: 'profile',
+  //       shortcut: ['m', 'm']
+  //     },
+  //     {
+  //       title: 'Billing',
+  //       url: '/dashboard/billing',
+  //       icon: 'billing',
+  //       shortcut: ['b', 'b'],
+  //       // Only show billing if in organization context
+  //       access: { requireOrg: true }
+  //       // Alternative: require billing management permission
+  //       // access: { requireOrg: true, permission: 'org:manage:billing' }
+  //     },
+  //     {
+  //       title: 'Login',
+  //       shortcut: ['l', 'l'],
+  //       url: '/',
+  //       icon: 'login'
+  //     }
+  //   ]
+  // }
 ];

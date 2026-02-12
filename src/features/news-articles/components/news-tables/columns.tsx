@@ -13,6 +13,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip';
+import Link from 'next/link';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -235,6 +236,15 @@ export const getColumns = (
                   Detail
                 </DropdownMenuItem>
               )}
+              <DropdownMenuItem asChild>
+                <Link
+                  href={`/dashboard/news-articles/${news.id}`}
+                  className='flex w-full cursor-pointer items-center'
+                >
+                  <Icons.edit className='mr-2 h-4 w-4' />
+                  Edit
+                </Link>
+              </DropdownMenuItem>
               {onEdit && (
                 <DropdownMenuItem
                   onClick={() => onEdit(news)}

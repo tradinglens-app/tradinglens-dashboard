@@ -35,19 +35,56 @@ export function useFilteredNavItems(items: NavItem[]) {
     const permissions = membership?.permissions || [];
     const role = membership?.role;
 
+    // Read menu permissions from organization metadata
+    const orgMetadata = organization?.publicMetadata as
+      | Record<string, unknown>
+      | undefined;
+    const menuPermissions = (orgMetadata?.menuPermissions || {}) as Record<
+      string,
+      string[]
+    >;
+    const roleMenuKeys = role ? menuPermissions[role] : undefined;
+
     return {
       organization: organization ?? undefined,
       user: user ?? undefined,
       permissions: permissions as string[],
       role: role ?? undefined,
-      hasOrg: !!organization
+      hasOrg: !!organization,
+      // If roleMenuKeys is undefined, no restrictions (allow all)
+      // If roleMenuKeys is defined (even empty []), only allow listed menus
+      roleMenuKeys
     };
-  }, [organization?.id, user?.id, membership?.permissions, membership?.role]);
+  }, [
+    organization?.id,
+    organization?.publicMetadata,
+    user?.id,
+    membership?.permissions,
+    membership?.role
+  ]);
 
   // Filter items synchronously (all client-side)
   const filteredItems = useMemo(() => {
     return items
       .filter((item) => {
+        // Check menu permissions from org metadata
+        if (accessContext.roleMenuKeys !== undefined) {
+          // For parent items with children (groups), keep if any child is allowed
+          if (
+            item.items &&
+            item.items.length > 0 &&
+            (!item.url || item.url === '#')
+          ) {
+            const hasAllowedChild = item.items.some(
+              (child) =>
+                child.url && accessContext.roleMenuKeys!.includes(child.url)
+            );
+            if (!hasAllowedChild) return false;
+          } else if (item.url && item.url !== '#') {
+            if (!accessContext.roleMenuKeys.includes(item.url)) return false;
+          }
+        }
+
         // No access restrictions
         if (!item.access) {
           return true;
@@ -79,16 +116,7 @@ export function useFilteredNavItems(items: NavItem[]) {
         }
 
         // Note: Plans and features require server-side checks with Clerk's has() function
-        // For navigation visibility, you can either:
-        // 1. Store plan/feature info in organization metadata (client-accessible)
-        // 2. Use server actions (current approach)
-        // 3. Skip plan/feature checks for navigation (recommended for performance)
-
-        // For now, if plan/feature is specified, we'll need to handle it differently
-        // Most navigation items won't need plan/feature checks anyway
         if (item.access.plan || item.access.feature) {
-          // Option: Return true and let the page handle it, or use server action
-          // For now, we'll show it (page-level protection should handle it)
           console.warn(
             `Plan/feature checks for navigation items require server-side verification. ` +
               `Item "${item.title}" will be shown, but page-level protection should be implemented.`
@@ -101,6 +129,14 @@ export function useFilteredNavItems(items: NavItem[]) {
         // Recursively filter child items
         if (item.items && item.items.length > 0) {
           const filteredChildren = item.items.filter((childItem) => {
+            // Check menu permissions from org metadata
+            if (accessContext.roleMenuKeys !== undefined) {
+              if (childItem.url && childItem.url !== '#') {
+                if (!accessContext.roleMenuKeys.includes(childItem.url))
+                  return false;
+              }
+            }
+
             // No access restrictions
             if (!childItem.access) {
               return true;
@@ -133,7 +169,7 @@ export function useFilteredNavItems(items: NavItem[]) {
               }
             }
 
-            // Plan/feature checks (same warning as above)
+            // Plan/feature checks
             if (childItem.access.plan || childItem.access.feature) {
               console.warn(
                 `Plan/feature checks for navigation items require server-side verification. ` +

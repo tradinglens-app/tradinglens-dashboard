@@ -1,26 +1,22 @@
 import PageContainer from '@/components/layout/page-container';
-import { buttonVariants } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { Icons } from '@/components/icons';
-import Link from 'next/link';
+import { RBACPageClient } from '@/features/settings/rbac/components/rbac-page-client';
+import {
+  getOrgRolesAction,
+  getMenuPermissionsAction
+} from '@/features/settings/rbac/actions/rbac.actions';
 
-export default function RBACPage() {
+export default async function RBACPage() {
+  const [roles, permissions] = await Promise.all([
+    getOrgRolesAction(),
+    getMenuPermissionsAction()
+  ]);
+
   return (
     <PageContainer
       pageTitle='RBAC Settings'
-      pageDescription='Manage Role-Based Access Control'
-      pageHeaderAction={
-        <Link href='#' className={cn(buttonVariants(), 'text-xs md:text-sm')}>
-          <Icons.add className='mr-2 h-4 w-4' /> Add Role
-        </Link>
-      }
+      pageDescription='Manage Role-Based Access Control — configure which menus each role can access'
     >
-      <div className='flex flex-col gap-4'>
-        {/* Placeholder for Data Table */}
-        <div className='rounded-md border p-4'>
-          <p className='text-muted-foreground text-sm'>No roles configured.</p>
-        </div>
-      </div>
+      <RBACPageClient initialRoles={roles} initialPermissions={permissions} />
     </PageContainer>
   );
 }
