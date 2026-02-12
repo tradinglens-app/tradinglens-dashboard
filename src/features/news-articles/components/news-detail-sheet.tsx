@@ -24,6 +24,7 @@ import {
   Building
 } from 'lucide-react';
 import Image from 'next/image';
+import ReactMarkdown from 'react-markdown';
 
 interface NewsDetailSheetProps {
   isOpen: boolean;
@@ -218,17 +219,19 @@ export function NewsDetailSheet({
               <div className='space-y-4'>
                 <div>
                   <h4 className='mb-2 font-semibold'>Summary</h4>
-                  <p className='text-muted-foreground text-sm leading-relaxed'>
-                    {news.summary || 'No summary available.'}
-                  </p>
+                  <div className='prose prose-sm dark:prose-invert text-muted-foreground max-w-none text-sm leading-relaxed'>
+                    <ReactMarkdown>
+                      {news.summary || 'No summary available.'}
+                    </ReactMarkdown>
+                  </div>
                 </div>
 
                 {news.content && (
                   <div>
                     <h4 className='mb-2 font-semibold'>Content</h4>
-                    <p className='text-muted-foreground text-sm leading-relaxed whitespace-pre-wrap'>
-                      {news.content}
-                    </p>
+                    <div className='prose prose-sm dark:prose-invert text-muted-foreground max-w-none text-sm leading-relaxed whitespace-pre-wrap'>
+                      <ReactMarkdown>{news.content}</ReactMarkdown>
+                    </div>
                   </div>
                 )}
               </div>

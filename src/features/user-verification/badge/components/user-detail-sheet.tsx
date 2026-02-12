@@ -1,6 +1,6 @@
 'use client';
 
-import { VerificationRequest } from '../../services/user.service';
+import { VerificationRequest } from '../services/user.service';
 import {
   Sheet,
   SheetContent,

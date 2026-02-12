@@ -22,7 +22,8 @@ export const searchParams = {
   symbol: parseAsString.withDefault(''),
   publisher: parseAsString.withDefault(''),
   createdAt: parseAsArrayOf(parseAsInteger).withDefault([]),
-  isActive: parseAsArrayOf(parseAsString).withDefault([])
+  isActive: parseAsArrayOf(parseAsString).withDefault([]),
+  q: parseAsString.withDefault('')
 };
 
 export const searchParamsCache = createSearchParamsCache(searchParams);

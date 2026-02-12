@@ -75,13 +75,7 @@ export const navItems: NavItem[] = [
         title: 'Post Reports',
         url: '/dashboard/reports/posts',
         icon: 'post',
-        shortcut: ['p', 'p']
-      },
-      {
-        title: 'User Reports',
-        url: '/dashboard/reports/users',
-        icon: 'user',
-        shortcut: ['u', 'u']
+        shortcut: ['p', 'r']
       }
     ]
   },
