@@ -3,26 +3,29 @@ import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Icons } from '@/components/icons';
 import Link from 'next/link';
+import { getNewsAction } from '@/features/news-articles/actions/news-actions';
+import { NewsListing } from '@/features/news-articles/components/news-listing';
 
-export default function NewsArticlesPage() {
+export default async function NewsArticlesPage() {
+  const { data: news, totalCount } = await getNewsAction({
+    page: 1,
+    pageSize: 20
+  });
+
   return (
     <PageContainer
       pageTitle='News & Articles'
       pageDescription='Manage news and articles'
       pageHeaderAction={
-        <Link href='#' className={cn(buttonVariants(), 'text-xs md:text-sm')}>
+        <Link
+          href='/dashboard/news/new'
+          className={cn(buttonVariants(), 'text-xs md:text-sm')}
+        >
           <Icons.add className='mr-2 h-4 w-4' /> Create New
         </Link>
       }
     >
-      <div className='flex flex-col gap-4'>
-        {/* Placeholder for Data Table */}
-        <div className='rounded-md border p-4'>
-          <p className='text-muted-foreground text-sm'>
-            No news or articles found.
-          </p>
-        </div>
-      </div>
+      <NewsListing data={news} totalCount={totalCount} />
     </PageContainer>
   );
 }

@@ -1,8 +1,8 @@
 import PageContainer from '@/components/layout/page-container';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getVerificationRequests } from '@/features/user-verification/services/user.service';
-import { UserTable } from '@/features/user-verification/components/user-tables';
-import { columns } from '@/features/user-verification/components/user-tables/columns';
+import { getVerificationRequests } from '@/features/user-verification/badge/services/user.service';
+import { UserTable } from '@/features/user-verification/badge/components/user-tables';
+import { columns } from '@/features/user-verification/badge/components/user-tables/columns';
 import { searchParamsCache } from '@/lib/searchparams';
 
 export default async function BadgeVerificationPage({

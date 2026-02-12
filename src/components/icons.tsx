@@ -49,7 +49,8 @@ import {
   IconLock,
   IconGavel,
   IconPlug,
-  IconHistory
+  IconHistory,
+  IconPencil
 } from '@tabler/icons-react';
 
 export type Icon = React.ComponentType<IconProps>;
@@ -109,5 +110,6 @@ export const Icons = {
   rbac: IconLock,
   rules: IconGavel,
   integrations: IconPlug,
-  audit: IconHistory
+  audit: IconHistory,
+  edit: IconPencil
 };
