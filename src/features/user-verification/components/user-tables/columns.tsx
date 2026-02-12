@@ -61,6 +61,34 @@ export const columns: ColumnDef<VerificationRequest>[] = [
     enableColumnFilter: true
   },
   {
+    accessorKey: 'accountStatus',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Account' />
+    ),
+    cell: ({ row }) => <div>{row.getValue('accountStatus') || 'N/A'}</div>,
+    enableSorting: true
+  },
+  {
+    accessorKey: 'lastLogin',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Last Login' />
+    ),
+    cell: ({ row }) => (
+      <div className='whitespace-nowrap'>{row.getValue('lastLogin')}</div>
+    ),
+    enableSorting: true
+  },
+  {
+    accessorKey: 'date',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Joined At' />
+    ),
+    cell: ({ row }) => (
+      <div className='whitespace-nowrap'>{row.getValue('date')}</div>
+    ),
+    enableSorting: true
+  },
+  {
     accessorKey: 'status',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Status' />
@@ -102,36 +130,8 @@ export const columns: ColumnDef<VerificationRequest>[] = [
     enableColumnFilter: true
   },
   {
-    accessorKey: 'accountStatus',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Account' />
-    ),
-    cell: ({ row }) => <div>{row.getValue('accountStatus') || 'N/A'}</div>,
-    enableSorting: true
-  },
-  {
-    accessorKey: 'lastLogin',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Last Login' />
-    ),
-    cell: ({ row }) => (
-      <div className='whitespace-nowrap'>{row.getValue('lastLogin')}</div>
-    ),
-    enableSorting: true
-  },
-  {
-    accessorKey: 'date',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Joined At' />
-    ),
-    cell: ({ row }) => (
-      <div className='whitespace-nowrap'>{row.getValue('date')}</div>
-    ),
-    enableSorting: true
-  },
-  {
     id: 'actions',
-    header: () => <div className='text-right'>Actions</div>,
+    header: () => <div className='text-right'></div>,
     cell: ({ row }) => {
       const user = row.original;
       return (

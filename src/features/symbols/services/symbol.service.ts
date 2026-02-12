@@ -93,3 +93,9 @@ export async function upsertSymbol(data: Partial<SymbolData>) {
     });
   }
 }
+
+export async function deleteSymbol(id: string) {
+  return prisma.symbol.delete({
+    where: { id }
+  });
+}

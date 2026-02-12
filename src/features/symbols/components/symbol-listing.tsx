@@ -8,6 +8,9 @@ import { DataTable } from '@/components/ui/table/data-table';
 import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
 import { SymbolFormModal } from './symbol-form-modal';
 import { parseAsInteger, useQueryState } from 'nuqs';
+import { AlertModal } from '@/components/modal/alert-modal';
+import { deleteSymbolAction } from '../actions/symbol-actions';
+import { toast } from 'sonner';
 
 interface SymbolListingProps {
   data: SymbolData[];
@@ -18,13 +21,37 @@ export function SymbolListing({ data, totalCount }: SymbolListingProps) {
   const [editingSymbol, setEditingSymbol] = useState<SymbolData | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [pageSize] = useQueryState('perPage', parseAsInteger.withDefault(10));
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const handleEdit = (symbol: SymbolData) => {
     setEditingSymbol(symbol);
     setIsFormOpen(true);
   };
 
-  const columns = getColumns(handleEdit);
+  const handleDelete = (symbol: SymbolData) => {
+    setDeleteId(symbol.id);
+    setOpen(true);
+  };
+
+  const onConfirm = async () => {
+    try {
+      setLoading(true);
+      if (deleteId) {
+        await deleteSymbolAction(deleteId);
+        toast.success('Symbol deleted successfully.');
+        setOpen(false);
+        setDeleteId(null);
+      }
+    } catch (error) {
+      toast.error('Something went wrong.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const columns = getColumns(handleEdit, handleDelete);
 
   const { table } = useDataTable({
     data,
@@ -56,6 +83,15 @@ export function SymbolListing({ data, totalCount }: SymbolListingProps) {
           if (!open) setEditingSymbol(null);
         }}
         initialData={editingSymbol}
+      />
+      <AlertModal
+        isOpen={open}
+        onClose={() => {
+          setOpen(false);
+          setDeleteId(null);
+        }}
+        onConfirm={onConfirm}
+        loading={loading}
       />
     </div>
   );
