@@ -9,7 +9,7 @@ export default async function NewCustomers() {
 
   return (
     <StatsCard
-      title='New Customers'
+      title='New Users'
       value={stats.currentMonth}
       percentageChange={stats.percentageChange}
       trend={stats.trend}

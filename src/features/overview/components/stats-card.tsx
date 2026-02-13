@@ -1,4 +1,11 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
 import {
   IconArrowDownRight,
   IconArrowUpRight,
@@ -35,6 +42,16 @@ export function StatsCard({
         ? 'text-red-600 dark:text-red-400'
         : 'text-gray-600 dark:text-gray-400';
 
+  const badgeVariant = trend === 'neutral' ? 'secondary' : 'outline';
+
+  // Custom background colors for the badge based on trend
+  const badgeClass =
+    trend === 'up'
+      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-transparent'
+      : trend === 'down'
+        ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-transparent'
+        : '';
+
   const statusMessage =
     trend === 'down'
       ? 'Acquisition needs attention'
@@ -43,18 +60,13 @@ export function StatsCard({
         : 'Steady acquisition rate';
 
   return (
-    <Card>
+    <Card className='@container/card'>
       <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-        <CardTitle className='text-sm font-medium'>{title}</CardTitle>
-        <div
-          className={cn(
-            'flex items-center gap-1 text-sm font-medium',
-            trendColor
-          )}
-        >
-          <TrendIcon className='h-4 w-4' />
-          <span>{Math.abs(percentageChange)}%</span>
-        </div>
+        <CardDescription>{title}</CardDescription>
+        <Badge variant={badgeVariant} className={badgeClass}>
+          <TrendIcon className='mr-1 h-4 w-4' />
+          {Math.abs(percentageChange)}%
+        </Badge>
       </CardHeader>
       <CardContent>
         <div className='text-2xl font-bold'>{value.toLocaleString()}</div>

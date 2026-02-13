@@ -170,23 +170,27 @@ export default function AppSidebar() {
                     <IconUserCircle className='mr-2 h-4 w-4' />
                     Profile
                   </DropdownMenuItem>
-                  {organization && (
+                  {/* {organization && (
                     <DropdownMenuItem
                       onClick={() => router.push('/dashboard/billing')}
                     >
                       <IconCreditCard className='mr-2 h-4 w-4' />
                       Billing
                     </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem>
+                  )} */}
+                  {/* <DropdownMenuItem>
                     <IconBell className='mr-2 h-4 w-4' />
                     Notifications
-                  </DropdownMenuItem>
+                  </DropdownMenuItem> */}
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <IconLogout className='mr-2 h-4 w-4' />
-                  <SignOutButton redirectUrl='/auth/sign-in' />
+                <DropdownMenuItem className='p-0'>
+                  <SignOutButton redirectUrl='/auth/sign-in'>
+                    <div className='flex w-full cursor-pointer items-center px-2 py-1.5'>
+                      <IconLogout className='mr-2 h-4 w-4' />
+                      Sign out
+                    </div>
+                  </SignOutButton>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
