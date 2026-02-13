@@ -52,7 +52,9 @@ import {
   IconHistory,
   IconPencil,
   IconEyeOff,
-  IconEye
+  IconEye,
+  IconBuildingCommunity,
+  IconShieldCheck
 } from '@tabler/icons-react';
 
 export type Icon = React.ComponentType<IconProps>;
@@ -117,5 +119,7 @@ export const Icons = {
   moreVertical: IconDotsVertical,
   eyeOff: IconEyeOff,
   eye: IconEye,
-  fileText: IconFileText
+  fileText: IconFileText,
+  community: IconBuildingCommunity,
+  verification: IconShieldCheck
 };

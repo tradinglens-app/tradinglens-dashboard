@@ -82,7 +82,7 @@ export const navItems: NavItem[] = [
   {
     title: 'Community Moderation',
     url: '#',
-    icon: 'teams',
+    icon: 'community',
     isActive: true,
     items: [
       {
@@ -125,7 +125,7 @@ export const navItems: NavItem[] = [
   {
     title: 'User Verification',
     url: '#', // Placeholder
-    icon: 'users',
+    icon: 'verification',
     isActive: true,
     items: [
       {
