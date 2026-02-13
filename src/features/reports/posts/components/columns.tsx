@@ -29,6 +29,7 @@ export type PostReport = {
   reasons: ReportReason[];
   reportCount: number;
   date: string;
+  created_at: string;
 };
 
 export const columns: ColumnDef<PostReport>[] = [
@@ -93,19 +94,19 @@ export const columns: ColumnDef<PostReport>[] = [
       );
     }
   },
+  // {
+  //   accessorKey: 'status',
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title='Status' />
+  //   ),
+  //   cell: ({ row }) => <div>{row.getValue('status')}</div>
+  // },
   {
-    accessorKey: 'status',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Status' />
-    ),
-    cell: ({ row }) => <div>{row.getValue('status')}</div>
-  },
-  {
-    accessorKey: 'date',
+    accessorKey: 'created_at',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Date' />
     ),
-    cell: ({ row }) => <div>{row.getValue('date')}</div>
+    cell: ({ row }) => <div className='w-[150px]'>{row.original.date}</div>
   },
   {
     id: 'actions',

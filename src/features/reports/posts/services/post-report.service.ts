@@ -1,10 +1,92 @@
 import { prismaThread } from '@/lib/prisma-thread';
+import { format } from 'date-fns';
 import { PostReport } from '../components/columns';
 
-export const getPostReports = async (): Promise<PostReport[]> => {
-  // Group reports by threads_id and count them
+export interface GetPostReportsParams {
+  page?: number;
+  pageSize?: number;
+  id?: string;
+  postTitle?: string;
+  from?: string;
+  to?: string;
+}
+
+// Basic UUID regex check
+const isUUID = (str: string) =>
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+
+export const getPostReports = async (
+  params: GetPostReportsParams = {}
+): Promise<{ data: PostReport[]; totalCount: number }> => {
+  const { page = 1, pageSize = 10, id, postTitle, from, to } = params;
+
+  // 1. Filter Threads by Content (Post Title) first if provided
+  let threadIdsFromTitle: string[] | undefined;
+  if (postTitle) {
+    const matchingThreads = await prismaThread.threads.findMany({
+      where: {
+        content: {
+          contains: postTitle,
+          mode: 'insensitive'
+        }
+      },
+      select: { id: true }
+    });
+    threadIdsFromTitle = matchingThreads.map((t) => t.id);
+  }
+
+  // 2. Prepare where clause for Thread Reports
+  const where: any = {};
+
+  if (threadIdsFromTitle) {
+    where.threads_id = { in: threadIdsFromTitle };
+  }
+
+  if (id) {
+    if (isUUID(id)) {
+      // If filtering by ID (which is threads_id in this context logic),
+      // we need to combine it with potential title filter
+      if (where.threads_id) {
+        // Intersection of title matches and specific ID
+        if (threadIdsFromTitle?.includes(id)) {
+          where.threads_id = id;
+        } else {
+          // Title found some threads, ID is valid, but ID is not in title matches -> No result
+          where.threads_id = '00000000-0000-0000-0000-000000000000';
+        }
+      } else {
+        where.threads_id = id;
+      }
+    } else {
+      // Invalid UUID for ID search -> No result
+      where.threads_id = '00000000-0000-0000-0000-000000000000';
+    }
+  }
+
+  if (from || to) {
+    where.created_at = {};
+    if (from) where.created_at.gte = new Date(from);
+    if (to) where.created_at.lte = new Date(to);
+  }
+
+  console.log('Final where clause:', JSON.stringify(where, null, 2));
+
+  // 3. Get Total Count of unique threads matching criteria
+  // Since we group by threads_id, we need to count unique threads_id in the filtered reports
+  // Prisma groupBy doesn't give a direct total count of groups easily with pagination,
+  // so we might use a separate count or fetch all groups (if not too large) or distinct count.
+  // Performance-wise for this setup:
+  const distinctThreads = await prismaThread.threadReports.findMany({
+    where,
+    distinct: ['threads_id'],
+    select: { threads_id: true }
+  });
+  const totalCount = distinctThreads.length;
+
+  // 4. Fetch Paginated Grouped Reports
   const groupedReports = await prismaThread.threadReports.groupBy({
     by: ['threads_id'],
+    where,
     _count: {
       id: true
     },
@@ -16,7 +98,8 @@ export const getPostReports = async (): Promise<PostReport[]> => {
         created_at: 'desc'
       }
     },
-    take: 20
+    take: pageSize,
+    skip: (page - 1) * pageSize
   });
 
   // Get the thread IDs from grouped results
@@ -67,7 +150,7 @@ export const getPostReports = async (): Promise<PostReport[]> => {
     reportsByThread.get(report.threads_id)!.push(report);
   });
 
-  return groupedReports.map((grouped) => {
+  const data = groupedReports.map((grouped) => {
     const thread = threadMap.get(grouped.threads_id);
     const content = thread?.content || 'Content not found';
     const threadReports = reportsByThread.get(grouped.threads_id) || [];
@@ -110,22 +193,13 @@ export const getPostReports = async (): Promise<PostReport[]> => {
       reasons,
       reportCount: grouped._count.id,
       date: grouped._max.created_at
-        ? new Date(grouped._max.created_at).toLocaleString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
-          })
-        : new Date().toLocaleString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
-          })
+        ? format(new Date(grouped._max.created_at), 'MMM d, yyyy h:mm a')
+        : 'N/A',
+      created_at: grouped._max.created_at
+        ? grouped._max.created_at.toISOString()
+        : ''
     };
   });
+
+  return { data, totalCount };
 };

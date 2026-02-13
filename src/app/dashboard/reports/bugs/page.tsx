@@ -16,8 +16,10 @@ export default async function BugReportsPage(props: pageProps) {
   const page = searchParamsCache.get('page');
   const pageLimit = searchParamsCache.get('perPage');
   const search = searchParamsCache.get('q');
+  const id = searchParamsCache.get('id');
+  const topic = searchParamsCache.get('topic');
   const status = searchParamsCache.get('status');
-  const createdAt = searchParamsCache.get('createdAt');
+  const createdAt = searchParamsCache.get('created_at');
 
   const from = createdAt?.[0]
     ? new Date(createdAt[0]).toISOString()
@@ -28,6 +30,8 @@ export default async function BugReportsPage(props: pageProps) {
     page,
     pageSize: pageLimit,
     search,
+    id,
+    topic,
     status: status ? (Array.isArray(status) ? status : [status]) : undefined,
     from,
     to

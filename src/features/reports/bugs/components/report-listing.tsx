@@ -4,9 +4,8 @@ import { useState, useMemo, useCallback } from 'react';
 import { app_problem_report } from '@prisma/client';
 import { useDataTable } from '@/hooks/use-data-table';
 import { DataTable } from '@/components/ui/table/data-table';
-import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
+import { ReportTableToolbar } from './report-tables/report-table-toolbar';
 import { parseAsInteger, useQueryState } from 'nuqs';
-import { toast } from 'sonner';
 import { getColumns } from './report-tables/columns';
 import { ReportDetailSheet } from './report-detail-sheet';
 
@@ -52,7 +51,7 @@ export function ReportListing({ data, totalCount }: ReportListingProps) {
       </div>
 
       <DataTable table={table}>
-        <DataTableToolbar table={table} searchKey='topic' />
+        <ReportTableToolbar table={table} />
       </DataTable>
 
       <ReportDetailSheet

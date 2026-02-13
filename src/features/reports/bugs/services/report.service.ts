@@ -4,22 +4,57 @@ export interface GetBugReportsParams {
   page?: number;
   pageSize?: number;
   search?: string;
+  id?: string;
+  topic?: string;
   status?: string | string[];
   from?: string;
   to?: string;
 }
 
+// Basic UUID regex check
+const isUUID = (str: string) =>
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+
 export async function getBugReportsService(params: GetBugReportsParams = {}) {
-  const { page = 1, pageSize = 10, search, status, from, to } = params;
+  const {
+    page = 1,
+    pageSize = 10,
+    search,
+    id,
+    topic,
+    status,
+    from,
+    to
+  } = params;
 
   const where: any = {};
 
   if (search) {
-    where.OR = [
+    const searchConditions: any[] = [
       { topic: { contains: search, mode: 'insensitive' } },
-      { details: { contains: search, mode: 'insensitive' } },
-      { id: { contains: search, mode: 'insensitive' } }
+      { details: { contains: search, mode: 'insensitive' } }
     ];
+
+    if (isUUID(search)) {
+      searchConditions.push({ id: { equals: search } });
+    }
+
+    where.OR = searchConditions;
+  }
+
+  if (id) {
+    // If exact ID search is requested
+    if (isUUID(id)) {
+      where.id = { equals: id };
+    } else {
+      // If invalid UUID provided for explicit ID search, force no results
+      // or we could just ignore it, but 'no results' is more accurate for "id=invalid"
+      where.id = { equals: '00000000-0000-0000-0000-000000000000' }; // Dummy UUID
+    }
+  }
+
+  if (topic) {
+    where.topic = { contains: topic, mode: 'insensitive' };
   }
 
   if (status && status.length > 0) {

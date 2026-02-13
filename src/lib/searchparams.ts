@@ -11,7 +11,9 @@ export const searchParams = {
   perPage: parseAsInteger.withDefault(10),
   name: parseAsString,
   userName: parseAsString,
+  username: parseAsString,
   email: parseAsString,
+  date: parseAsArrayOf(parseAsInteger).withDefault([]),
   status: parseAsArrayOf(parseAsString),
   sort: parseAsString.withDefault('[{"id":"createdAt","desc":true}]'),
   gender: parseAsString,
@@ -22,9 +24,14 @@ export const searchParams = {
   symbol: parseAsString.withDefault(''),
   publisher: parseAsString.withDefault(''),
   createdAt: parseAsArrayOf(parseAsInteger).withDefault([]),
+  created_at: parseAsArrayOf(parseAsInteger).withDefault([]),
   isActive: parseAsArrayOf(parseAsString).withDefault([]),
   q: parseAsString.withDefault(''),
-  content: parseAsString.withDefault('')
+  id: parseAsString.withDefault(''),
+  topic: parseAsString.withDefault(''),
+  postTitle: parseAsString.withDefault(''),
+  content: parseAsString.withDefault(''),
+  accountStatus: parseAsArrayOf(parseAsString).withDefault([])
 };
 
 export const searchParamsCache = createSearchParamsCache(searchParams);
