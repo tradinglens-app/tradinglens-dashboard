@@ -2,7 +2,7 @@ import PageContainer from '@/components/layout/page-container';
 import { searchParamsCache } from '@/lib/searchparams';
 import { getSymbols } from '@/features/symbols/services/symbol.service';
 import { SymbolListing } from '@/features/symbols/components/symbol-listing';
-import { AddSymbolTrigger } from '@/features/symbols/components/add-symbol-trigger';
+import { Card, CardContent } from '@/components/ui/card';
 
 export default async function SymbolsDatabasePage({
   searchParams
@@ -35,7 +35,11 @@ export default async function SymbolsDatabasePage({
       pageDescription='Manage symbols and assets'
     >
       <div className='flex flex-1 flex-col gap-4'>
-        <SymbolListing data={data} totalCount={totalCount} />
+        <Card className='flex flex-1 flex-col'>
+          <CardContent className='flex flex-1 flex-col p-6'>
+            <SymbolListing data={data} totalCount={totalCount} />
+          </CardContent>
+        </Card>
       </div>
     </PageContainer>
   );

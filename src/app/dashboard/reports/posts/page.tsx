@@ -3,6 +3,7 @@ import { PostReportListing } from '@/features/reports/posts/components/post-repo
 import { getPostReports } from '@/features/reports/posts/services/post-report.service';
 import { searchParamsCache } from '@/lib/searchparams';
 import { SearchParams } from 'nuqs/server';
+import { Card, CardContent } from '@/components/ui/card';
 
 type pageProps = {
   searchParams: Promise<SearchParams>;
@@ -38,7 +39,11 @@ export default async function PostReportsPage(props: pageProps) {
         <div className='flex items-center justify-between space-y-2'>
           <h2 className='text-2xl font-bold tracking-tight'>Post Reports</h2>
         </div>
-        <PostReportListing data={data} totalCount={totalCount} />
+        <Card className='flex flex-1 flex-col'>
+          <CardContent className='flex flex-1 flex-col p-6'>
+            <PostReportListing data={data} totalCount={totalCount} />
+          </CardContent>
+        </Card>
       </div>
     </PageContainer>
   );

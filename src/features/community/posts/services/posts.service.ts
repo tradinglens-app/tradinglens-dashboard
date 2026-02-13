@@ -8,6 +8,7 @@ export interface Post extends Threads {
     username: string | null;
     profile_pic: string | null;
   };
+  type: string;
 }
 
 export interface GetPostsParams {
@@ -128,14 +129,23 @@ export async function getPosts(params: GetPostsParams = {}) {
   // 4. Map Users to Threads
   const userMap = new Map(users.map((u) => [u.user_id, u]));
 
-  const data: Post[] = threads.map((thread) => ({
-    ...thread,
-    user: userMap.get(thread.user_id) || {
-      name: 'Unknown User',
-      username: 'unknown',
-      profile_pic: null
-    }
-  }));
+  const data: Post[] = threads.map((thread) => {
+    let type = 'default';
+    if (thread.poll_id) type = 'poll';
+    else if (thread.company_info_id) type = 'company_info';
+    else if (thread.quoted_thread_id) type = 'quote';
+    else if (thread.news_id) type = 'news';
+
+    return {
+      ...thread,
+      type,
+      user: userMap.get(thread.user_id) || {
+        name: 'Unknown User',
+        username: 'unknown',
+        profile_pic: null
+      }
+    };
+  });
 
   return {
     data,

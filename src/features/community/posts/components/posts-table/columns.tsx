@@ -18,6 +18,12 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useState } from 'react';
 import { PostDetailSheet } from '../post-detail-sheet';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
 
 export const columns: ColumnDef<Post>[] = [
   {
@@ -40,9 +46,21 @@ export const columns: ColumnDef<Post>[] = [
       <DataTableColumnHeader column={column} title='Content' />
     ),
     cell: ({ row }) => (
-      <div className='max-w-[500px] truncate' title={row.getValue('content')}>
-        {row.getValue('content') || 'No content (Media only)'}
-      </div>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div
+              className='max-w-[500px] cursor-pointer truncate'
+              title={row.getValue('content')}
+            >
+              {row.getValue('content') || 'No content (Media only)'}
+            </div>
+          </TooltipTrigger>
+          <TooltipContent className='max-w-[500px] break-words'>
+            <p>{row.getValue('content') || 'No content (Media only)'}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     ),
     enableSorting: false,
     enableHiding: false,
@@ -118,7 +136,43 @@ export const columns: ColumnDef<Post>[] = [
       ]
     }
   },
+  {
+    accessorKey: 'type',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Type' />
+    ),
+    cell: ({ row }) => {
+      const type = row.getValue('type') as string;
+      const typeColors: Record<string, string> = {
+        poll: 'bg-blue-100 text-blue-800 hover:bg-blue-100/80',
+        company_info: 'bg-orange-100 text-orange-800 hover:bg-orange-100/80',
+        quote: 'bg-purple-100 text-purple-800 hover:bg-purple-100/80',
+        news: 'bg-green-100 text-green-800 hover:bg-green-100/80',
+        default: 'bg-gray-100 text-gray-800 hover:bg-gray-100/80'
+      };
 
+      return (
+        <div className='w-[80px]'>
+          <Badge
+            variant='secondary'
+            className={`capitalize ${typeColors[type] || typeColors.default}`}
+          >
+            {type?.replace('_', ' ') || 'Default'}
+          </Badge>
+        </div>
+      );
+    },
+    enableColumnFilter: true,
+    meta: {
+      options: [
+        { label: 'Default', value: 'default' },
+        { label: 'Poll', value: 'poll' },
+        { label: 'Company Info', value: 'company_info' },
+        { label: 'Quote', value: 'quote' },
+        { label: 'News', value: 'news' }
+      ]
+    }
+  },
   {
     accessorKey: 'created_at',
     header: ({ column }) => (

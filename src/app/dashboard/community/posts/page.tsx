@@ -18,7 +18,7 @@ export default async function PostsPage({
   const content = searchParamsCache.get('content');
   const id = searchParamsCache.get('id');
   const visibility = searchParamsCache.get('visibility');
-  const postType = searchParamsCache.get('post_type');
+  const type = searchParamsCache.get('type');
   const createdAt = searchParamsCache.get('created_at');
   const pageSize = searchParamsCache.get('perPage');
 
@@ -28,7 +28,7 @@ export default async function PostsPage({
     search: content || search,
     id,
     visibility,
-    type: postType,
+    type,
     created_at: createdAt
   });
 
