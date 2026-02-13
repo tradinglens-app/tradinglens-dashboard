@@ -6,6 +6,7 @@ import { PostReportTableToolbar } from './post-report-table-toolbar';
 import { columns, PostReport } from './columns';
 
 import { useQueryState, parseAsInteger } from 'nuqs';
+import { DEFAULT_PAGE_SIZE } from '@/constants/data-table-config';
 
 interface PostReportListingProps {
   data: PostReport[];
@@ -16,7 +17,10 @@ export function PostReportListing({
   data,
   totalCount
 }: PostReportListingProps) {
-  const [pageSize] = useQueryState('perPage', parseAsInteger.withDefault(10));
+  const [pageSize] = useQueryState(
+    'perPage',
+    parseAsInteger.withDefault(DEFAULT_PAGE_SIZE)
+  );
 
   const { table } = useDataTable({
     data,

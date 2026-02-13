@@ -10,6 +10,7 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/constants/data-table-config';
 import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons';
 
 interface DataTablePaginationProps<TData> extends React.ComponentProps<'div'> {
@@ -19,7 +20,7 @@ interface DataTablePaginationProps<TData> extends React.ComponentProps<'div'> {
 
 export function DataTablePagination<TData>({
   table,
-  pageSizeOptions = [10, 20, 30, 40, 50],
+  pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS,
   className,
   ...props
 }: DataTablePaginationProps<TData>) {

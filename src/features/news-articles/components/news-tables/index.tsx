@@ -24,8 +24,13 @@ interface NewsListingProps {
   totalCount: number;
 }
 
+import { DEFAULT_PAGE_SIZE } from '@/constants/data-table-config';
+
 export function NewsListing({ data, totalCount }: NewsListingProps) {
-  const [pageSize] = useQueryState('perPage', parseAsInteger.withDefault(10));
+  const [pageSize] = useQueryState(
+    'perPage',
+    parseAsInteger.withDefault(DEFAULT_PAGE_SIZE)
+  );
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);

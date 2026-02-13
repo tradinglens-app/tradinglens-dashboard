@@ -6,6 +6,7 @@ import { useDataTable } from '@/hooks/use-data-table';
 import { Post } from '../../services/posts.service';
 import { columns } from './columns';
 import { parseAsInteger, useQueryState } from 'nuqs';
+import { DEFAULT_PAGE_SIZE } from '@/constants/data-table-config';
 
 interface PostsTableProps {
   data: Post[];
@@ -13,7 +14,10 @@ interface PostsTableProps {
 }
 
 export function PostsTable({ data, totalItems }: PostsTableProps) {
-  const [pageSize] = useQueryState('perPage', parseAsInteger.withDefault(10));
+  const [pageSize] = useQueryState(
+    'perPage',
+    parseAsInteger.withDefault(DEFAULT_PAGE_SIZE)
+  );
   const pageCount = Math.ceil(totalItems / pageSize);
 
   const { table } = useDataTable({

@@ -7,6 +7,7 @@ import { DataTable } from '@/components/ui/table/data-table';
 import { ReportTableToolbar } from './report-table-toolbar';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { getColumns } from './columns';
+import { DEFAULT_PAGE_SIZE } from '@/constants/data-table-config';
 
 interface ReportListingProps {
   data: app_problem_report[];
@@ -14,7 +15,10 @@ interface ReportListingProps {
 }
 
 export function ReportListing({ data, totalCount }: ReportListingProps) {
-  const [pageSize] = useQueryState('perPage', parseAsInteger.withDefault(10));
+  const [pageSize] = useQueryState(
+    'perPage',
+    parseAsInteger.withDefault(DEFAULT_PAGE_SIZE)
+  );
 
   // Memoize columns to prevent unnecessary re-renders
   const columns = useMemo(() => getColumns(), []);

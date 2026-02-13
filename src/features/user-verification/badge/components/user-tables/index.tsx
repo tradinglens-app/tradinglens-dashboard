@@ -12,6 +12,7 @@ import { useState } from 'react';
 import { updateVerificationStatus } from '../../actions/user-actions';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { DEFAULT_PAGE_SIZE } from '@/constants/data-table-config';
 
 interface UserTableProps {
   data: VerificationRequest[];
@@ -19,7 +20,10 @@ interface UserTableProps {
 }
 
 export function UserTable({ data, totalItems }: UserTableProps) {
-  const [pageSize] = useQueryState('perPage', parseAsInteger.withDefault(10));
+  const [pageSize] = useQueryState(
+    'perPage',
+    parseAsInteger.withDefault(DEFAULT_PAGE_SIZE)
+  );
   const pageCount = Math.ceil(totalItems / pageSize);
   const router = useRouter();
 

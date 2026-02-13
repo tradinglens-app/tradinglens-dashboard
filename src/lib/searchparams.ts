@@ -5,10 +5,11 @@ import {
   parseAsInteger,
   parseAsString
 } from 'nuqs/server';
+import { DEFAULT_PAGE_SIZE } from '@/constants/data-table-config';
 
 export const searchParams = {
   page: parseAsInteger.withDefault(1),
-  perPage: parseAsInteger.withDefault(10),
+  perPage: parseAsInteger.withDefault(DEFAULT_PAGE_SIZE),
   name: parseAsString,
   userName: parseAsString,
   username: parseAsString,

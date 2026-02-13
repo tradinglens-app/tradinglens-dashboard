@@ -12,6 +12,7 @@ import { updateUserAccountStatusAction } from '../../actions/community-users-act
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { UserTableToolbar } from './user-table-toolbar';
+import { DEFAULT_PAGE_SIZE } from '@/constants/data-table-config';
 
 interface UsersTableProps {
   data: CommunityUser[];
@@ -19,7 +20,10 @@ interface UsersTableProps {
 }
 
 export function UsersTable({ data, totalItems }: UsersTableProps) {
-  const [pageSize] = useQueryState('perPage', parseAsInteger.withDefault(10));
+  const [pageSize] = useQueryState(
+    'perPage',
+    parseAsInteger.withDefault(DEFAULT_PAGE_SIZE)
+  );
   const pageCount = Math.ceil(totalItems / pageSize);
   const router = useRouter();
 

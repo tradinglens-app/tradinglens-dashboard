@@ -9,6 +9,7 @@ import { DataTable } from '@/components/ui/table/data-table';
 import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
 import { SymbolFormModal } from '../symbol-form-modal';
 import { parseAsInteger, useQueryState } from 'nuqs';
+import { DEFAULT_PAGE_SIZE } from '@/constants/data-table-config';
 import { AlertModal } from '@/components/modal/alert-modal';
 import { deleteSymbolAction } from '../../actions/symbol-actions';
 import { toast } from 'sonner';
@@ -23,7 +24,10 @@ interface SymbolListingProps {
 export function SymbolListing({ data, totalCount }: SymbolListingProps) {
   const [editingSymbol, setEditingSymbol] = useState<SymbolData | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [pageSize] = useQueryState('perPage', parseAsInteger.withDefault(10));
+  const [pageSize] = useQueryState(
+    'perPage',
+    parseAsInteger.withDefault(DEFAULT_PAGE_SIZE)
+  );
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);

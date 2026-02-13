@@ -29,6 +29,7 @@ import {
   useQueryStates
 } from 'nuqs';
 import * as React from 'react';
+import { DEFAULT_PAGE_SIZE } from '@/constants/data-table-config';
 
 import { useDebouncedCallback } from '@/hooks/use-debounced-callback';
 import { getSortingStateParser } from '@/lib/parsers';
@@ -118,7 +119,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     PER_PAGE_KEY,
     parseAsInteger
       .withOptions(queryStateOptions)
-      .withDefault(initialState?.pagination?.pageSize ?? 10)
+      .withDefault(initialState?.pagination?.pageSize ?? DEFAULT_PAGE_SIZE)
   );
 
   const pagination: PaginationState = React.useMemo(() => {
