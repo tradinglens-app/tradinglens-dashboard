@@ -1,6 +1,6 @@
 import { prismaThread } from '@/lib/prisma-thread';
 import { format } from 'date-fns';
-import { PostReport } from '../components/columns';
+import { PostReport } from '../components/post-report-table/columns';
 
 export interface GetPostReportsParams {
   page?: number;
