@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { MoreHorizontal, Trash, Copy, Eye } from 'lucide-react';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useState } from 'react';
 import { PostDetailSheet } from '../post-detail-sheet';
 
@@ -55,14 +56,29 @@ export const columns: ColumnDef<Post>[] = [
     cell: ({ row }) => {
       const user = row.original.user;
       return (
-        <div className='flex flex-col'>
-          <span className='font-medium'>{user?.name || 'Unknown'}</span>
-          <span className='text-muted-foreground text-xs'>
-            @{user?.username || 'unknown'}
-          </span>
+        <div className='flex items-center gap-2'>
+          <Avatar className='h-8 w-8 flex-shrink-0'>
+            <AvatarImage
+              src={user?.profile_pic || ''}
+              alt={user?.name || 'User'}
+            />
+            <AvatarFallback className='text-xs'>
+              {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+            </AvatarFallback>
+          </Avatar>
+          <div className='flex min-w-0 flex-col'>
+            <span className='truncate font-medium'>
+              {user?.name || 'Unknown'}
+            </span>
+            <span className='text-muted-foreground truncate text-xs'>
+              @{user?.username || 'unknown'}
+            </span>
+          </div>
         </div>
       );
-    }
+    },
+    enableSorting: false,
+    enableHiding: false
   },
   {
     accessorKey: 'parent_level',
@@ -92,9 +108,13 @@ export const columns: ColumnDef<Post>[] = [
     meta: {
       options: [
         { label: 'Public', value: 'public' },
-        { label: 'Followers', value: 'followers' },
         { label: 'Private', value: 'private' },
-        { label: 'Mention', value: 'mention' }
+        { label: 'Followers Only', value: 'followers_only' },
+        { label: 'Following Only', value: 'following_only' },
+        {
+          label: 'Followers & Following',
+          value: 'followers_and_following_only'
+        }
       ]
     }
   },

@@ -5,7 +5,7 @@ import { app_problem_report } from '@prisma/client';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, FileText, CheckCircle, X } from 'lucide-react';
+import { MoreHorizontal, FileText, CheckCircle, X, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   DropdownMenu,
@@ -149,8 +149,8 @@ export const getColumns = (
                 onClick={() => onDetail(row.original)}
                 className='cursor-pointer'
               >
-                <FileText className='mr-2 h-4 w-4' />
-                Detail
+                <Eye className='mr-2 h-4 w-4' />
+                View Details
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() =>

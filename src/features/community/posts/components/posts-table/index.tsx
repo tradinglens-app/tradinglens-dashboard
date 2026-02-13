@@ -22,7 +22,10 @@ export function PostsTable({ data, totalItems }: PostsTableProps) {
     pageCount,
     shallow: false,
     initialState: {
-      sorting: [{ id: 'created_at', desc: true }]
+      sorting: [{ id: 'created_at', desc: true }],
+      columnVisibility: {
+        type: true
+      }
     }
   });
 

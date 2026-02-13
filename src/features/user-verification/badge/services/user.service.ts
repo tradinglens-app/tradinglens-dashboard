@@ -6,7 +6,7 @@ export interface VerificationRequest {
   userName: string;
   username: string;
   email: string;
-  status: 'Verified' | 'Pending' | 'Rejected';
+  status: 'Verified' | 'Pending' | 'Unverified';
   date: string;
   created_at: string;
   accountStatus: string | null;
@@ -91,11 +91,28 @@ export async function getVerificationRequests(
 
   // Generic Search fallback
   if (search && !userName && !username && !email) {
-    where.OR = [
+    const searchConditions: any[] = [
       { name: { contains: search, mode: 'insensitive' } },
       { username: { contains: search, mode: 'insensitive' } },
       { email: { contains: search, mode: 'insensitive' } }
     ];
+
+    // Add status search
+    const searchLower = search.toLowerCase();
+    if (
+      searchLower.includes('verified') ||
+      searchLower.includes('unverified')
+    ) {
+      if (searchLower.includes('unverified')) {
+        searchConditions.push({ is_verified: false });
+      } else if (searchLower === 'verified') {
+        searchConditions.push({ is_verified: true });
+      }
+    } else if (searchLower.includes('pending')) {
+      searchConditions.push({ is_verified: false });
+    }
+
+    where.OR = searchConditions;
   }
 
   // Status filter (faceted)
@@ -109,13 +126,25 @@ export async function getVerificationRequests(
     if (statusArray.length > 0) {
       const includeVerified = statusArray.includes('Verified');
       const includePending = statusArray.includes('Pending');
+      const includeUnverified = statusArray.includes('Unverified');
 
-      if (includeVerified && !includePending) {
+      if (includeVerified && !includePending && !includeUnverified) {
         where.is_verified = true;
-      } else if (!includeVerified && includePending) {
+      } else if (!includeVerified && includePending && !includeUnverified) {
+        // For now, Pending is same as Unverified (is_verified = false)
+        // You can add additional logic here if you have a separate pending field
+        where.is_verified = false;
+      } else if (!includeVerified && !includePending && includeUnverified) {
+        where.is_verified = false;
+      } else if (includeVerified && includePending && !includeUnverified) {
+        // Verified OR Pending (true OR false) - no filter needed
+      } else if (includeVerified && !includePending && includeUnverified) {
+        // Verified OR Unverified - no practical filter
+      } else if (!includeVerified && includePending && includeUnverified) {
+        // Pending OR Unverified - both are false
         where.is_verified = false;
       }
-      // If both or none, we don't apply a filter on is_verified
+      // If all three are selected, no filter is applied
     }
   }
 
@@ -169,7 +198,7 @@ export async function getVerificationRequests(
     email: user.email || 'N/A',
     status: (user.is_verified
       ? 'Verified'
-      : 'Pending') as VerificationRequest['status'],
+      : 'Unverified') as VerificationRequest['status'],
     date: user.created_at
       ? format(new Date(user.created_at), 'yyyy-MM-dd')
       : 'N/A',

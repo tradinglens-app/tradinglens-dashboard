@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
-import { MoreHorizontal } from 'lucide-react';
+import { Eye, MoreHorizontal } from 'lucide-react';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -93,7 +93,37 @@ export const getColumns = (
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Account' />
     ),
-    cell: ({ row }) => <div>{row.getValue('accountStatus') || 'N/A'}</div>,
+    cell: ({ row }) => {
+      const status = (row.getValue('accountStatus') as string) || 'N/A';
+      return (
+        <Badge
+          variant={
+            status === 'NORMAL'
+              ? 'outline'
+              : status === 'BANNED' || status === 'SUSPENDED'
+                ? 'destructive'
+                : status === 'WARNING' ||
+                    status === 'LIMITED' ||
+                    status === 'RESTRICTED'
+                  ? 'secondary'
+                  : 'secondary'
+          }
+          className={
+            status === 'NORMAL'
+              ? 'border-green-200 bg-green-100 text-green-800'
+              : status === 'WARNING'
+                ? 'border-yellow-200 bg-yellow-100 text-yellow-800'
+                : status === 'LIMITED' || status === 'RESTRICTED'
+                  ? 'border-orange-200 bg-orange-100 text-orange-800'
+                  : status === 'UNDER_REVIEW'
+                    ? 'border-blue-200 bg-blue-100 text-blue-800'
+                    : ''
+          }
+        >
+          {status}
+        </Badge>
+      );
+    },
     enableSorting: true
   },
   {
@@ -134,16 +164,16 @@ export const getColumns = (
           variant={
             status === 'Verified'
               ? 'default'
-              : status === 'Rejected'
-                ? 'destructive'
-                : 'secondary'
+              : status === 'Pending'
+                ? 'secondary'
+                : 'outline'
           }
           className={
             status === 'Verified'
               ? 'bg-green-100 text-green-800 hover:bg-green-100'
               : status === 'Pending'
                 ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100'
-                : ''
+                : 'bg-gray-100 text-gray-800 hover:bg-gray-100'
           }
         >
           {status}
@@ -158,7 +188,8 @@ export const getColumns = (
       variant: 'multiSelect',
       options: [
         { label: 'Verified', value: 'Verified' },
-        { label: 'Pending', value: 'Pending' }
+        { label: 'Pending', value: 'Pending' },
+        { label: 'Unverified', value: 'Unverified' }
       ]
     },
     enableColumnFilter: true
@@ -181,8 +212,8 @@ export const getColumns = (
               onClick={() => onDetail(user)}
               className='cursor-pointer'
             >
-              <Icons.fileText className='mr-2 h-4 w-4' />
-              Detail
+              <Eye className='mr-2 h-4 w-4' />
+              View Details
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             {user.status !== 'Verified' && (

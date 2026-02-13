@@ -42,11 +42,30 @@ export function PostsTableToolbar<TData>({
           <DataTableFacetedFilter
             column={table.getColumn('visibility')}
             title='Visibility'
+            multiple={true}
             options={[
               { label: 'Public', value: 'public' },
-              { label: 'Followers', value: 'followers' },
               { label: 'Private', value: 'private' },
-              { label: 'Mention', value: 'mention' }
+              { label: 'Followers Only', value: 'followers_only' },
+              { label: 'Following Only', value: 'following_only' },
+              {
+                label: 'Followers & Following',
+                value: 'followers_and_following_only'
+              }
+            ]}
+          />
+        )}
+        {table.getColumn('type') && (
+          <DataTableFacetedFilter
+            column={table.getColumn('type')}
+            title='Type'
+            multiple={true}
+            options={[
+              { label: 'Default', value: 'default' },
+              { label: 'Poll', value: 'poll' },
+              { label: 'Company Info', value: 'company_info' },
+              { label: 'Quote', value: 'quote' },
+              { label: 'News', value: 'news' }
             ]}
           />
         )}

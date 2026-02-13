@@ -18,10 +18,11 @@ import {
 import { Button } from '@/components/ui/button';
 import {
   MoreHorizontal,
+  ArrowUpDown,
   FileText,
   UserCheck,
-  Ban,
-  AlertCircle
+  UserX,
+  Eye
 } from 'lucide-react';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -89,6 +90,46 @@ export const getColumns = (
     enableSorting: true
   },
   {
+    accessorKey: 'status',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Verified' />
+    ),
+    cell: ({ row }) => {
+      const status = row.getValue('status') as string;
+      return (
+        <Badge
+          variant={status === 'Verified' ? 'default' : 'secondary'}
+          className={
+            status === 'Verified'
+              ? 'bg-green-100 text-green-800 hover:bg-green-100'
+              : ''
+          }
+        >
+          {status}
+        </Badge>
+      );
+    },
+    enableSorting: true
+  },
+
+  {
+    accessorKey: 'created_at',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Joined At' />
+    ),
+    cell: ({ row }) => (
+      <div className='whitespace-nowrap'>
+        {formatDateApp(row.original.created_at)}
+      </div>
+    ),
+    enableSorting: true,
+
+    meta: {
+      variant: 'dateRange'
+    },
+    enableColumnFilter: true
+  },
+  {
     accessorKey: 'accountStatus',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Account' />
@@ -138,46 +179,6 @@ export const getColumns = (
     }
   },
   {
-    accessorKey: 'status',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Verified' />
-    ),
-    cell: ({ row }) => {
-      const status = row.getValue('status') as string;
-      return (
-        <Badge
-          variant={status === 'Verified' ? 'default' : 'secondary'}
-          className={
-            status === 'Verified'
-              ? 'bg-green-100 text-green-800 hover:bg-green-100'
-              : ''
-          }
-        >
-          {status}
-        </Badge>
-      );
-    },
-    enableSorting: true
-  },
-
-  {
-    accessorKey: 'created_at',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Joined At' />
-    ),
-    cell: ({ row }) => (
-      <div className='whitespace-nowrap'>
-        {formatDateApp(row.original.created_at)}
-      </div>
-    ),
-    enableSorting: true,
-
-    meta: {
-      variant: 'dateRange'
-    },
-    enableColumnFilter: true
-  },
-  {
     id: 'actions',
     cell: ({ row }) => {
       const user = row.original;
@@ -195,8 +196,8 @@ export const getColumns = (
               onClick={() => onDetail(user)}
               className='cursor-pointer'
             >
-              <FileText className='mr-2 h-4 w-4' />
-              Detail
+              <Eye className='mr-2 h-4 w-4' />
+              View Details
             </DropdownMenuItem>
             <DropdownMenuSeparator />
 

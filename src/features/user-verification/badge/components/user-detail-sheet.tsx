@@ -20,6 +20,7 @@ import {
   Activity,
   Clock
 } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface UserDetailSheetProps {
   isOpen: boolean;
@@ -39,29 +40,71 @@ export function UserDetailSheet({
       <SheetContent className='w-full p-0 sm:max-w-xl' side='right'>
         <div className='flex h-full flex-col'>
           <SheetHeader className='p-6 pb-2'>
-            <div className='flex items-start justify-between gap-4'>
-              <SheetTitle className='text-xl leading-tight font-bold'>
-                {user.userName}
-              </SheetTitle>
+            <div className='flex items-start gap-4'>
+              <Avatar className='h-16 w-16 flex-shrink-0'>
+                <AvatarImage
+                  src={user.profilePic || ''}
+                  alt={user.userName || 'User'}
+                />
+                <AvatarFallback className='text-lg'>
+                  {user.userName?.charAt(0)?.toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <div className='flex-1'>
+                <SheetTitle className='text-xl leading-tight font-bold'>
+                  {user.userName || 'Unknown User'}
+                </SheetTitle>
+                <p className='text-muted-foreground mt-1 text-sm'>
+                  @{user.username || 'unknown'}
+                </p>
+              </div>
             </div>
             <div className='mt-2 flex flex-wrap gap-2'>
               <Badge
                 variant={
                   user.status === 'Verified'
                     ? 'default'
-                    : user.status === 'Rejected'
-                      ? 'destructive'
-                      : 'secondary'
+                    : user.status === 'Pending'
+                      ? 'secondary'
+                      : 'outline'
                 }
                 className={
                   user.status === 'Verified'
                     ? 'bg-green-100 text-green-800 hover:bg-green-100'
                     : user.status === 'Pending'
                       ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100'
-                      : ''
+                      : 'bg-gray-100 text-gray-800 hover:bg-gray-100'
                 }
               >
                 {user.status}
+              </Badge>
+              <Badge
+                variant={
+                  user.accountStatus === 'NORMAL'
+                    ? 'outline'
+                    : user.accountStatus === 'BANNED' ||
+                        user.accountStatus === 'SUSPENDED'
+                      ? 'destructive'
+                      : user.accountStatus === 'WARNING' ||
+                          user.accountStatus === 'LIMITED' ||
+                          user.accountStatus === 'RESTRICTED'
+                        ? 'secondary'
+                        : 'secondary'
+                }
+                className={
+                  user.accountStatus === 'NORMAL'
+                    ? 'border-green-200 bg-green-100 text-green-800'
+                    : user.accountStatus === 'WARNING'
+                      ? 'border-yellow-200 bg-yellow-100 text-yellow-800'
+                      : user.accountStatus === 'LIMITED' ||
+                          user.accountStatus === 'RESTRICTED'
+                        ? 'border-orange-200 bg-orange-100 text-orange-800'
+                        : user.accountStatus === 'UNDER_REVIEW'
+                          ? 'border-blue-200 bg-blue-100 text-blue-800'
+                          : ''
+                }
+              >
+                {user.accountStatus || 'Unknown (Account)'}
               </Badge>
               <Badge variant='outline'>ID: {user.id}</Badge>
             </div>

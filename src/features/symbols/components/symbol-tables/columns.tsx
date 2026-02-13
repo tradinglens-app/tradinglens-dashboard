@@ -6,7 +6,7 @@ import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-h
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Edit, MoreHorizontal, Trash } from 'lucide-react';
+import { Edit, MoreHorizontal, Trash, Eye } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -81,7 +81,7 @@ export const getColumns = (
     ),
     meta: {
       label: 'Type',
-      variant: 'select',
+      variant: 'multiSelect',
       options: [
         { label: 'Stock', value: 'Stock' },
         { label: 'ETF', value: 'ETF' },
@@ -123,8 +123,8 @@ export const getColumns = (
             onClick={() => onDetail(row.original)}
             className='cursor-pointer'
           >
-            <Icons.fileText className='mr-2 h-4 w-4' />
-            Detail
+            <Eye className='mr-2 h-4 w-4' />
+            View Details
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => onEdit(row.original)}

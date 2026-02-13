@@ -6,6 +6,7 @@ import { NewsArticle } from '../../services/news.service';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
+import { Eye } from 'lucide-react';
 import { formatDateApp } from '@/lib/format';
 import {
   Tooltip,
@@ -232,8 +233,8 @@ export const getColumns = (
                   onClick={() => onDetail(news)}
                   className='cursor-pointer'
                 >
-                  <Icons.fileText className='mr-2 h-4 w-4' />
-                  Detail
+                  <Eye className='mr-2 h-4 w-4' />
+                  View Details
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem asChild>

@@ -15,7 +15,7 @@ export interface GetSymbolsParams {
   page?: number;
   pageSize?: number;
   search?: string;
-  type?: string;
+  type?: string[];
   exchange?: string;
   createdAt?: number[];
 }
@@ -32,8 +32,10 @@ export async function getSymbols(params: GetSymbolsParams = {}) {
     ];
   }
 
-  if (type) {
-    where.type = type;
+  if (type && type.length > 0) {
+    where.type = {
+      in: type
+    };
   }
 
   if (exchange) {

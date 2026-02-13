@@ -23,7 +23,7 @@ export default async function SymbolsDatabasePage({
     page,
     pageSize,
     search: search || undefined,
-    type: type || undefined,
+    type,
     exchange: exchange || undefined,
     createdAt: createdAt || undefined
   });

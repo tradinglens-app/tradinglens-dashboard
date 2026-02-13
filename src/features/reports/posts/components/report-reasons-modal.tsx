@@ -36,7 +36,7 @@ export function ReportReasonsModal({
       <DialogContent className='max-h-[80vh] max-w-2xl overflow-y-auto'>
         <DialogHeader>
           <DialogTitle>Report Reasons</DialogTitle>
-          <DialogDescription>
+          <DialogDescription asChild>
             <div className='mt-2'>
               <div className='text-foreground font-medium'>{postTitle}</div>
               <Badge variant='secondary' className='mt-2'>

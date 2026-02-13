@@ -17,6 +17,7 @@ export interface GetPostsParams {
   id?: string;
   created_at?: number[];
   visibility?: string[];
+  type?: string[];
 }
 
 export async function getPosts(params: GetPostsParams = {}) {
@@ -26,7 +27,8 @@ export async function getPosts(params: GetPostsParams = {}) {
     search,
     id,
     created_at,
-    visibility
+    visibility,
+    type
   } = params;
 
   const where: any = {
@@ -61,6 +63,38 @@ export async function getPosts(params: GetPostsParams = {}) {
         gte: new Date(start),
         lte: new Date(end)
       };
+    }
+  }
+
+  // Type filtering based on ID fields
+  if (type && type.length > 0) {
+    const typeConditions = [];
+
+    if (type.includes('poll')) {
+      typeConditions.push({ poll_id: { not: null } });
+    }
+    if (type.includes('company_info')) {
+      typeConditions.push({ company_info_id: { not: null } });
+    }
+    if (type.includes('quote')) {
+      typeConditions.push({ quoted_thread_id: { not: null } });
+    }
+    if (type.includes('news')) {
+      typeConditions.push({ news_id: { not: null } });
+    }
+    if (type.includes('default')) {
+      typeConditions.push({
+        AND: [
+          { poll_id: null },
+          { company_info_id: null },
+          { quoted_thread_id: null },
+          { news_id: null }
+        ]
+      });
+    }
+
+    if (typeConditions.length > 0) {
+      where.OR = typeConditions;
     }
   }
 

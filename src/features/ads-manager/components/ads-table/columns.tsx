@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Edit, Trash, FileText } from 'lucide-react';
+import { MoreHorizontal, Edit, Trash, FileText, Eye } from 'lucide-react';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -111,7 +111,7 @@ function ActionCell({ ad }: { ad: Ad }) {
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem asChild>
             <Link href={`/dashboard/ads-manager/${ad.id}`}>
-              <FileText className='mr-2 h-4 w-4' /> Detail
+              <Eye className='mr-2 h-4 w-4' /> View Details
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>

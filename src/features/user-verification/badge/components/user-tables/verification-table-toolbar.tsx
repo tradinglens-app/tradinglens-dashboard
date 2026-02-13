@@ -108,8 +108,10 @@ export function VerificationTableToolbar<TData>({
             title='Status'
             options={[
               { label: 'Verified', value: 'Verified' },
-              { label: 'Pending', value: 'Pending' }
+              { label: 'Pending', value: 'Pending' },
+              { label: 'Unverified', value: 'Unverified' }
             ]}
+            multiple
           />
         )}
 
