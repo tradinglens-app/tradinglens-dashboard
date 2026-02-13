@@ -15,8 +15,13 @@ import {
   IconTrendingUp,
   IconUsers
 } from '@tabler/icons-react';
-import React from 'react';
-import prisma from '@/lib/prisma';
+import React, { Suspense } from 'react';
+import { StatsCard } from '@/features/overview/components/stats-card';
+import { getDashboardStats } from '@/features/overview/services/dashboard-stats.service';
+import { AreaGraphSkeleton } from '@/features/overview/components/area-graph-skeleton';
+import { BarGraphSkeleton } from '@/features/overview/components/bar-graph-skeleton';
+import { PieGraphSkeleton } from '@/features/overview/components/pie-graph-skeleton';
+import { RecentSalesSkeleton } from '@/features/overview/components/recent-sales-skeleton';
 
 export default async function OverViewLayout({
   sales,
@@ -31,25 +36,7 @@ export default async function OverViewLayout({
   area_stats: React.ReactNode;
   new_customers: React.ReactNode;
 }) {
-  const userCount = await prisma.users.count();
-
-  // Count distinct users for iOS and Android
-  // Note: For large datasets, use raw query or aggregation. distinct findMany is acceptable for dashboard scale.
-  const iosCount = (
-    await prisma.user_devices.findMany({
-      where: { platform: 'ios' },
-      distinct: ['user_id'],
-      select: { user_id: true }
-    })
-  ).length;
-
-  const androidCount = (
-    await prisma.user_devices.findMany({
-      where: { platform: 'android' },
-      distinct: ['user_id'],
-      select: { user_id: true }
-    })
-  ).length;
+  const stats = await getDashboardStats();
 
   return (
     <PageContainer>
@@ -60,67 +47,43 @@ export default async function OverViewLayout({
           </h2>
         </div>
 
-        <div className='*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs md:grid-cols-2 lg:grid-cols-4'>
-          <Card className='@container/card'>
-            <CardHeader>
-              <CardDescription>Total Users</CardDescription>
-              <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                {userCount}
-              </CardTitle>
-              <CardAction>
-                <div className='bg-primary/10 text-primary rounded-full p-2'>
-                  <IconUsers className='size-5' />
-                </div>
-              </CardAction>
-            </CardHeader>
-            <CardFooter className='flex-col items-start gap-1.5 text-sm'>
-              <div className='text-muted-foreground'>
-                Total registered users
-              </div>
-            </CardFooter>
-          </Card>
+        <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4'>
+          <StatsCard
+            title='Total Users'
+            value={stats.totalUsers.current}
+            percentageChange={stats.totalUsers.percentageChange}
+            trend={stats.totalUsers.trend}
+            description='Total registered users across all platforms'
+          />
           {new_customers}
-          <Card className='@container/card'>
-            <CardHeader>
-              <CardDescription>iOS Users</CardDescription>
-              <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                {iosCount}
-              </CardTitle>
-              <CardAction>
-                <div className='bg-primary/10 text-primary rounded-full p-2'>
-                  <IconBrandApple className='size-5' />
-                </div>
-              </CardAction>
-            </CardHeader>
-            <CardFooter className='flex-col items-start gap-1.5 text-sm'>
-              <div className='text-muted-foreground'>Active on iOS</div>
-            </CardFooter>
-          </Card>
-          <Card className='@container/card'>
-            <CardHeader>
-              <CardDescription>Android Users</CardDescription>
-              <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                {androidCount}
-              </CardTitle>
-              <CardAction>
-                <div className='bg-primary/10 text-primary rounded-full p-2'>
-                  <IconBrandAndroid className='size-5' />
-                </div>
-              </CardAction>
-            </CardHeader>
-            <CardFooter className='flex-col items-start gap-1.5 text-sm'>
-              <div className='text-muted-foreground'>Active on Android</div>
-            </CardFooter>
-          </Card>
+          <StatsCard
+            title='iOS Users'
+            value={stats.iosUsers.current}
+            percentageChange={stats.iosUsers.percentageChange}
+            trend={stats.iosUsers.trend}
+            description='Total users with active iOS devices'
+          />
+          <StatsCard
+            title='Android Users'
+            value={stats.androidUsers.current}
+            percentageChange={stats.androidUsers.percentageChange}
+            trend={stats.androidUsers.trend}
+            description='Total users with active Android devices'
+          />
         </div>
         <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7'>
-          <div className='col-span-4'>{bar_stats}</div>
-          <div className='col-span-4 md:col-span-3'>
-            {/* sales arallel routes */}
-            {sales}
+          <div className='col-span-4'>
+            <Suspense fallback={<BarGraphSkeleton />}>{bar_stats}</Suspense>
           </div>
-          <div className='col-span-4'>{area_stats}</div>
-          <div className='col-span-4 md:col-span-3'>{pie_stats}</div>
+          <div className='col-span-4 md:col-span-3'>
+            <Suspense fallback={<RecentSalesSkeleton />}>{sales}</Suspense>
+          </div>
+          <div className='col-span-4'>
+            <Suspense fallback={<AreaGraphSkeleton />}>{area_stats}</Suspense>
+          </div>
+          <div className='col-span-4 md:col-span-3'>
+            <Suspense fallback={<PieGraphSkeleton />}>{pie_stats}</Suspense>
+          </div>
         </div>
       </div>
     </PageContainer>

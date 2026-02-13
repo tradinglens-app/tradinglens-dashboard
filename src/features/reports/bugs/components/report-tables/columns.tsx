@@ -5,7 +5,7 @@ import { app_problem_report } from '@prisma/client';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, FileText, CheckCircle, X, Eye } from 'lucide-react';
+import { MoreHorizontal, CheckCircle, X } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   DropdownMenu,
@@ -17,10 +17,14 @@ import {
 import { formatDateApp } from '@/lib/format';
 import { useState } from 'react';
 import { RejectDialog } from '@/components/ui/reject-dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
 
-export const getColumns = (
-  onDetail: (report: app_problem_report) => void
-): ColumnDef<app_problem_report>[] => [
+export const getColumns = (): ColumnDef<app_problem_report>[] => [
   {
     accessorKey: 'id',
     header: ({ column }) => (
@@ -51,6 +55,34 @@ export const getColumns = (
     enableColumnFilter: true,
     meta: {
       placeholder: 'Search Topic'
+    }
+  },
+  {
+    accessorKey: 'details',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Details' />
+    ),
+    cell: ({ row }) => {
+      const details = row.getValue('details') as string;
+      if (!details) return null;
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className='flex cursor-pointer space-x-2'>
+                <span className='max-w-[500px] truncate'>{details}</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent className='max-w-[400px] break-words'>
+              {details}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    },
+    enableColumnFilter: true,
+    meta: {
+      placeholder: 'Search Details'
     }
   },
   {
@@ -145,13 +177,6 @@ export const getColumns = (
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => onDetail(row.original)}
-                className='cursor-pointer'
-              >
-                <Eye className='mr-2 h-4 w-4' />
-                View Details
-              </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() =>
                   toast.info('Mark Fixed-in-Version action triggered')

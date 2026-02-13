@@ -40,49 +40,54 @@ export function StatsCard({
       ? 'text-green-600 dark:text-green-400'
       : trend === 'down'
         ? 'text-red-600 dark:text-red-400'
-        : 'text-gray-600 dark:text-gray-400';
+        : 'text-muted-foreground';
 
-  const badgeVariant = trend === 'neutral' ? 'secondary' : 'outline';
+  const badgeClass = cn(
+    'font-medium border-transparent',
+    trend === 'up' &&
+      'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+    trend === 'down' &&
+      'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+    trend === 'neutral' && 'bg-muted text-muted-foreground'
+  );
 
-  // Custom background colors for the badge based on trend
-  const badgeClass =
-    trend === 'up'
-      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-transparent'
-      : trend === 'down'
-        ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-transparent'
-        : '';
-
-  const statusMessage =
-    trend === 'down'
-      ? 'Acquisition needs attention'
-      : trend === 'up'
-        ? 'Great growth momentum'
-        : 'Steady acquisition rate';
+  const statusLabel =
+    trend === 'up' ? 'Trending up' : trend === 'down' ? 'Down' : 'Steady';
 
   return (
     <Card className='@container/card'>
       <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-        <CardDescription>{title}</CardDescription>
-        <Badge variant={badgeVariant} className={badgeClass}>
-          <TrendIcon className='mr-1 h-4 w-4' />
+        <div className='flex flex-col gap-1'>
+          <CardDescription className='text-xs font-medium tracking-wider uppercase'>
+            {title}
+          </CardDescription>
+          <CardTitle className='text-2xl font-bold'>
+            {value.toLocaleString()}
+          </CardTitle>
+        </div>
+        <Badge
+          variant='outline'
+          className={cn('h-6 px-2 text-[10px]', badgeClass)}
+        >
+          <TrendIcon className='mr-1 h-3 w-3' />
+          {trend === 'down' ? '-' : '+'}
           {Math.abs(percentageChange)}%
         </Badge>
       </CardHeader>
-      <CardContent>
-        <div className='text-2xl font-bold'>{value.toLocaleString()}</div>
-        <div className='mt-2 flex flex-col gap-1'>
-          <p className={cn('flex items-center gap-1 text-xs', trendColor)}>
-            <TrendIcon className='h-3 w-3' />
-            <span>
-              {trend === 'down' ? 'Down' : trend === 'up' ? 'Up' : 'No change'}{' '}
-              {Math.abs(percentageChange)}% this period
+      <CardContent className='pt-0'>
+        <div className='flex flex-col gap-1'>
+          <p className='flex items-center gap-1 text-[11px] font-medium'>
+            <span className={trendColor}>
+              {statusLabel} {Math.abs(percentageChange)}% this month
             </span>
+            <TrendIcon className={cn('h-3.5 w-3.5', trendColor)} />
           </p>
-          <p className='text-muted-foreground text-xs'>{statusMessage}</p>
+          {description && (
+            <p className='text-muted-foreground text-[10px] leading-relaxed'>
+              {description}
+            </p>
+          )}
         </div>
-        {description && (
-          <p className='text-muted-foreground mt-2 text-xs'>{description}</p>
-        )}
       </CardContent>
     </Card>
   );

@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import { app_problem_report } from '@prisma/client';
 import { useDataTable } from '@/hooks/use-data-table';
 import { DataTable } from '@/components/ui/table/data-table';
 import { ReportTableToolbar } from './report-table-toolbar';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { getColumns } from './columns';
-import { ReportDetailSheet } from '../report-detail-sheet';
 
 interface ReportListingProps {
   data: app_problem_report[];
@@ -17,18 +16,8 @@ interface ReportListingProps {
 export function ReportListing({ data, totalCount }: ReportListingProps) {
   const [pageSize] = useQueryState('perPage', parseAsInteger.withDefault(10));
 
-  // Detail Sheet State
-  const [selectedReport, setSelectedReport] =
-    useState<app_problem_report | null>(null);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
-
-  const handleDetail = useCallback((report: app_problem_report) => {
-    setSelectedReport(report);
-    setIsDetailOpen(true);
-  }, []);
-
   // Memoize columns to prevent unnecessary re-renders
-  const columns = useMemo(() => getColumns(handleDetail), [handleDetail]);
+  const columns = useMemo(() => getColumns(), []);
 
   const { table } = useDataTable({
     data,
@@ -54,12 +43,6 @@ export function ReportListing({ data, totalCount }: ReportListingProps) {
       <DataTable table={table}>
         <ReportTableToolbar table={table} />
       </DataTable>
-
-      <ReportDetailSheet
-        isOpen={isDetailOpen}
-        onClose={() => setIsDetailOpen(false)}
-        report={selectedReport}
-      />
     </div>
   );
 }

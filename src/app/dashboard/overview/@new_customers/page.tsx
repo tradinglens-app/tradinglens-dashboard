@@ -13,7 +13,7 @@ export default async function NewCustomers() {
       value={stats.currentMonth}
       percentageChange={stats.percentageChange}
       trend={stats.trend}
-      description='User distribution by platform'
+      description='New user registrations in the current period'
     />
   );
 }
