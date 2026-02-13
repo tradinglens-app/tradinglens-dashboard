@@ -27,8 +27,6 @@ export async function getPlatformAnalytics(): Promise<DailyPlatformStats[]> {
       ORDER BY date ASC
     `;
 
-    console.log('Raw platform analytics data:', result);
-
     // Transform the data into the format needed for the chart
     const datesMap = new Map<string, DailyPlatformStats>();
 
@@ -64,7 +62,6 @@ export async function getPlatformAnalytics(): Promise<DailyPlatformStats[]> {
     });
 
     const chartData = Array.from(datesMap.values());
-    console.log('Transformed daily platform data:', chartData.length, 'days');
 
     return chartData;
   } catch (error) {

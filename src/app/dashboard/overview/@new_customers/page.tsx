@@ -6,7 +6,6 @@ export default async function NewCustomers() {
   await delay(1000);
 
   const stats = await getNewCustomersStats();
-  console.log('New customers stats:', stats);
 
   return (
     <StatsCard

@@ -36,11 +36,6 @@ export async function getNewCustomersStats(): Promise<NewCustomersStats> {
       59
     );
 
-    console.log('Date ranges:', {
-      currentMonth: { start: currentMonthStart, end: currentMonthEnd },
-      previousMonth: { start: previousMonthStart, end: previousMonthEnd }
-    });
-
     // Count users created in current month
     const currentMonthCount = await prisma.users.count({
       where: {
@@ -59,11 +54,6 @@ export async function getNewCustomersStats(): Promise<NewCustomersStats> {
           lte: previousMonthEnd
         }
       }
-    });
-
-    console.log('User counts:', {
-      currentMonth: currentMonthCount,
-      previousMonth: previousMonthCount
     });
 
     // Calculate percentage change

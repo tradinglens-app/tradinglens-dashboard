@@ -6,7 +6,6 @@ export default async function BarStats() {
   await delay(1000);
 
   const dailyData = await getPlatformAnalytics();
-  console.log('Daily platform data for chart:', dailyData.length, 'days');
 
   return <BarGraph dailyData={dailyData} />;
 }
