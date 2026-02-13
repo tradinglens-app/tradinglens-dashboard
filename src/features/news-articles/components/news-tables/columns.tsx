@@ -6,7 +6,7 @@ import { NewsArticle } from '../../services/news.service';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
-import { format } from 'date-fns';
+import { formatDateApp } from '@/lib/format';
 import {
   Tooltip,
   TooltipContent,
@@ -122,7 +122,7 @@ export const getColumns = (
       const date = row.getValue('publishedDate') as Date;
       return (
         <div className='whitespace-nowrap'>
-          {format(new Date(date), 'MMM dd, yyyy')}
+          {formatDateApp(date, 'MMM d, yyyy h:mm a')}
         </div>
       );
     },
@@ -202,7 +202,7 @@ export const getColumns = (
     ),
     cell: ({ row }) => {
       const date = row.getValue('createdAt') as Date;
-      return date ? format(new Date(date), 'MMM dd, yyyy HH:mm') : '-';
+      return date ? formatDateApp(date) : '-';
     },
     enableSorting: true,
     meta: {

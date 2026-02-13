@@ -6,6 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import { Button } from '@/components/ui/button';
 import { Eye, MoreHorizontal, X } from 'lucide-react';
+import { formatDateApp } from '@/lib/format';
 import { useState } from 'react';
 import { ReportReasonsModal } from './report-reasons-modal';
 import {
@@ -106,7 +107,9 @@ export const columns: ColumnDef<PostReport>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Date' />
     ),
-    cell: ({ row }) => <div className='w-[150px]'>{row.original.date}</div>,
+    cell: ({ row }) => (
+      <div className='w-[150px]'>{formatDateApp(row.original.created_at)}</div>
+    ),
     enableSorting: true,
     filterFn: 'inNumberRange',
     meta: {

@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { formatDateApp } from '@/lib/format';
 
 import { ColumnDef } from '@tanstack/react-table';
 import { SymbolData } from '@/features/symbols/services/symbol.service';
@@ -97,7 +97,7 @@ export const getColumns = (
     cell: ({ row }) => {
       const date = row.original.createdAt;
       if (!date) return 'N/A';
-      return format(new Date(date), 'PP');
+      return formatDateApp(date);
     },
     enableColumnFilter: true,
     meta: {

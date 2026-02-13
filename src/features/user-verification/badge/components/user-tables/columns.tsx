@@ -2,6 +2,7 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '@/components/ui/badge';
+import { formatDateApp } from '@/lib/format';
 import { VerificationRequest } from '../../services/user.service';
 import {
   DropdownMenu,
@@ -111,7 +112,9 @@ export const getColumns = (
       <DataTableColumnHeader column={column} title='Joined At' />
     ),
     cell: ({ row }) => (
-      <div className='whitespace-nowrap'>{row.original.date}</div>
+      <div className='whitespace-nowrap'>
+        {formatDateApp(row.original.created_at)}
+      </div>
     ),
     enableSorting: true,
     meta: {

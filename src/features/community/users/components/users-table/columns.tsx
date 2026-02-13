@@ -1,6 +1,7 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
+import { formatDateApp } from '@/lib/format';
 import { Badge } from '@/components/ui/badge';
 import { CommunityUser } from '../../services/community-users.service';
 import {
@@ -158,23 +159,16 @@ export const getColumns = (
     },
     enableSorting: true
   },
-  {
-    accessorKey: 'lastLogin',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Last Login' />
-    ),
-    cell: ({ row }) => (
-      <div className='whitespace-nowrap'>{row.getValue('lastLogin')}</div>
-    ),
-    enableSorting: true
-  },
+
   {
     accessorKey: 'created_at',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Joined At' />
     ),
     cell: ({ row }) => (
-      <div className='whitespace-nowrap'>{row.original.date}</div>
+      <div className='whitespace-nowrap'>
+        {formatDateApp(row.original.created_at)}
+      </div>
     ),
     enableSorting: true,
 

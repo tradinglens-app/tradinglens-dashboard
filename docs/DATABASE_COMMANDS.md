@@ -47,7 +47,7 @@ bunx prisma generate --schema=prisma/schema_thread.prisma
 ### Open Prisma Studio
 View and edit data in the Supabase database.
 ```bash
-bunx prisma studio --schema=prisma/schema_thread.prisma
+bunx prisma studio --config=prisma-thread.config.ts
 ```
 
 ## Troubleshooting

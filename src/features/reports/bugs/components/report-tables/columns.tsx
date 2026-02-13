@@ -14,7 +14,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { format } from 'date-fns';
+import { formatDateApp } from '@/lib/format';
 import { useState } from 'react';
 import { RejectDialog } from '@/components/ui/reject-dialog';
 
@@ -109,7 +109,7 @@ export const getColumns = (
     cell: ({ row }) => {
       const date = row.getValue('created_at') as Date;
       if (!date) return 'N/A';
-      return format(new Date(date), 'PP p');
+      return formatDateApp(date);
     },
     enableSorting: true,
     filterFn: (row, id, value) => {
