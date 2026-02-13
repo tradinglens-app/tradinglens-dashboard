@@ -1,16 +1,16 @@
 'use client';
 
-import { SymbolDetailSheet } from './symbol-detail-sheet';
+import { SymbolDetailSheet } from '../symbol-detail-sheet';
 import { useState } from 'react';
-import { SymbolData } from '../services/symbol.service';
-import { getColumns } from './symbol-tables/columns';
+import { SymbolData } from '../../services/symbol.service';
+import { getColumns } from './columns';
 import { useDataTable } from '@/hooks/use-data-table';
 import { DataTable } from '@/components/ui/table/data-table';
 import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
-import { SymbolFormModal } from './symbol-form-modal';
+import { SymbolFormModal } from '../symbol-form-modal';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { AlertModal } from '@/components/modal/alert-modal';
-import { deleteSymbolAction } from '../actions/symbol-actions';
+import { deleteSymbolAction } from '../../actions/symbol-actions';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
@@ -69,6 +69,7 @@ export function SymbolListing({ data, totalCount }: SymbolListingProps) {
     data,
     columns,
     pageCount: Math.ceil(totalCount / pageSize),
+    rowCount: totalCount,
     shallow: false,
     debounceMs: 500,
     enableAdvancedFilter: false,

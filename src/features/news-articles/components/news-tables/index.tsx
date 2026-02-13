@@ -5,8 +5,8 @@ import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
 
 import { useState } from 'react';
-import { NewsArticle } from '../services/news.service';
-import { getColumns } from './news-tables/columns';
+import { NewsArticle } from '../../services/news.service';
+import { getColumns } from './columns';
 import { useDataTable } from '@/hooks/use-data-table';
 import { DataTable } from '@/components/ui/table/data-table';
 import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
@@ -15,9 +15,9 @@ import { AlertModal } from '@/components/modal/alert-modal';
 import {
   deleteNewsAction,
   toggleNewsActiveAction
-} from '../actions/news-actions';
+} from '../../actions/news-actions';
 import { toast } from 'sonner';
-import { NewsDetailSheet } from './news-detail-sheet';
+import { NewsDetailSheet } from '../news-detail-sheet';
 
 interface NewsListingProps {
   data: NewsArticle[];
@@ -90,6 +90,7 @@ export function NewsListing({ data, totalCount }: NewsListingProps) {
     data,
     columns,
     pageCount: Math.ceil(totalCount / pageSize),
+    rowCount: totalCount,
     shallow: false,
     debounceMs: 500,
     enableAdvancedFilter: false,

@@ -20,6 +20,7 @@ export function AdsTable({ data, totalItems }: AdsTableProps) {
     data,
     columns,
     pageCount,
+    rowCount: totalItems,
     shallow: false,
     initialState: {
       sorting: [{ id: 'id', desc: true }]

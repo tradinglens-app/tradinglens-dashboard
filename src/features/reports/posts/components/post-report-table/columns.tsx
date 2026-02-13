@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Eye, MoreHorizontal, X } from 'lucide-react';
 import { formatDateApp } from '@/lib/format';
 import { useState } from 'react';
-import { ReportReasonsModal } from './report-reasons-modal';
+import { ReportReasonsModal } from '../report-reasons-modal';
 import {
   DropdownMenu,
   DropdownMenuContent,

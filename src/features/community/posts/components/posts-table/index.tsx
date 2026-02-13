@@ -20,6 +20,7 @@ export function PostsTable({ data, totalItems }: PostsTableProps) {
     data,
     columns,
     pageCount,
+    rowCount: totalItems,
     shallow: false,
     initialState: {
       sorting: [{ id: 'created_at', desc: true }],

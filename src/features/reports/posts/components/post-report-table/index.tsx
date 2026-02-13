@@ -22,6 +22,7 @@ export function PostReportListing({
     data,
     columns,
     pageCount: Math.ceil(totalCount / pageSize),
+    rowCount: totalCount,
     shallow: false
   });
 

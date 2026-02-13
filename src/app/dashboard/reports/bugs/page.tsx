@@ -1,5 +1,5 @@
 import PageContainer from '@/components/layout/page-container';
-import { ReportListing } from '@/features/reports/bugs/components/report-listing';
+import { ReportListing } from '@/features/reports/bugs/components/report-tables';
 import { getBugReports } from '@/features/reports/bugs/actions/report-actions';
 import { searchParamsCache } from '@/lib/searchparams';
 import { SearchParams } from 'nuqs/server';

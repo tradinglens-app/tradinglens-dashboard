@@ -47,6 +47,7 @@ export function UsersTable({ data, totalItems }: UsersTableProps) {
     data,
     columns,
     pageCount: pageCount,
+    rowCount: totalItems,
     initialState: {
       sorting: [{ id: 'date', desc: true }]
     },

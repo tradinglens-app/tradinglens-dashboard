@@ -1,7 +1,7 @@
 import PageContainer from '@/components/layout/page-container';
 import { searchParamsCache } from '@/lib/searchparams';
 import { getSymbols } from '@/features/symbols/services/symbol.service';
-import { SymbolListing } from '@/features/symbols/components/symbol-listing';
+import { SymbolListing } from '@/features/symbols/components/symbol-tables';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default async function SymbolsDatabasePage({

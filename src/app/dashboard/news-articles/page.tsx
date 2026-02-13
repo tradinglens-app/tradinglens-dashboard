@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { Icons } from '@/components/icons';
 import Link from 'next/link';
 import { getNewsAction } from '@/features/news-articles/actions/news-actions';
-import { NewsListing } from '@/features/news-articles/components/news-listing';
+import { NewsListing } from '@/features/news-articles/components/news-tables';
 import { searchParamsCache } from '@/lib/searchparams';
 
 export default async function NewsArticlesPage({
