@@ -1,4 +1,8 @@
 'use client';
+import Link from 'next/link';
+import { Icons } from '@/components/icons';
+import { cn } from '@/lib/utils';
+import { buttonVariants } from '@/components/ui/button';
 
 import { useState } from 'react';
 import { NewsArticle } from '../services/news.service';
@@ -108,7 +112,17 @@ export function NewsListing({ data, totalCount }: NewsListingProps) {
   return (
     <div className='flex flex-1 flex-col space-y-4'>
       <DataTable table={table}>
-        <DataTableToolbar table={table} searchKey='title' />
+        <DataTableToolbar table={table} searchKey='title'>
+          <Link
+            href='/dashboard/news/new'
+            className={cn(
+              buttonVariants({ variant: 'default', size: 'sm' }),
+              'h-8'
+            )}
+          >
+            <Icons.add className='mr-2 h-4 w-4' /> Create New
+          </Link>
+        </DataTableToolbar>
       </DataTable>
       <AlertModal
         isOpen={open}

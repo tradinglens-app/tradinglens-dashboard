@@ -11,13 +11,13 @@ import { DataTableDateFilter } from '@/components/ui/table/data-table-date-filte
 import { useQueryState, parseAsString } from 'nuqs';
 import { useDebouncedCallback } from '@/hooks/use-debounced-callback';
 
-interface UserTableToolbarProps<TData> {
+interface VerificationTableToolbarProps<TData> {
   table: Table<TData>;
 }
 
-export function UserTableToolbar<TData>({
+export function VerificationTableToolbar<TData>({
   table
-}: UserTableToolbarProps<TData>) {
+}: VerificationTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
   // Separate states for each field
@@ -67,7 +67,7 @@ export function UserTableToolbar<TData>({
     <div className='flex items-center justify-between'>
       <div className='flex flex-1 items-center space-x-2'>
         <Input
-          placeholder='Name'
+          placeholder='Full Name'
           value={nameInput}
           onChange={(event) => {
             setNameInput(event.target.value);
@@ -102,18 +102,13 @@ export function UserTableToolbar<TData>({
           />
         )}
 
-        {table.getColumn('accountStatus') && (
+        {table.getColumn('status') && (
           <DataTableFacetedFilter
-            column={table.getColumn('accountStatus')}
-            title='Account Status'
+            column={table.getColumn('status')}
+            title='Status'
             options={[
-              { label: 'Normal', value: 'NORMAL' },
-              { label: 'Warning', value: 'WARNING' },
-              { label: 'Limited', value: 'LIMITED' },
-              { label: 'Restricted', value: 'RESTRICTED' },
-              { label: 'Suspended', value: 'SUSPENDED' },
-              { label: 'Banned', value: 'BANNED' },
-              { label: 'Under Review', value: 'UNDER_REVIEW' }
+              { label: 'Verified', value: 'Verified' },
+              { label: 'Pending', value: 'Pending' }
             ]}
           />
         )}

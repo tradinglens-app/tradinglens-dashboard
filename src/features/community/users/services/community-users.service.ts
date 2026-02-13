@@ -8,6 +8,7 @@ export interface CommunityUser {
   email: string;
   status: 'Verified' | 'Pending' | 'Rejected' | 'Unverified';
   date: string;
+  created_at: string;
   accountStatus:
     | 'NORMAL'
     | 'WARNING'
@@ -225,6 +226,7 @@ export async function getCommunityUsers(
     date: user.created_at
       ? format(new Date(user.created_at), 'yyyy-MM-dd')
       : 'N/A',
+    created_at: user.created_at ? user.created_at.toISOString() : '',
     accountStatus: user.account_status,
     lastLogin: user.last_login_at
       ? format(new Date(user.last_login_at), 'yyyy-MM-dd HH:mm')

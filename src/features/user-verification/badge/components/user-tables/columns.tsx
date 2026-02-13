@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
 import { MoreHorizontal } from 'lucide-react';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export const getColumns = (
   onDetail: (user: VerificationRequest) => void,
@@ -38,7 +39,18 @@ export const getColumns = (
       <DataTableColumnHeader column={column} title='Full Name' />
     ),
     cell: ({ row }) => (
-      <div className='max-w-[150px] truncate'>{row.getValue('userName')}</div>
+      <div className='flex items-center gap-2'>
+        <Avatar className='h-8 w-8'>
+          <AvatarImage
+            src={row.original.profilePic || ''}
+            alt={row.original.userName}
+          />
+          <AvatarFallback>
+            {row.original.userName.slice(0, 2).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+        <div className='max-w-[150px] truncate'>{row.getValue('userName')}</div>
+      </div>
     ),
     enableSorting: true,
     meta: {
@@ -56,7 +68,8 @@ export const getColumns = (
     cell: ({ row }) => (
       <div className='max-w-[120px] truncate'>@{row.getValue('username')}</div>
     ),
-    enableSorting: true
+    enableSorting: true,
+    enableColumnFilter: true
   },
   {
     accessorKey: 'email',
@@ -93,14 +106,18 @@ export const getColumns = (
     enableSorting: true
   },
   {
-    accessorKey: 'date',
+    accessorKey: 'created_at',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Joined At' />
     ),
     cell: ({ row }) => (
-      <div className='whitespace-nowrap'>{row.getValue('date')}</div>
+      <div className='whitespace-nowrap'>{row.original.date}</div>
     ),
-    enableSorting: true
+    enableSorting: true,
+    meta: {
+      variant: 'dateRange'
+    },
+    enableColumnFilter: true
   },
   {
     accessorKey: 'status',

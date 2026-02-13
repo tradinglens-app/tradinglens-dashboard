@@ -8,6 +8,7 @@ export interface VerificationRequest {
   email: string;
   status: 'Verified' | 'Pending' | 'Rejected';
   date: string;
+  created_at: string;
   accountStatus: string | null;
   lastLogin: string | null;
   // Additional fields
@@ -32,9 +33,12 @@ export interface GetVerificationRequestsParams {
   page?: number;
   pageSize?: number;
   userName?: string;
+  username?: string;
   email?: string;
   search?: string;
   status?: string | string[];
+  from?: string;
+  to?: string;
   sort?: string; // Format: "column.order" or JSON array
 }
 
@@ -52,8 +56,11 @@ export async function getVerificationRequests(
     pageSize = 10,
     search,
     userName,
+    username,
     email,
     status,
+    from,
+    to,
     sort
   } = params;
 
@@ -65,13 +72,25 @@ export async function getVerificationRequests(
     where.name = { contains: userName, mode: 'insensitive' };
   }
 
+  // Username filter
+  if (username) {
+    where.username = { contains: username, mode: 'insensitive' };
+  }
+
   // Email filter
   if (email) {
     where.email = { contains: email, mode: 'insensitive' };
   }
 
+  // Date range filter
+  if (from || to) {
+    where.created_at = {};
+    if (from) where.created_at.gte = new Date(from);
+    if (to) where.created_at.lte = new Date(to);
+  }
+
   // Generic Search fallback
-  if (search && !userName && !email) {
+  if (search && !userName && !username && !email) {
     where.OR = [
       { name: { contains: search, mode: 'insensitive' } },
       { username: { contains: search, mode: 'insensitive' } },
@@ -108,6 +127,7 @@ export async function getVerificationRequests(
     accountStatus: 'account_status',
     lastLogin: 'last_login_at',
     date: 'created_at',
+    created_at: 'created_at',
     createdAt: 'created_at',
     id: 'user_id'
   };
@@ -153,6 +173,7 @@ export async function getVerificationRequests(
     date: user.created_at
       ? format(new Date(user.created_at), 'yyyy-MM-dd')
       : 'N/A',
+    created_at: user.created_at ? user.created_at.toISOString() : '',
     accountStatus: user.account_status,
     lastLogin: user.last_login_at
       ? format(new Date(user.last_login_at), 'yyyy-MM-dd HH:mm')

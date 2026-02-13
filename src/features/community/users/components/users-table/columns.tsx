@@ -23,6 +23,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export const getColumns = (
   onDetail: (user: CommunityUser) => void,
@@ -45,9 +46,26 @@ export const getColumns = (
       <DataTableColumnHeader column={column} title='Full Name' />
     ),
     cell: ({ row }) => (
-      <div className='max-w-[150px] truncate'>{row.getValue('userName')}</div>
+      <div className='flex items-center gap-2'>
+        <Avatar className='h-8 w-8'>
+          <AvatarImage
+            src={row.original.profilePic || ''}
+            alt={row.original.userName}
+          />
+          <AvatarFallback>
+            {row.original.userName.slice(0, 2).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+        <div className='max-w-[150px] truncate'>{row.getValue('userName')}</div>
+      </div>
     ),
-    enableSorting: true
+    enableSorting: true,
+    meta: {
+      label: 'Full Name',
+      placeholder: 'Search name...',
+      variant: 'text'
+    },
+    enableColumnFilter: true
   },
   {
     accessorKey: 'username',
@@ -151,18 +169,19 @@ export const getColumns = (
     enableSorting: true
   },
   {
-    accessorKey: 'date',
+    accessorKey: 'created_at',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Joined At' />
     ),
     cell: ({ row }) => (
-      <div className='whitespace-nowrap'>{row.getValue('date')}</div>
+      <div className='whitespace-nowrap'>{row.original.date}</div>
     ),
     enableSorting: true,
-    filterFn: 'inNumberRange',
+
     meta: {
       variant: 'dateRange'
-    }
+    },
+    enableColumnFilter: true
   },
   {
     id: 'actions',

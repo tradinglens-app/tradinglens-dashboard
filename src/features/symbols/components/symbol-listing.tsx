@@ -12,6 +12,8 @@ import { parseAsInteger, useQueryState } from 'nuqs';
 import { AlertModal } from '@/components/modal/alert-modal';
 import { deleteSymbolAction } from '../actions/symbol-actions';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Icons } from '@/components/icons';
 
 interface SymbolListingProps {
   data: SymbolData[];
@@ -84,7 +86,16 @@ export function SymbolListing({ data, totalCount }: SymbolListingProps) {
   return (
     <div className='flex flex-1 flex-col space-y-4'>
       <DataTable table={table}>
-        <DataTableToolbar table={table} searchKey='symbol' />
+        <DataTableToolbar table={table} searchKey='symbol'>
+          <Button
+            size='sm'
+            variant='default'
+            className='h-8'
+            onClick={() => setIsFormOpen(true)}
+          >
+            <Icons.add className='mr-2 h-4 w-4' /> Add Symbol
+          </Button>
+        </DataTableToolbar>
       </DataTable>
       <SymbolFormModal
         open={isFormOpen}

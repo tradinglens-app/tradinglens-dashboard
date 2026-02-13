@@ -33,7 +33,6 @@ export default async function SymbolsDatabasePage({
       scrollable={false}
       pageTitle='Symbols Database'
       pageDescription='Manage symbols and assets'
-      pageHeaderAction={<AddSymbolTrigger />}
     >
       <div className='flex flex-1 flex-col gap-4'>
         <SymbolListing data={data} totalCount={totalCount} />

@@ -19,7 +19,7 @@ export default async function CommunityUsersPage({
   const email = searchParamsCache.get('email');
   const status = searchParamsCache.get('status'); // verification status
   const accountStatus = searchParamsCache.get('accountStatus');
-  const dateRange = searchParamsCache.get('date');
+  const dateRange = searchParamsCache.get('created_at');
   const pageLimit = searchParamsCache.get('perPage');
   const sort = searchParamsCache.get('sort');
 

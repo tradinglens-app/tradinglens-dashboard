@@ -14,17 +14,27 @@ export default async function BadgeVerificationPage({
 
   const page = searchParamsCache.get('page');
   const search = searchParamsCache.get('userName');
+  const username = searchParamsCache.get('username');
   const email = searchParamsCache.get('email');
   const status = searchParamsCache.get('status');
+  const createdAt = searchParamsCache.get('created_at');
   const pageLimit = searchParamsCache.get('perPage');
   const sort = searchParamsCache.get('sort');
+
+  const from = createdAt?.[0]
+    ? new Date(createdAt[0]).toISOString()
+    : undefined;
+  const to = createdAt?.[1] ? new Date(createdAt[1]).toISOString() : undefined;
 
   const filters = {
     page,
     pageSize: pageLimit,
     userName: search || undefined,
+    username: username || undefined,
     email: email || undefined,
     status: status ?? undefined,
+    from,
+    to,
     sort: sort as string
   };
 

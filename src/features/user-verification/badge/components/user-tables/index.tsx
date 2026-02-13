@@ -1,7 +1,7 @@
 'use client';
 
 import { DataTable } from '@/components/ui/table/data-table';
-import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
+import { VerificationTableToolbar } from './verification-table-toolbar';
 import { useDataTable } from '@/hooks/use-data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { parseAsInteger, useQueryState } from 'nuqs';
@@ -69,7 +69,7 @@ export function UserTable({ data, totalItems }: UserTableProps) {
   return (
     <>
       <DataTable table={table}>
-        <DataTableToolbar table={table} />
+        <VerificationTableToolbar table={table} />
       </DataTable>
       <UserDetailSheet
         isOpen={isDetailOpen}

@@ -58,12 +58,6 @@ export default async function NewsArticlesPage({
       <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-center justify-between space-y-2'>
           <h2 className='text-2xl font-bold tracking-tight'>News & Articles</h2>
-          <Link
-            href='/dashboard/news/new'
-            className={cn(buttonVariants(), 'text-xs md:text-sm')}
-          >
-            <Icons.add className='mr-2 h-4 w-4' /> Create New
-          </Link>
         </div>
         {totalCount === 0 && (
           <div className='mb-4 rounded-lg border border-yellow-200 bg-yellow-50 p-4'>

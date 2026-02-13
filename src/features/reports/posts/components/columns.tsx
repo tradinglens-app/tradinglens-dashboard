@@ -106,7 +106,13 @@ export const columns: ColumnDef<PostReport>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Date' />
     ),
-    cell: ({ row }) => <div className='w-[150px]'>{row.original.date}</div>
+    cell: ({ row }) => <div className='w-[150px]'>{row.original.date}</div>,
+    enableSorting: true,
+    filterFn: 'inNumberRange',
+    meta: {
+      variant: 'dateRange'
+    },
+    enableColumnFilter: true
   },
   {
     id: 'actions',
