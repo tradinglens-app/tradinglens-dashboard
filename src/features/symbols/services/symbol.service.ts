@@ -39,7 +39,7 @@ export async function getSymbols(params: GetSymbolsParams = {}) {
   }
 
   if (exchange) {
-    where.exchange_short_name = exchange;
+    where.exchange_short_name = { contains: exchange, mode: 'insensitive' };
   }
 
   if (createdAt && createdAt.length === 2) {

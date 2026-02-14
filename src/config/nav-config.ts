@@ -155,6 +155,12 @@ export const navItems: NavItem[] = [
     icon: 'database',
     items: []
   },
+  {
+    title: 'In-App Announcements',
+    url: '/dashboard/announcements',
+    icon: 'notification',
+    items: []
+  },
   // {
   //   title: 'Campaigns',
   //   url: '/dashboard/campaigns',
