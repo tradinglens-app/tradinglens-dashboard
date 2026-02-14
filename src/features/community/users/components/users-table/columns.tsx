@@ -2,6 +2,7 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 import { formatDateApp } from '@/lib/format';
+import { DateCell } from '@/components/ui/date-cell';
 import { Badge } from '@/components/ui/badge';
 import { CommunityUser } from '../../services/community-users.service';
 import {
@@ -118,11 +119,7 @@ export const getColumns = (
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Joined At' />
     ),
-    cell: ({ row }) => (
-      <div className='whitespace-nowrap'>
-        {formatDateApp(row.original.created_at)}
-      </div>
-    ),
+    cell: ({ row }) => <DateCell date={row.original.created_at} />,
     enableSorting: true,
 
     meta: {

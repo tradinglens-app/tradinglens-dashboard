@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { formatDateApp } from '@/lib/format';
+import { DateCell } from '@/components/ui/date-cell';
 import { useState } from 'react';
 import { RejectDialog } from '@/components/ui/reject-dialog';
 import {
@@ -143,11 +144,7 @@ export const getColumns = (
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Created At' />
     ),
-    cell: ({ row }) => {
-      const date = row.getValue('created_at') as Date;
-      if (!date) return 'N/A';
-      return formatDateApp(date);
-    },
+    cell: ({ row }) => <DateCell date={row.getValue('created_at')} />,
     enableSorting: true,
     filterFn: (row, id, value) => {
       const date = new Date(row.getValue(id));

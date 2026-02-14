@@ -2,6 +2,7 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 import { formatDateApp } from '@/lib/format';
+import { DateCell } from '@/components/ui/date-cell';
 import { Post } from '../../services/posts.service';
 import {
   DropdownMenu,
@@ -187,11 +188,7 @@ export const getColumns = (
       <DataTableColumnHeader column={column} title='Created At' />
     ),
     cell: ({ row }) => {
-      return (
-        <div className='text-xs whitespace-nowrap'>
-          {formatDateApp(row.getValue('created_at'))}
-        </div>
-      );
+      return <DateCell date={row.getValue('created_at')} className='text-xs' />;
     },
     size: 150,
     enableColumnFilter: true,

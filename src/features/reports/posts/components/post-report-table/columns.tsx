@@ -7,6 +7,7 @@ import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-h
 import { Button } from '@/components/ui/button';
 import { Eye, MoreHorizontal, X } from 'lucide-react';
 import { formatDateApp } from '@/lib/format';
+import { DateCell } from '@/components/ui/date-cell';
 import { useState } from 'react';
 import { ReportReasonsModal } from '../report-reasons-modal';
 import {
@@ -107,11 +108,7 @@ export const columns: ColumnDef<PostReport>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Date' />
     ),
-    cell: ({ row }) => (
-      <div className='whitespace-nowrap'>
-        {formatDateApp(row.original.created_at)}
-      </div>
-    ),
+    cell: ({ row }) => <DateCell date={row.original.created_at} />,
     size: 180,
     enableSorting: true,
     filterFn: 'inNumberRange',
