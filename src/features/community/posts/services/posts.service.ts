@@ -114,7 +114,12 @@ export async function getPosts(params: GetPostsParams = {}) {
   const userIds = Array.from(new Set(threads.map((t) => t.user_id)));
 
   // 3. Fetch Users from Main DB
-  const users = await prismaMain.users.findMany({
+  const users: Array<{
+    user_id: number;
+    name: string;
+    username: string;
+    profile_pic: string | null;
+  }> = await prismaMain.users.findMany({
     where: {
       user_id: { in: userIds }
     },
