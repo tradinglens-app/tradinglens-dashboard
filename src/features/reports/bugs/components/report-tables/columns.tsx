@@ -31,10 +31,11 @@ export const getColumns = (): ColumnDef<app_problem_report>[] => [
       <DataTableColumnHeader column={column} title='ID' />
     ),
     cell: ({ row }) => (
-      <div className='w-full truncate' title={row.getValue('id')}>
+      <div className='truncate' title={row.getValue('id')}>
         {row.getValue('id')}
       </div>
     ),
+    size: 280,
     enableSorting: false,
     enableHiding: false
   },
@@ -46,12 +47,11 @@ export const getColumns = (): ColumnDef<app_problem_report>[] => [
     cell: ({ row }) => {
       return (
         <div className='flex space-x-2'>
-          <span className='max-w-[500px] truncate font-medium'>
-            {row.getValue('topic')}
-          </span>
+          <span className='truncate font-medium'>{row.getValue('topic')}</span>
         </div>
       );
     },
+    size: 250,
     enableColumnFilter: true,
     meta: {
       placeholder: 'Search Topic'
@@ -70,7 +70,7 @@ export const getColumns = (): ColumnDef<app_problem_report>[] => [
           <Tooltip>
             <TooltipTrigger asChild>
               <div className='flex cursor-pointer space-x-2'>
-                <span className='max-w-[500px] truncate'>{details}</span>
+                <span className='truncate'>{details}</span>
               </div>
             </TooltipTrigger>
             <TooltipContent className='max-w-[400px] break-words'>

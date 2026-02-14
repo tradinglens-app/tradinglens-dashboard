@@ -23,7 +23,8 @@ export const columns: ColumnDef<Ad>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='ID' />
     ),
-    cell: ({ row }) => <div className='w-[80px]'>{row.getValue('id')}</div>,
+    cell: ({ row }) => <div className='truncate'>{row.getValue('id')}</div>,
+    size: 80,
     enableSorting: true,
     enableHiding: false
   },
@@ -33,10 +34,11 @@ export const columns: ColumnDef<Ad>[] = [
       <DataTableColumnHeader column={column} title='Title (EN)' />
     ),
     cell: ({ row }) => (
-      <div className='max-w-[200px] truncate' title={row.getValue('title_en')}>
+      <div className='truncate' title={row.getValue('title_en')}>
         {row.getValue('title_en')}
       </div>
     ),
+    size: 200,
     enableColumnFilter: true
   },
   {
@@ -45,10 +47,11 @@ export const columns: ColumnDef<Ad>[] = [
       <DataTableColumnHeader column={column} title='Title (TH)' />
     ),
     cell: ({ row }) => (
-      <div className='max-w-[200px] truncate' title={row.getValue('title_th')}>
+      <div className='truncate' title={row.getValue('title_th')}>
         {row.getValue('title_th')}
       </div>
     ),
+    size: 200,
     enableColumnFilter: true
   },
   {
@@ -57,13 +60,11 @@ export const columns: ColumnDef<Ad>[] = [
       <DataTableColumnHeader column={column} title='Description (EN)' />
     ),
     cell: ({ row }) => (
-      <div
-        className='max-w-[300px] truncate'
-        title={row.getValue('description_en')}
-      >
+      <div className='truncate' title={row.getValue('description_en')}>
         {row.getValue('description_en')}
       </div>
     ),
+    size: 250,
     enableColumnFilter: true
   },
   {
@@ -72,13 +73,11 @@ export const columns: ColumnDef<Ad>[] = [
       <DataTableColumnHeader column={column} title='Description (TH)' />
     ),
     cell: ({ row }) => (
-      <div
-        className='max-w-[300px] truncate'
-        title={row.getValue('description_th')}
-      >
+      <div className='truncate' title={row.getValue('description_th')}>
         {row.getValue('description_th')}
       </div>
     ),
+    size: 250,
     enableColumnFilter: true
   },
   {

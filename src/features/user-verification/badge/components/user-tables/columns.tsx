@@ -29,8 +29,9 @@ export const getColumns = (
       <DataTableColumnHeader column={column} title='ID' />
     ),
     cell: ({ row }) => (
-      <div className='w-[80px] font-medium'>{row.getValue('id')}</div>
+      <div className='truncate font-medium'>{row.getValue('id')}</div>
     ),
+    size: 80,
     enableSorting: true,
     enableHiding: false
   },
@@ -50,7 +51,7 @@ export const getColumns = (
             {row.original.userName.slice(0, 2).toUpperCase()}
           </AvatarFallback>
         </Avatar>
-        <div className='max-w-[150px] truncate'>{row.getValue('userName')}</div>
+        <div className='truncate'>{row.getValue('userName')}</div>
       </div>
     ),
     enableSorting: true,
@@ -67,7 +68,7 @@ export const getColumns = (
       <DataTableColumnHeader column={column} title='Username' />
     ),
     cell: ({ row }) => (
-      <div className='max-w-[120px] truncate'>@{row.getValue('username')}</div>
+      <div className='truncate'>@{row.getValue('username')}</div>
     ),
     enableSorting: true,
     enableColumnFilter: true
@@ -77,9 +78,7 @@ export const getColumns = (
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Email' />
     ),
-    cell: ({ row }) => (
-      <div className='max-w-[180px] truncate'>{row.getValue('email')}</div>
-    ),
+    cell: ({ row }) => <div className='truncate'>{row.getValue('email')}</div>,
     enableSorting: true,
     meta: {
       label: 'Email',

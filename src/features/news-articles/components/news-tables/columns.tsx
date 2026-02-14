@@ -37,7 +37,7 @@ export const getColumns = (
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className='flex max-w-[500px] cursor-pointer gap-3'>
+            <div className='flex cursor-pointer gap-3'>
               {row.original.imageUrl && (
                 <img
                   src={row.original.imageUrl}
@@ -103,9 +103,7 @@ export const getColumns = (
       <DataTableColumnHeader column={column} title='Publisher' />
     ),
     cell: ({ row }) => (
-      <div className='max-w-[120px] truncate'>
-        {row.getValue('publisher') || 'N/A'}
-      </div>
+      <div className='truncate'>{row.getValue('publisher') || 'N/A'}</div>
     ),
     enableSorting: true,
     meta: {
