@@ -1,6 +1,6 @@
 'use client';
 
-import { app_problem_report } from '@prisma/client';
+import { app_problem_report } from '@/generated/prisma-client';
 import {
   Sheet,
   SheetContent,

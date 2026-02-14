@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { app_problem_report } from '@prisma/client';
+import { app_problem_report } from '@/generated/prisma-client';
 import { useDataTable } from '@/hooks/use-data-table';
 import { DataTable } from '@/components/ui/table/data-table';
 import { ReportTableToolbar } from './report-table-toolbar';
