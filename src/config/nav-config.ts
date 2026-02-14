@@ -155,18 +155,24 @@ export const navItems: NavItem[] = [
     icon: 'database',
     items: []
   },
+  {
+    title: 'In-App Announcements',
+    url: '/dashboard/announcements',
+    icon: 'notification',
+    items: []
+  },
   // {
   //   title: 'Campaigns',
   //   url: '/dashboard/campaigns',
   //   icon: 'campaign',
   //   items: []
   // },
-  // {
-  //   title: 'Notifications Center',
-  //   url: '/dashboard/notifications',
-  //   icon: 'notification',
-  //   items: []
-  // },
+  {
+    title: 'Notifications',
+    url: '/dashboard/notifications',
+    icon: 'notification',
+    items: []
+  },
   {
     title: 'Settings',
     url: '#',

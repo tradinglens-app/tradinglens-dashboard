@@ -1,7 +1,10 @@
 import PageContainer from '@/components/layout/page-container';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-import { getPosts } from '@/features/community/posts/services/posts.service';
+import {
+  getPosts,
+  getPostEnumValues
+} from '@/features/community/posts/services/posts.service';
 import { PostsTable } from '@/features/community/posts/components/posts-table';
 import { searchParamsCache } from '@/lib/searchparams';
 
@@ -22,15 +25,18 @@ export default async function PostsPage({
   const createdAt = searchParamsCache.get('created_at');
   const pageSize = searchParamsCache.get('perPage');
 
-  const { data, totalCount } = await getPosts({
-    page,
-    pageSize,
-    search: content || search,
-    id,
-    visibility,
-    type,
-    created_at: createdAt
-  });
+  const [{ data, totalCount }, enumValues] = await Promise.all([
+    getPosts({
+      page,
+      pageSize,
+      search: content || search,
+      id,
+      visibility,
+      type,
+      created_at: createdAt
+    }),
+    getPostEnumValues()
+  ]);
 
   return (
     <PageContainer
@@ -44,7 +50,11 @@ export default async function PostsPage({
             <CardTitle>Community Posts</CardTitle>
           </CardHeader>
           <CardContent className='flex flex-1 flex-col'>
-            <PostsTable data={data} totalItems={totalCount} />
+            <PostsTable
+              data={data}
+              totalItems={totalCount}
+              enumValues={enumValues}
+            />
           </CardContent>
         </Card>
       </div>

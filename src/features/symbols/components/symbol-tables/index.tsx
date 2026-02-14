@@ -19,9 +19,14 @@ import { Icons } from '@/components/icons';
 interface SymbolListingProps {
   data: SymbolData[];
   totalCount: number;
+  enumValues?: Record<string, string[]>;
 }
 
-export function SymbolListing({ data, totalCount }: SymbolListingProps) {
+export function SymbolListing({
+  data,
+  totalCount,
+  enumValues
+}: SymbolListingProps) {
   const [editingSymbol, setEditingSymbol] = useState<SymbolData | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [pageSize] = useQueryState(
@@ -67,7 +72,12 @@ export function SymbolListing({ data, totalCount }: SymbolListingProps) {
     }
   };
 
-  const columns = getColumns(handleDetail, handleEdit, handleDelete);
+  const columns = getColumns(
+    handleDetail,
+    handleEdit,
+    handleDelete,
+    enumValues
+  );
 
   const { table } = useDataTable({
     data,

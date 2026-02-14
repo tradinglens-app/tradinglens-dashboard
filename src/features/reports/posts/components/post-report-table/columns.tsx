@@ -39,7 +39,8 @@ export const columns: ColumnDef<PostReport>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='ID' />
     ),
-    cell: ({ row }) => <div className='w-[100px]'>{row.getValue('id')}</div>,
+    cell: ({ row }) => <div className='truncate'>{row.getValue('id')}</div>,
+    size: 280,
     enableSorting: false,
     enableHiding: false
   },
@@ -49,10 +50,9 @@ export const columns: ColumnDef<PostReport>[] = [
       <DataTableColumnHeader column={column} title='Post Title' />
     ),
     cell: ({ row }) => (
-      <div className='max-w-[300px] truncate font-medium'>
-        {row.getValue('postTitle')}
-      </div>
-    )
+      <div className='truncate font-medium'>{row.getValue('postTitle')}</div>
+    ),
+    size: 200
   },
   {
     id: 'reasons',
@@ -108,8 +108,11 @@ export const columns: ColumnDef<PostReport>[] = [
       <DataTableColumnHeader column={column} title='Date' />
     ),
     cell: ({ row }) => (
-      <div className='w-[150px]'>{formatDateApp(row.original.created_at)}</div>
+      <div className='whitespace-nowrap'>
+        {formatDateApp(row.original.created_at)}
+      </div>
     ),
+    size: 180,
     enableSorting: true,
     filterFn: 'inNumberRange',
     meta: {

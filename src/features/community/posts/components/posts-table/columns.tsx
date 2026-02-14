@@ -24,18 +24,22 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip';
+import { toOptions } from '@/lib/db-enums.utils';
 
-export const columns: ColumnDef<Post>[] = [
+export const getColumns = (
+  enumValues?: Record<string, string[]>
+): ColumnDef<Post>[] => [
   {
     accessorKey: 'id',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='ID' />
     ),
     cell: ({ row }) => (
-      <div className='w-[280px] truncate' title={row.getValue('id')}>
+      <div className='truncate' title={row.getValue('id')}>
         {row.getValue('id')}
       </div>
     ),
+    size: 280,
     enableSorting: false,
     enableHiding: false,
     enableColumnFilter: true
@@ -50,13 +54,13 @@ export const columns: ColumnDef<Post>[] = [
         <Tooltip>
           <TooltipTrigger asChild>
             <div
-              className='max-w-[500px] cursor-pointer truncate'
+              className='cursor-pointer truncate'
               title={row.getValue('content')}
             >
               {row.getValue('content') || 'No content (Media only)'}
             </div>
           </TooltipTrigger>
-          <TooltipContent className='max-w-[500px] break-words'>
+          <TooltipContent className='max-w-md break-words'>
             <p>{row.getValue('content') || 'No content (Media only)'}</p>
           </TooltipContent>
         </Tooltip>
@@ -104,7 +108,7 @@ export const columns: ColumnDef<Post>[] = [
       <DataTableColumnHeader column={column} title='Level' />
     ),
     cell: ({ row }) => (
-      <div className='flex w-[40px] items-center justify-center'>
+      <div className='flex items-center justify-center'>
         {row.getValue('parent_level')}
       </div>
     )
@@ -117,23 +121,25 @@ export const columns: ColumnDef<Post>[] = [
     cell: ({ row }) => {
       const visibility = row.getValue('visibility') as string;
       return (
-        <div className='w-[80px]'>
+        <div>
           <Badge variant='outline'>{visibility || 'Start'}</Badge>
         </div>
       );
     },
     enableColumnFilter: true,
     meta: {
-      options: [
-        { label: 'Public', value: 'public' },
-        { label: 'Private', value: 'private' },
-        { label: 'Followers Only', value: 'followers_only' },
-        { label: 'Following Only', value: 'following_only' },
-        {
-          label: 'Followers & Following',
-          value: 'followers_and_following_only'
-        }
-      ]
+      options: enumValues?.visibility
+        ? toOptions(enumValues.visibility)
+        : [
+            { label: 'Public', value: 'public' },
+            { label: 'Private', value: 'private' },
+            { label: 'Followers Only', value: 'followers_only' },
+            { label: 'Following Only', value: 'following_only' },
+            {
+              label: 'Followers & Following',
+              value: 'followers_and_following_only'
+            }
+          ]
     }
   },
   {
@@ -152,7 +158,7 @@ export const columns: ColumnDef<Post>[] = [
       };
 
       return (
-        <div className='w-[80px]'>
+        <div>
           <Badge
             variant='secondary'
             className={`capitalize ${typeColors[type] || typeColors.default}`}
@@ -164,13 +170,15 @@ export const columns: ColumnDef<Post>[] = [
     },
     enableColumnFilter: true,
     meta: {
-      options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Poll', value: 'poll' },
-        { label: 'Company Info', value: 'company_info' },
-        { label: 'Quote', value: 'quote' },
-        { label: 'News', value: 'news' }
-      ]
+      options: enumValues?.type
+        ? toOptions(enumValues.type)
+        : [
+            { label: 'Default', value: 'default' },
+            { label: 'Poll', value: 'poll' },
+            { label: 'Company Info', value: 'company_info' },
+            { label: 'Quote', value: 'quote' },
+            { label: 'News', value: 'news' }
+          ]
     }
   },
   {
@@ -180,11 +188,12 @@ export const columns: ColumnDef<Post>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <div className='w-[150px] truncate text-xs'>
+        <div className='text-xs whitespace-nowrap'>
           {formatDateApp(row.getValue('created_at'))}
         </div>
       );
     },
+    size: 150,
     enableColumnFilter: true,
     meta: {
       variant: 'dateRange'

@@ -17,9 +17,10 @@ import { DEFAULT_PAGE_SIZE } from '@/constants/data-table-config';
 interface UsersTableProps {
   data: CommunityUser[];
   totalItems: number;
+  enumValues?: Record<string, string[]>;
 }
 
-export function UsersTable({ data, totalItems }: UsersTableProps) {
+export function UsersTable({ data, totalItems, enumValues }: UsersTableProps) {
   const [pageSize] = useQueryState(
     'perPage',
     parseAsInteger.withDefault(DEFAULT_PAGE_SIZE)
@@ -45,7 +46,7 @@ export function UsersTable({ data, totalItems }: UsersTableProps) {
     }
   };
 
-  const columns = getColumns(handleDetail, handleStatusChange);
+  const columns = getColumns(handleDetail, handleStatusChange, enumValues);
 
   const { table } = useDataTable({
     data,

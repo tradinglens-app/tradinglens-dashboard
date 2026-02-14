@@ -46,6 +46,12 @@ export function OrgSwitcher() {
     (membership) => membership.organization.id === orgId
   )?.organization;
 
+  // Check if user is admin in any organization
+  const isAdmin =
+    userMemberships?.data?.some(
+      (membership) => membership.role === 'org:admin'
+    ) ?? false;
+
   // Handle organization switch
   const handleOrganizationSwitch = async (organizationId: string) => {
     if (orgId === organizationId || !setActive) {
@@ -221,19 +227,21 @@ export function OrgSwitcher() {
               );
             })}
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className='gap-2 p-2'
-              onClick={() => {
-                router.push('/dashboard/workspaces');
-              }}
-            >
-              <div className='flex size-6 items-center justify-center rounded-md border bg-transparent'>
-                <Plus className='size-4' />
-              </div>
-              <div className='text-muted-foreground font-medium'>
-                Add organization
-              </div>
-            </DropdownMenuItem>
+            {isAdmin && (
+              <DropdownMenuItem
+                className='gap-2 p-2'
+                onClick={() => {
+                  router.push('/dashboard/workspaces');
+                }}
+              >
+                <div className='flex size-6 items-center justify-center rounded-md border bg-transparent'>
+                  <Plus className='size-4' />
+                </div>
+                <div className='text-muted-foreground font-medium'>
+                  Add organization
+                </div>
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

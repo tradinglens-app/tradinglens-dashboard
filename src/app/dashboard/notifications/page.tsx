@@ -1,16 +1,62 @@
 import PageContainer from '@/components/layout/page-container';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { NotificationListing } from '@/features/notifications/components/notification-tables';
+import { getNotificationsAction } from '@/features/notifications/actions/notification-actions';
+import { getNotificationEnumValues } from '@/features/notifications/services/notifications.service';
+import { searchParamsCache } from '@/lib/searchparams';
+import { SearchParams } from 'nuqs/server';
 
-export default function NotificationsCenterPage() {
+type pageProps = {
+  searchParams: Promise<SearchParams>;
+};
+
+export default async function NotificationsPage(props: pageProps) {
+  const searchParams = await props.searchParams;
+  searchParamsCache.parse(searchParams);
+
+  const page = searchParamsCache.get('page');
+  const pageLimit = searchParamsCache.get('perPage');
+  const search = searchParamsCache.get('q');
+  const type = searchParamsCache.get('type');
+  const status = searchParamsCache.get('status');
+  const createdAt = searchParamsCache.get('created_at');
+
+  const from = createdAt?.[0]
+    ? new Date(createdAt[0]).toISOString()
+    : undefined;
+  const to = createdAt?.[1] ? new Date(createdAt[1]).toISOString() : undefined;
+
+  const [{ data, totalCount }, enumValues] = await Promise.all([
+    getNotificationsAction({
+      page,
+      pageSize: pageLimit,
+      search: search || undefined,
+      type: type && type.length > 0 ? type : undefined,
+      is_read: status && status.length > 0 ? status : undefined,
+      created_at_from: from,
+      created_at_to: to
+    }),
+    getNotificationEnumValues()
+  ]);
+
   return (
-    <PageContainer
-      pageTitle='Notifications Center'
-      pageDescription='View and manage system notifications'
-    >
-      <div className='flex flex-col gap-4'>
-        {/* Placeholder for Data Table */}
-        <div className='rounded-md border p-4'>
-          <p className='text-muted-foreground text-sm'>No new notifications.</p>
+    <PageContainer scrollable={false}>
+      <div className='flex flex-1 flex-col space-y-4'>
+        <div className='flex items-center justify-between space-y-2'>
+          <h2 className='text-2xl font-bold tracking-tight'>Notifications</h2>
         </div>
+        <Card className='flex flex-1 flex-col'>
+          <CardHeader>
+            <CardTitle>All Notifications</CardTitle>
+          </CardHeader>
+          <CardContent className='flex flex-1 flex-col'>
+            <NotificationListing
+              data={data}
+              totalCount={totalCount}
+              enumValues={enumValues}
+            />
+          </CardContent>
+        </Card>
       </div>
     </PageContainer>
   );

@@ -27,11 +27,21 @@ import type { NavItem } from '@/types';
  * @returns Filtered items
  */
 export function useFilteredNavItems(items: NavItem[]) {
-  const { organization, membership } = useOrganization();
+  const { organization, membership, isLoaded } = useOrganization();
   const { user } = useUser();
 
-  // Memoize context and permissions
   const accessContext = useMemo(() => {
+    if (!isLoaded) {
+      return {
+        organization: undefined,
+        user: undefined,
+        permissions: [] as string[],
+        role: undefined,
+        hasOrg: false,
+        roleMenuKeys: [] as string[]
+      };
+    }
+
     const permissions = membership?.permissions || [];
     const role = membership?.role;
 
@@ -43,7 +53,13 @@ export function useFilteredNavItems(items: NavItem[]) {
       string,
       string[]
     >;
-    const roleMenuKeys = role ? menuPermissions[role] : undefined;
+
+    const hasMenuConfig = Object.keys(menuPermissions).length > 0;
+    const roleMenuKeys = hasMenuConfig
+      ? role
+        ? (menuPermissions[role] ?? [])
+        : []
+      : undefined;
 
     return {
       organization: organization ?? undefined,
@@ -51,11 +67,10 @@ export function useFilteredNavItems(items: NavItem[]) {
       permissions: permissions as string[],
       role: role ?? undefined,
       hasOrg: !!organization,
-      // If roleMenuKeys is undefined, no restrictions (allow all)
-      // If roleMenuKeys is defined (even empty []), only allow listed menus
       roleMenuKeys
     };
   }, [
+    isLoaded,
     organization?.id,
     organization?.publicMetadata,
     user?.id,

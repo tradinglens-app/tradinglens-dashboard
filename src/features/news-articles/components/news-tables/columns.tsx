@@ -37,16 +37,16 @@ export const getColumns = (
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className='flex max-w-[500px] cursor-pointer gap-3'>
+            <div className='flex max-w-[300px] cursor-pointer gap-3'>
               {row.original.imageUrl && (
                 <img
                   src={row.original.imageUrl}
                   alt={row.original.title}
-                  className='h-12 w-12 rounded-full object-cover'
+                  className='h-12 w-12 shrink-0 rounded-full object-cover'
                 />
               )}
               <div className='flex min-w-0 flex-1 flex-col justify-center'>
-                <div className='line-clamp-2 truncate text-sm leading-tight font-medium'>
+                <div className='truncate text-sm leading-tight font-medium'>
                   {row.getValue('title')}
                 </div>
                 {row.original.summary && (
@@ -79,7 +79,7 @@ export const getColumns = (
     ),
     enableSorting: true,
     enableHiding: false,
-    size: 500
+    size: 300
   },
   {
     accessorKey: 'symbol',
@@ -103,9 +103,7 @@ export const getColumns = (
       <DataTableColumnHeader column={column} title='Publisher' />
     ),
     cell: ({ row }) => (
-      <div className='max-w-[120px] truncate'>
-        {row.getValue('publisher') || 'N/A'}
-      </div>
+      <div className='truncate'>{row.getValue('publisher') || 'N/A'}</div>
     ),
     enableSorting: true,
     meta: {

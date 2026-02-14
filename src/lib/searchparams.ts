@@ -27,6 +27,8 @@ export const searchParams = {
   publisher: parseAsString.withDefault(''),
   createdAt: parseAsArrayOf(parseAsInteger).withDefault([]),
   created_at: parseAsArrayOf(parseAsInteger).withDefault([]),
+  start_at: parseAsArrayOf(parseAsInteger).withDefault([]),
+  end_at: parseAsArrayOf(parseAsInteger).withDefault([]),
   isActive: parseAsArrayOf(parseAsString).withDefault([]),
   q: parseAsString.withDefault(''),
   search: parseAsString.withDefault(''),
@@ -39,7 +41,8 @@ export const searchParams = {
   postTitle: parseAsString.withDefault(''),
   content: parseAsString.withDefault(''),
   accountStatus: parseAsArrayOf(parseAsString).withDefault([]),
-  visibility: parseAsArrayOf(parseAsString).withDefault([])
+  visibility: parseAsArrayOf(parseAsString).withDefault([]),
+  is_read: parseAsArrayOf(parseAsString).withDefault([])
 };
 
 export const searchParamsCache = createSearchParamsCache(searchParams);

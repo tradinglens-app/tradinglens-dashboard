@@ -190,7 +190,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
           parseAsInteger,
           ARRAY_SEPARATOR
         ).withOptions(queryStateOptions);
-      } else if (column.meta?.options) {
+      } else if (column.meta?.variant === 'multiSelect') {
         acc[colId] = parseAsArrayOf(parseAsString, ARRAY_SEPARATOR).withOptions(
           queryStateOptions
         );
