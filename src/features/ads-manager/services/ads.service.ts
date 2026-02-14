@@ -1,5 +1,20 @@
 import { prisma } from '@/lib/prisma';
-import { promotion_articles } from '@prisma/client';
+
+export interface Ad {
+  id: number;
+  image_banner_dark: string | null;
+  image_banner_white: string | null;
+  title_th: string | null;
+  title_en: string | null;
+  description_th: string | null;
+  description_en: string | null;
+  content_th: string | null;
+  content_en: string | null;
+  button_text_th: string | null;
+  button_text_en: string | null;
+  path: string | null;
+  type: string | null;
+}
 
 export interface GetAdsParams {
   page?: number;
@@ -10,8 +25,6 @@ export interface GetAdsParams {
   description_en?: string;
   description_th?: string;
 }
-
-export type Ad = promotion_articles;
 
 export async function getAds(params: GetAdsParams = {}) {
   const {
