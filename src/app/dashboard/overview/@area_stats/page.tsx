@@ -1,7 +1,9 @@
 import { delay } from '@/constants/mock-api';
-import { AreaGraph } from '@/features/overview/components/area-graph';
+import { PlatformGrowthChart } from '@/features/overview/components/platform-growth-chart';
+import { getPlatformGrowthStats } from '@/features/overview/services/platform-growth.service';
 
 export default async function AreaStats() {
-  await await delay(2000);
-  return <AreaGraph />;
+  await delay(2000);
+  const data = await getPlatformGrowthStats();
+  return <PlatformGrowthChart data={data} />;
 }

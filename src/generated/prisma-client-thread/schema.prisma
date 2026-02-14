@@ -1,0 +1,444 @@
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../src/generated/prisma-client-thread"
+  previewFeatures = ["driverAdapters", "partialIndexes"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// This table is a partition table and requires additional setup for migrations. Visit https://pris.ly/d/partition-tables for more info.
+model CompaniesInfo {
+  id                              String           @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  threads_id                      String           @db.Uuid
+  symbol                          String           @db.VarChar
+  name                            String
+  market_state                    String
+  regular_market_price            Float
+  regular_market_change           Float
+  regular_market_change_percent   Float
+  sector                          String
+  industry                        String
+  date_at_shares                  DateTime         @db.Timestamp(6)
+  assets_type                     assets_type_enum
+  exchange_name                   String?
+  pre_market_price                Float?
+  pre_market_change               Float?
+  pre_market_change_percent       Float?
+  post_market_price               Float?
+  post_market_change              Float?
+  post_market_change_percent      Float?
+  overnight_market_price          Float?
+  overnight_market_change         Float?
+  overnight_market_change_percent Float?
+  market_cap                      BigInt?
+  regular_market_time             BigInt
+  pre_market_time                 BigInt?
+  post_market_time                BigInt?
+  overnight_market_time           BigInt?
+  currency                        String           @db.VarChar
+  created_at                      DateTime         @default(now()) @db.Timestamp(6)
+  updated_at                      DateTime         @default(now()) @db.Timestamp(6)
+  deleted_at                      DateTime?        @db.Timestamp(6)
+
+  @@id([id, created_at])
+  @@index([threads_id], map: "idx_threadcompaniesinfo_thread", where: raw("(deleted_at IS NULL)"))
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model FollowNotificationOverrides {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  follower_id    Int
+  following_id   Int
+  mute_all       Boolean   @default(false)
+  notify_threads Boolean   @default(false)
+  notify_replies Boolean   @default(false)
+  created_at     DateTime  @default(now()) @db.Timestamp(6)
+  updated_at     DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at     DateTime? @db.Timestamp(6)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model FollowRequests {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  requester_id Int
+  target_id    Int
+  status       String    @default("pending") @db.VarChar(20)
+  created_at   DateTime  @default(now()) @db.Timestamp(6)
+  updated_at   DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at   DateTime? @db.Timestamp(6)
+
+  @@index([requester_id], map: "idx_follow_requests_requester_id")
+  @@index([target_id], map: "idx_follow_requests_target_id")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Follows {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  follower_id  Int
+  following_id Int
+  created_at   DateTime  @default(now()) @db.Timestamp(6)
+  updated_at   DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at   DateTime? @db.Timestamp(6)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model FollowsCount {
+  id              String    @id @unique(map: "FollowCount_id_key") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id         Int       @unique(map: "followscount_user_id_unique")
+  followers_count Int       @default(0)
+  following_count Int       @default(0)
+  created_at      DateTime  @default(now()) @db.Timestamp(6)
+  updated_at      DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at      DateTime? @db.Timestamp(6)
+}
+
+/// This table is a partition table and requires additional setup for migrations. Visit https://pris.ly/d/partition-tables for more info.
+model Notifications {
+  id         String                  @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id    Int?
+  sender_id  Int?
+  message_th String?
+  message_en String?
+  metadata   Json?
+  is_read    Boolean?
+  type       notification_type_enum?
+  created_at DateTime                @default(now()) @db.Timestamp(6)
+  updated_at DateTime                @default(now()) @db.Timestamp(6)
+  deleted_at DateTime?               @db.Timestamp(6)
+
+  @@id([id, created_at])
+  @@index([user_id], map: "notifications_user_id_unique")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Symbols {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  symbol_code String    @unique(map: "symbols_symbol_code_key") @db.VarChar(20)
+  name        String?   @db.VarChar(255)
+  created_at  DateTime  @default(now()) @db.Timestamp(6)
+  updated_at  DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at  DateTime? @db.Timestamp(6)
+}
+
+/// This table is a partition table and requires additional setup for migrations. Visit https://pris.ly/d/partition-tables for more info.
+model ThreadEngagementMetrics {
+  id             String    @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  threads_id     String    @db.Uuid
+  viewed_count   Decimal   @default(0) @db.Decimal
+  replied_count  Int       @default(0)
+  reposted_count Int       @default(0)
+  quoted_count   Int       @default(0)
+  liked_count    Int       @default(0)
+  reported_count Int       @default(0)
+  created_at     DateTime  @default(now()) @db.Timestamp(6)
+  updated_at     DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at     DateTime? @db.Timestamp(6)
+
+  @@id([id, created_at])
+  @@unique([threads_id, created_at], map: "ThreadEngagementMetrics_threads_id_key")
+  @@index([threads_id], map: "idx_threadengagementmetrics_thread", where: raw("(deleted_at IS NULL)"))
+}
+
+/// This table is a partition table and requires additional setup for migrations. Visit https://pris.ly/d/partition-tables for more info.
+model ThreadHashtags {
+  id         String        @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  threads_id String        @db.Uuid
+  tag        String        @db.VarChar
+  type       tag_type_enum @default(hashtag)
+  created_at DateTime      @default(now()) @db.Timestamp(6)
+  updated_at DateTime      @default(now()) @db.Timestamp(6)
+  deleted_at DateTime?     @db.Timestamp(6)
+
+  @@id([id, created_at])
+  @@index([threads_id], map: "idx_threadhashtags_thread", where: raw("(deleted_at IS NULL)"))
+}
+
+/// This table is a partition table and requires additional setup for migrations. Visit https://pris.ly/d/partition-tables for more info.
+model ThreadLikes {
+  id         String    @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  threads_id String    @db.Uuid
+  user_id    Int
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  updated_at DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at DateTime? @db.Timestamp(6)
+
+  @@id([id, created_at])
+  @@index([threads_id], map: "idx_threadlikes_thread", where: raw("(deleted_at IS NULL)"))
+}
+
+/// This table is a partition table and requires additional setup for migrations. Visit https://pris.ly/d/partition-tables for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model ThreadMedia {
+  id            String           @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  threads_id    String           @db.Uuid
+  media_type    media_type_enum?
+  media_url     String?          @db.VarChar
+  thumbnail_url String?          @db.VarChar
+  created_at    DateTime         @default(now()) @db.Timestamp(6)
+  updated_at    DateTime         @default(now()) @db.Timestamp(6)
+  deleted_at    DateTime?        @db.Timestamp(6)
+  width         Int?
+  height        Int?
+  size          Int?
+  duration      Int?
+  object_key    String?
+
+  @@id([id, created_at])
+  @@index([threads_id], map: "idx_threadmedia_thread", where: raw("(deleted_at IS NULL)"))
+}
+
+/// This table is a partition table and requires additional setup for migrations. Visit https://pris.ly/d/partition-tables for more info.
+model ThreadMentions {
+  id                String    @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  threads_id        String    @db.Uuid
+  mentioned_user_id Int
+  position          Int       @default(1)
+  created_at        DateTime  @default(now()) @db.Timestamp(6)
+  updated_at        DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at        DateTime? @db.Timestamp(6)
+
+  @@id([id, created_at])
+  @@index([threads_id], map: "idx_threadmentions_thread", where: raw("(deleted_at IS NULL)"))
+}
+
+/// This table is a partition table and requires additional setup for migrations. Visit https://pris.ly/d/partition-tables for more info.
+model ThreadPins {
+  id         String    @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id    Int
+  threads_id String    @db.Uuid
+  pinned_at  DateTime  @default(now()) @db.Timestamp(6)
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  updated_at DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at DateTime? @db.Timestamp(6)
+
+  @@id([id, created_at])
+  @@index([threads_id], map: "idx_threadpins_thread", where: raw("(deleted_at IS NULL)"))
+}
+
+/// This table is a partition table and requires additional setup for migrations. Visit https://pris.ly/d/partition-tables for more info.
+model ThreadPollOptions {
+  id          String    @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  poll_id     String    @db.Uuid
+  option_text String    @db.VarChar
+  voted_count Int       @default(0)
+  created_at  DateTime  @default(now()) @db.Timestamp(6)
+  updated_at  DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at  DateTime? @db.Timestamp(6)
+
+  @@id([id, created_at])
+  @@index([poll_id], map: "idx_threadpolloptions_thread", where: raw("(deleted_at IS NULL)"))
+}
+
+/// This table is a partition table and requires additional setup for migrations. Visit https://pris.ly/d/partition-tables for more info.
+model ThreadPollVotes {
+  id         String    @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  option_id  String    @db.Uuid
+  user_id    Int
+  voted_at   DateTime  @default(now()) @db.Timestamp(6)
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  updated_at DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at DateTime? @db.Timestamp(6)
+
+  @@id([id, created_at])
+  @@index([option_id], map: "idx_threadpollvotes_thread", where: raw("(deleted_at IS NULL)"))
+}
+
+/// This table is a partition table and requires additional setup for migrations. Visit https://pris.ly/d/partition-tables for more info.
+model ThreadPolls {
+  id          String    @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  threads_id  String    @db.Uuid
+  question    String    @db.VarChar
+  total_voted Int       @default(0)
+  expires_at  DateTime  @default(now()) @db.Timestamp(6)
+  created_at  DateTime  @default(now()) @db.Timestamp(6)
+  updated_at  DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at  DateTime? @db.Timestamp(6)
+
+  @@id([id, created_at])
+  @@index([threads_id], map: "idx_threadpolls_thread", where: raw("(deleted_at IS NULL)"))
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model ThreadReportReasons {
+  id                        String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  parent_id                 String?               @db.Uuid
+  code                      String                @unique @db.VarChar(50)
+  level                     Int                   @db.SmallInt
+  is_leaf                   Boolean               @default(false)
+  translations              Json                  @default("{}")
+  is_active                 Boolean               @default(true)
+  sort_order                Int                   @default(0)
+  created_at                DateTime              @default(now()) @db.Timestamp(6)
+  updated_at                DateTime              @default(now()) @db.Timestamp(6)
+  deleted_at                DateTime?             @db.Timestamp(6)
+  ThreadReportReasons       ThreadReportReasons?  @relation("ThreadReportReasonsToThreadReportReasons", fields: [parent_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_parent_thread_report_reason")
+  other_ThreadReportReasons ThreadReportReasons[] @relation("ThreadReportReasonsToThreadReportReasons")
+
+  @@index([is_active, sort_order], map: "idx_thread_report_reasons_active_sort", where: raw("(is_active = true)"))
+  @@index([code], map: "idx_thread_report_reasons_code")
+  @@index([parent_id], map: "idx_thread_report_reasons_parent", where: raw("(parent_id IS NOT NULL)"))
+  @@index([translations], map: "idx_thread_report_reasons_translations", type: Gin)
+}
+
+/// This table is a partition table and requires additional setup for migrations. Visit https://pris.ly/d/partition-tables for more info.
+model ThreadReports {
+  id          String    @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  threads_id  String    @db.Uuid
+  reported_by Int?
+  reason      String?   @db.VarChar
+  created_at  DateTime  @default(now()) @db.Timestamp(6)
+  updated_at  DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at  DateTime? @db.Timestamp(6)
+
+  @@id([id, created_at])
+  @@index([threads_id], map: "idx_threadreports_thread", where: raw("(deleted_at IS NULL)"))
+}
+
+/// This table is a partition table and requires additional setup for migrations. Visit https://pris.ly/d/partition-tables for more info.
+model ThreadReposts {
+  id         String    @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  threads_id String    @db.Uuid
+  user_id    Int
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  updated_at DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at DateTime? @db.Timestamp(6)
+
+  @@id([id, created_at])
+  @@index([threads_id], map: "idx_threadreposts_thread", where: raw("(deleted_at IS NULL)"))
+}
+
+/// This table is a partition table and requires additional setup for migrations. Visit https://pris.ly/d/partition-tables for more info.
+model Threads {
+  id               String           @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id          Int
+  content          String?
+  visibility       visibility_enum? @default(public)
+  start_thread_id  String?          @db.Uuid
+  poll_id          String?          @db.Uuid
+  parent_thread_id String?          @db.Uuid
+  quoted_thread_id String?          @db.Uuid
+  company_info_id  String?          @db.Uuid
+  parent_level     Int
+  created_at       DateTime         @default(now()) @db.Timestamp(6)
+  updated_at       DateTime         @default(now()) @db.Timestamp(6)
+  deleted_at       DateTime?        @db.Timestamp(6)
+  news_id          String?          @db.Uuid
+
+  @@id([id, created_at])
+  @@index([user_id, created_at(sort: Desc), visibility], map: "idx_threads_feed_optimized", where: raw("(deleted_at IS NULL)"))
+  @@index([quoted_thread_id], map: "idx_threads_quotes", where: raw("(deleted_at IS NULL)"))
+  @@index([parent_thread_id], map: "idx_threads_replies", where: raw("(deleted_at IS NULL)"))
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model UserBlocks {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  blocker_user_id Int
+  blocked_user_id Int
+  reason          String?
+  created_at      DateTime  @default(now()) @db.Timestamp(6)
+  updated_at      DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at      DateTime? @db.Timestamp(6)
+
+  @@index([blocker_user_id, blocked_user_id], map: "user_blocks_idx")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model UserInterestLogs {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id       Int
+  symbol_id     String    @db.Uuid
+  activity_type String
+  weight        Float?    @default(1)
+  created_at    DateTime  @default(now()) @db.Timestamp(6)
+  updated_at    DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at    DateTime? @db.Timestamp(6)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model UserInterests {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id    Int
+  symbol_id  String    @db.Uuid
+  weight     Float?    @default(1)
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  updated_at DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at DateTime? @db.Timestamp(6)
+
+  @@unique([user_id, symbol_id], map: "user_interests_user_id_symbol_id_key")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model UserNotificationSettings {
+  id                      String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id                 Int
+  push_enabled            Boolean   @default(true)
+  email_enabled           Boolean   @default(false)
+  notify_followed_threads Boolean   @default(true)
+  notify_followed_replies Boolean   @default(true)
+  notify_mentions         Boolean   @default(true)
+  notify_when_followed    Boolean   @default(true)
+  notify_reposts          Boolean   @default(false)
+  notify_likes            Boolean   @default(false)
+  created_at              DateTime  @default(now()) @db.Timestamp(6)
+  updated_at              DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at              DateTime? @db.Timestamp(6)
+}
+
+/// This enum is commented in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+enum assets_type_enum {
+  equity
+  etf
+  cryptocurrency
+  index
+}
+
+enum media_type_enum {
+  image_heic      @map("image/heic")
+  image_heif      @map("image/heif")
+  image_jpeg      @map("image/jpeg")
+  image_jpg       @map("image/jpg")
+  image_png       @map("image/png")
+  image_gif       @map("image/gif")
+  image_webp      @map("image/webp")
+  video_mp4       @map("video/mp4")
+  video_quicktime @map("video/quicktime")
+  image
+  gif
+}
+
+enum notification_type_enum {
+  like
+  reply
+  mention
+  follow
+  quote
+  repost
+  system
+  socials
+  breaking_news
+  thread_poll
+  thread
+  follow_request
+  follow_request_accepted
+  new_post
+  new_reply
+}
+
+enum tag_type_enum {
+  hashtag
+  symbol
+}
+
+enum visibility_enum {
+  public
+  private
+  followers_only
+  following_only
+  followers_and_following_only
+}

@@ -1,0 +1,504 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters", "partialIndexes"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model app_problem_report {
+  id         String    @id @db.Uuid
+  topic      String?
+  details    String?
+  status     String?
+  updated_at DateTime? @default(now()) @db.Timestamp(6)
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model app_version_support {
+  id                    Int       @id @default(autoincrement())
+  version               String
+  platform              String
+  build_number          Int?
+  status                String
+  min_supported_version String?
+  is_active             Boolean?  @default(true)
+  critical_update       Boolean?  @default(false)
+  force_update_message  String?
+  release_notes         String?
+  download_url          String?
+  release_date          DateTime? @default(now()) @db.Timestamp(6)
+  deprecation_date      DateTime? @db.Timestamp(6)
+  end_of_support_date   DateTime? @db.Timestamp(6)
+  metadata              Json?
+  created_at            DateTime? @default(now()) @db.Timestamp(6)
+  updated_at            DateTime? @default(now()) @db.Timestamp(6)
+
+  @@unique([version, platform], map: "unique_version_platform")
+  @@index([is_active, platform], map: "idx_app_version_active")
+  @@index([platform, status], map: "idx_app_version_platform_status")
+}
+
+model comments {
+  id             Int        @id @default(autoincrement())
+  symbol         String     @db.VarChar(50)
+  content        String
+  user_id        Int
+  parent_id      Int?
+  likes          Int?       @default(0)
+  created_at     DateTime?  @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime?  @default(now()) @db.Timestamptz(6)
+  comments       comments?  @relation("commentsTocomments", fields: [parent_id], references: [id], onUpdate: NoAction)
+  other_comments comments[] @relation("commentsTocomments")
+
+  @@index([created_at], map: "idx_comments_created_at")
+  @@index([symbol], map: "idx_comments_symbol")
+  @@index([user_id], map: "idx_comments_user_id")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model in_app_announcements {
+  id              Int       @id @default(autoincrement())
+  type            String
+  display_type    String
+  title_en        String
+  title_th        String
+  message_en      String
+  message_th      String
+  button_text_en  String?
+  button_text_th  String?
+  action_type     String?
+  action_value    String?
+  platform        String?   @default("all")
+  min_app_version String?
+  max_app_version String?
+  start_at        DateTime? @db.Timestamp(6)
+  end_at          DateTime? @db.Timestamp(6)
+  priority        Int?      @default(0)
+  is_active       Boolean?  @default(true)
+  dismissible     Boolean?  @default(true)
+  created_at      DateTime? @default(now()) @db.Timestamp(6)
+  updated_at      DateTime? @default(now()) @db.Timestamp(6)
+}
+
+model investment_insights {
+  id             Int       @id @default(autoincrement())
+  symbol         String    @db.VarChar(20)
+  name           String    @db.VarChar(100)
+  type           String    @db.VarChar(20)
+  reason         String
+  recommendation String    @db.VarChar(20)
+  analysis       String
+  created_at     DateTime? @default(now()) @db.Timestamp(6)
+  reason_th      String?
+  analysis_th    String?
+  thesis_en      String?
+  takeaway_en    String?
+  thesis_th      String?
+  takeaway_th    String?
+}
+
+model market_recap {
+  stock_market_recap_en                   String?
+  stock_market_recap_th                   String?
+  sector_performance_en                   String?
+  sector_performance_th                   String?
+  economic_data_and_potential_concerns_en String?
+  economic_data_and_potential_concerns_th String?
+  other_market_activity_en                String?
+  other_market_activity_th                String?
+  summary_en                              String?
+  summary_th                              String?
+  id                                      Int       @id @default(autoincrement())
+  created_at                              DateTime? @default(now()) @db.Timestamp(6)
+  updated_at                              DateTime? @default(now()) @db.Timestamp(6)
+}
+
+model news_comments {
+  id                  Int             @id @default(autoincrement())
+  news_id             String          @db.Uuid
+  parent_comment_id   Int?
+  content             String
+  like_count          Int?            @default(0)
+  reply_count         Int?            @default(0)
+  is_active           Boolean?        @default(true)
+  created_at          DateTime?       @default(now()) @db.Timestamp(6)
+  updated_at          DateTime?       @default(now()) @db.Timestamp(6)
+  user_id             Int
+  stock_news          stock_news      @relation(fields: [news_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  news_comments       news_comments?  @relation("news_commentsTonews_comments", fields: [parent_comment_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  other_news_comments news_comments[] @relation("news_commentsTonews_comments")
+}
+
+model news_config {
+  name  String @id
+  value Json   @db.Json
+}
+
+model payment_history {
+  payment_id               Int       @id @default(autoincrement())
+  user_subscription_id     Int?
+  amount                   Decimal   @db.Decimal(10, 2)
+  currency                 String?   @default("THB") @db.VarChar(3)
+  payment_status           String    @db.VarChar(50)
+  stripe_payment_intent_id String?   @db.VarChar(255)
+  payment_method_id        String?   @db.VarChar(255)
+  payment_date             DateTime? @default(now()) @db.Timestamp(6)
+  billing_period_start     DateTime? @db.Timestamp(6)
+  billing_period_end       DateTime? @db.Timestamp(6)
+  invoice_url              String?
+  error_message            String?
+  stripe_invoice_id        String?   @db.VarChar
+}
+
+model permissions {
+  permission_id   Int            @id @default(autoincrement())
+  subscription_id Int?
+  feature         String?        @db.VarChar(255)
+  is_enabled      Boolean?       @default(true)
+  limit_access    String?        @db.VarChar
+  subscriptions   subscriptions? @relation(fields: [subscription_id], references: [subscription_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model portfolio {
+  portfolio_id Int       @id @default(autoincrement())
+  user_id      Int       @unique
+  total_value  Decimal?  @default(0) @db.Decimal(15, 2)
+  updated_at   DateTime? @default(now()) @db.Timestamp(6)
+}
+
+model portfolio_holdings {
+  id             Int       @id @default(autoincrement())
+  portfolio_id   Int
+  symbol         String    @db.VarChar(50)
+  total_quantity Decimal?  @default(0) @db.Decimal(20, 8)
+  average_price  Decimal?  @default(0) @db.Decimal(30, 10)
+  total_invested Decimal?  @default(0) @db.Decimal(15, 2)
+  updated_at     DateTime? @default(now()) @db.Timestamp(6)
+
+  @@unique([portfolio_id, symbol])
+  @@index([portfolio_id], map: "idx_portfolio_holdings_portfolio_id")
+  @@index([symbol], map: "idx_portfolio_holdings_symbol")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model portfolio_stocks {
+  id               Int       @id @default(autoincrement())
+  portfolio_id     Int
+  symbol           String    @db.VarChar(50)
+  type             String    @db.VarChar(4)
+  quantity         Decimal   @db.Decimal(20, 8)
+  price            Decimal   @db.Decimal(18, 8)
+  total_amount     Decimal   @db.Decimal(20, 8)
+  transaction_date DateTime? @default(now()) @db.Timestamp(6)
+  created_at       DateTime? @default(now()) @db.Timestamp(6)
+  updated_at       DateTime? @default(now()) @db.Timestamp(6)
+  currency         String?   @db.VarChar(3)
+
+  @@index([portfolio_id], map: "idx_portfolio_stocks_portfolio_id")
+  @@index([symbol], map: "idx_portfolio_stocks_symbol")
+}
+
+model price_alerts {
+  id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id      Int
+  symbol       String       @db.VarChar(50)
+  asset_type   asset_type
+  target_price Decimal      @db.Decimal(20, 8)
+  alert_type   alert_type
+  status       alert_status @default(ACTIVE)
+  created_at   DateTime?    @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime?    @default(now()) @db.Timestamptz(6)
+  triggered_at DateTime?    @db.Timestamptz(6)
+  expires_at   DateTime?    @db.Timestamptz(6)
+
+  @@index([asset_type], map: "idx_price_alerts_asset_type")
+  @@index([symbol, status], map: "idx_price_alerts_symbol_status")
+  @@index([user_id, status], map: "idx_price_alerts_user_status")
+}
+
+model promotion_articles {
+  image_banner_dark  String?
+  image_banner_white String?
+  title_th           String? @db.VarChar
+  title_en           String? @db.VarChar
+  description_th     String?
+  description_en     String?
+  content_th         String?
+  content_en         String?
+  button_text_th     String? @db.VarChar
+  button_text_en     String? @db.VarChar
+  path               String? @db.VarChar
+  type               String? @db.VarChar
+  id                 Int     @id @default(autoincrement())
+}
+
+model stock_news {
+  id                         String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  symbol                     String                       @db.VarChar(20)
+  exchange                   String?                      @db.VarChar(50)
+  title                      String                       @db.VarChar(255)
+  content                    String?
+  summary                    String?
+  image_url                  String?                      @db.VarChar(255)
+  source_url                 String?                      @db.VarChar(255)
+  publisher                  String?                      @db.VarChar(100)
+  published_date             DateTime                     @db.Timestamp(6)
+  language                   String?                      @default("en") @db.VarChar(2)
+  view_count                 Int?                         @default(0)
+  is_featured                Boolean?                     @default(false)
+  is_hot                     Boolean?                     @default(false)
+  tags                       String[]
+  metadata                   Json?
+  like_count                 Int?                         @default(0)
+  share_count                Int?                         @default(0)
+  is_active                  Boolean?                     @default(true)
+  created_at                 DateTime?                    @default(now()) @db.Timestamp(6)
+  updated_at                 DateTime?                    @default(now()) @db.Timestamp(6)
+  categories                 Json?
+  news_comments              news_comments[]
+  stock_news_read_history    stock_news_read_history[]
+  stock_news_related_symbols stock_news_related_symbols[]
+  stock_news_translation     stock_news_translation[]
+
+  @@index([is_active, created_at(sort: Desc)], map: "idx_stock_news_active_created")
+  @@index([created_at(sort: Desc)], map: "idx_stock_news_active_created_desc", where: raw("(is_active = true)"))
+  @@index([categories], map: "idx_stock_news_categories_gin", type: Gin)
+  @@index([is_hot, is_active, published_date(sort: Desc)], map: "idx_stock_news_hot_active_published")
+  @@index([is_hot, published_date(sort: Desc)], map: "idx_stock_news_hot_active_published_desc", where: raw("((is_active = true) AND (is_hot = true))"))
+  @@index([published_date(sort: Desc)], map: "idx_stock_news_hot_published_active", where: raw("((is_hot = true) AND (is_active = true))"))
+  @@index([is_hot], map: "idx_stock_news_is_hot", where: raw("(is_hot = true)"))
+  @@index([language], map: "idx_stock_news_language")
+  @@index([published_date(sort: Desc)], map: "idx_stock_news_published_date")
+  @@index([symbol], map: "idx_stock_news_symbol")
+  @@index([symbol, is_active, id(sort: Desc)], map: "idx_stock_news_symbol_active_id")
+  @@index([symbol, is_active, published_date(sort: Desc)], map: "idx_stock_news_symbol_active_published")
+  @@index([symbol, published_date(sort: Desc)], map: "idx_stock_news_symbol_active_published_desc", where: raw("(is_active = true)"))
+  @@index([symbol, published_date(sort: Desc)], map: "idx_stock_news_symbol_published_active", where: raw("(is_active = true)"))
+}
+
+model stock_news_read_history {
+  id            String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  news_id       String     @db.Uuid
+  user_id       String?    @db.VarChar(255)
+  session_id    String?    @db.VarChar(255)
+  read_at       DateTime?  @default(now()) @db.Timestamp(6)
+  language_read String?    @default("en") @db.VarChar(2)
+  read_duration Int?
+  metadata      Json?
+  stock_news    stock_news @relation(fields: [news_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_news_read_history")
+
+  @@index([news_id], map: "idx_stock_news_read_history_news_id")
+  @@index([read_at(sort: Desc)], map: "idx_stock_news_read_history_read_at")
+  @@index([user_id], map: "idx_stock_news_read_history_user_id")
+}
+
+model stock_news_related_symbols {
+  id               String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  news_id          String     @db.Uuid
+  related_symbol   String     @db.VarChar(20)
+  related_exchange String?    @db.VarChar(50)
+  is_primary       Boolean?   @default(true)
+  stock_news       stock_news @relation(fields: [news_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_news_related_symbols")
+
+  @@index([news_id], map: "idx_stock_news_related_symbols_news_id")
+  @@index([related_symbol], map: "idx_stock_news_related_symbols_symbol")
+}
+
+model stock_news_translation {
+  id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  news_id    String     @db.Uuid
+  language   String     @db.VarChar(2)
+  title      String     @db.VarChar(255)
+  content    String?
+  summary    String?
+  created_at DateTime?  @default(now()) @db.Timestamp(6)
+  updated_at DateTime?  @default(now()) @db.Timestamp(6)
+  stock_news stock_news @relation(fields: [news_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_news_translation")
+
+  @@index([created_at], map: "idx_stock_news_translation_created_at")
+  @@index([language, news_id], map: "idx_stock_news_translation_lang_news_id")
+  @@index([language], map: "idx_stock_news_translation_language")
+  @@index([language, news_id], map: "idx_stock_news_translation_language_news_id")
+  @@index([news_id], map: "idx_stock_news_translation_news_id")
+}
+
+model subscriptions {
+  subscription_id    Int                  @id @default(autoincrement())
+  name               String?              @db.VarChar(100)
+  price              Decimal?             @db.Decimal(10, 2)
+  features           Json?
+  created_at         DateTime?            @default(now()) @db.Timestamp(6)
+  updated_at         DateTime?            @default(now()) @db.Timestamp(6)
+  stripe_price_id    String?              @db.VarChar(255)
+  price_amount       String?              @db.VarChar(255)
+  currency           String?              @default("THB") @db.VarChar(3)
+  billing_interval   String?              @db.VarChar(255)
+  is_active          Boolean?
+  trial_days         Int?
+  permissions        permissions[]
+  user_subscriptions user_subscriptions[]
+}
+
+model superinvestor_holdings {
+  id                            Int                             @id @default(autoincrement())
+  manager_name                  String?
+  portfolio_value_raw           String?                         @db.VarChar(20)
+  number_of_stocks              Int?
+  manager_link                  String?                         @unique(map: "superinvestor_holdings_manager_link_uidx")
+  image                         String?
+  information_en                String?
+  information_th                String?
+  created_at                    DateTime?                       @default(now()) @db.Timestamp(6)
+  updated_at                    DateTime?                       @default(now()) @db.Timestamp(6)
+  portfolio_value               Decimal?                        @db.Decimal
+  superinvestor_holdings_list   superinvestor_holdings_list[]
+  superinvestor_sector_analysis superinvestor_sector_analysis[]
+}
+
+model superinvestor_holdings_list {
+  id                      Int                     @id @default(autoincrement())
+  manager_id              Int?
+  symbol                  String?                 @db.VarChar(20)
+  percentage_of_portfolio Decimal?                @db.Decimal
+  recent_activity         String?
+  share_raw               String?
+  share_value             Decimal?                @db.Decimal
+  reported_price_raw      String?
+  reported_price_value    Decimal?                @db.Decimal
+  value_raw               String?
+  value                   Decimal?                @db.Decimal
+  superinvestor_holdings  superinvestor_holdings? @relation(fields: [manager_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_manager_id")
+}
+
+model superinvestor_sector_analysis {
+  id                     Int                     @id(map: "superinvestor_sector_ analysis_pkey") @default(autoincrement())
+  manager_id             Int?
+  sector_name            String?
+  sector_percentage      Decimal?                @db.Decimal
+  superinvestor_holdings superinvestor_holdings? @relation(fields: [manager_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_manager_id")
+}
+
+model symbol {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  symbol              String    @db.VarChar
+  company_name        String?
+  exchange_short_name String?
+  company_logo        String?
+  type                String?   @db.VarChar
+  created_at          DateTime? @default(now()) @db.Timestamp(6)
+  updated_at          DateTime? @default(now()) @db.Timestamp(6)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model user_devices {
+  device_id      String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id        Int
+  platform       String
+  device_token   String?
+  last_active_at DateTime? @db.Timestamp(6)
+  created_at     DateTime? @default(now()) @db.Timestamp(6)
+  app_version    String?
+  device_name    String?
+
+  @@index([last_active_at], map: "idx_user_devices_last_active")
+  @@index([user_id], map: "idx_user_devices_user_id")
+}
+
+model user_subscriptions {
+  user_subscription_id      Int            @id @default(autoincrement())
+  user_id                   Int?
+  subscription_id           Int?
+  start_date                DateTime?      @db.Date
+  end_date                  DateTime?      @db.Date
+  is_active                 Boolean?       @default(true)
+  stripe_subscription_id    String?        @db.VarChar(255)
+  stripe_payment_intent_id  String?        @db.VarChar(255)
+  payment_status            String?        @db.VarChar(50)
+  last_payment_date         DateTime?      @db.Timestamp(6)
+  next_billing_date         DateTime?      @db.Timestamp(6)
+  cancellation_date         DateTime?      @db.Timestamp(6)
+  trial_end_date            DateTime?      @db.Timestamp(6)
+  last_payment_attempt_date DateTime?      @db.Timestamp(6)
+  payment_method_id         String?        @db.VarChar(50)
+  redeem_code               String?        @db.VarChar
+  subscriptions             subscriptions? @relation(fields: [subscription_id], references: [subscription_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([user_id], map: "idx_user_subscriptions_user_id")
+}
+
+/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
+model users {
+  user_id              Int       @id @default(autoincrement())
+  google_id            String?   @db.VarChar(255)
+  email                String?   @unique @db.VarChar(255)
+  name                 String    @default(dbgenerated("false")) @db.VarChar(255)
+  profile_pic          String?
+  created_at           DateTime? @default(now()) @db.Timestamp(6)
+  updated_at           DateTime? @default(now()) @db.Timestamp(6)
+  stripe_customer_id   String?   @db.VarChar(255)
+  refresh_token        String?   @db.VarChar
+  has_used_trial       Boolean   @default(false)
+  trial_used_at        DateTime? @db.Timestamp(6)
+  bio                  String?
+  is_verified          Boolean   @default(false)
+  status_message       String?
+  last_login_at        DateTime? @db.Timestamp(6)
+  birthdate            DateTime? @db.Timestamp(6)
+  language_preference  String    @default("en") @db.VarChar(2)
+  theme_preference     String?   @db.VarChar(10)
+  onboarding_completed Boolean   @default(false)
+  account_status       String?   @db.VarChar(20)
+  active_watchlist_id  Int?
+  username             String
+  is_private           Boolean   @default(false)
+  apple_id             String?   @db.VarChar
+}
+
+model watchlist_items {
+  watchlist_item_id Int       @id @default(autoincrement())
+  watchlist_id      Int?
+  symbol            String?   @db.VarChar(50)
+  name              String?   @db.VarChar(255)
+  type              String?   @db.VarChar(7)
+  added_at          DateTime? @default(now()) @db.Timestamp(6)
+  sequence          Int?
+
+  @@index([watchlist_id], map: "idx_watchlist_items_watchlist_id")
+}
+
+model watchlists {
+  watchlist_id Int       @id @default(autoincrement())
+  user_id      Int?
+  name         String?   @db.VarChar(255)
+  created_at   DateTime? @default(now()) @db.Timestamp(6)
+
+  @@index([user_id], map: "idx_watchlists_user_id")
+}
+
+enum alert_status {
+  ACTIVE
+  TRIGGERED
+  EXPIRED
+  CANCELLED
+}
+
+enum alert_type {
+  ABOVE
+  BELOW
+}
+
+enum asset_type {
+  STOCK
+  CRYPTO
+  INDEX
+}
+
+enum comment_status {
+  active
+  deleted
+  hidden
+}

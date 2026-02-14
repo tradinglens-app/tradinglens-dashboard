@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 
 import {
   Card,
@@ -17,7 +17,17 @@ import {
   ChartTooltipContent
 } from '@/components/ui/chart';
 
-export const description = 'An interactive bar chart';
+export const description = 'Platform Analytics - Interactive';
+
+interface DailyPlatformData {
+  date: string;
+  ios: number;
+  android: number;
+}
+
+interface BarGraphProps {
+  dailyData?: DailyPlatformData[];
+}
 
 const chartData = [
   { date: '2024-04-01', desktop: 222, mobile: 150 },
@@ -115,45 +125,40 @@ const chartData = [
 
 const chartConfig = {
   views: {
-    label: 'Page Views'
+    label: 'Users'
   },
-  desktop: {
-    label: 'Desktop',
+  ios: {
+    label: 'iOS',
     color: 'var(--primary)'
   },
-  mobile: {
-    label: 'Mobile',
-    color: 'var(--primary)'
-  },
-  error: {
-    label: 'Error',
-    color: 'var(--primary)'
+  android: {
+    label: 'Android',
+    color: 'hsl(var(--chart-2))'
   }
 } satisfies ChartConfig;
 
-export function BarGraph() {
+export function BarGraph({ dailyData }: BarGraphProps) {
   const [activeChart, setActiveChart] =
-    React.useState<keyof typeof chartConfig>('desktop');
+    React.useState<keyof typeof chartConfig>('ios');
 
-  const total = React.useMemo(
-    () => ({
-      desktop: chartData.reduce((acc, curr) => acc + curr.desktop, 0),
-      mobile: chartData.reduce((acc, curr) => acc + curr.mobile, 0)
-    }),
-    []
-  );
+  const total = React.useMemo(() => {
+    if (dailyData && dailyData.length > 0) {
+      return {
+        ios: dailyData.reduce((acc, curr) => acc + curr.ios, 0),
+        android: dailyData.reduce((acc, curr) => acc + curr.android, 0)
+      };
+    }
+    return {
+      ios: chartData.reduce((acc, curr) => acc + curr.desktop, 0),
+      android: chartData.reduce((acc, curr) => acc + curr.mobile, 0)
+    };
+  }, [dailyData]);
 
   const [isClient, setIsClient] = React.useState(false);
 
   React.useEffect(() => {
     setIsClient(true);
   }, []);
-
-  React.useEffect(() => {
-    if (activeChart === 'error') {
-      throw new Error('Mocking Error');
-    }
-  }, [activeChart]);
 
   if (!isClient) {
     return null;
@@ -163,18 +168,17 @@ export function BarGraph() {
     <Card className='@container/card !pt-3'>
       <CardHeader className='flex flex-col items-stretch space-y-0 border-b !p-0 sm:flex-row'>
         <div className='flex flex-1 flex-col justify-center gap-1 px-6 !py-0'>
-          <CardTitle>Bar Chart - Interactive</CardTitle>
+          <CardTitle>Platform Analytics</CardTitle>
           <CardDescription>
             <span className='hidden @[540px]/card:block'>
-              Total for the last 3 months
+              User distribution by platform
             </span>
-            <span className='@[540px]/card:hidden'>Last 3 months</span>
+            <span className='@[540px]/card:hidden'>Platform users</span>
           </CardDescription>
         </div>
         <div className='flex'>
-          {['desktop', 'mobile', 'error'].map((key) => {
+          {['ios', 'android'].map((key) => {
             const chart = key as keyof typeof chartConfig;
-            if (!chart || total[key as keyof typeof total] === 0) return null;
             return (
               <button
                 key={chart}
@@ -199,7 +203,7 @@ export function BarGraph() {
           className='aspect-auto h-[250px] w-full'
         >
           <BarChart
-            data={chartData}
+            data={dailyData && dailyData.length > 0 ? dailyData : chartData}
             margin={{
               left: 12,
               right: 12
@@ -221,7 +225,7 @@ export function BarGraph() {
             </defs>
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey='date'
+              dataKey={dailyData && dailyData.length > 0 ? 'date' : 'date'}
               tickLine={false}
               axisLine={false}
               tickMargin={8}
@@ -234,6 +238,7 @@ export function BarGraph() {
                 });
               }}
             />
+            <YAxis domain={[0, 100]} hide={true} />
             <ChartTooltip
               cursor={{ fill: 'var(--primary)', opacity: 0.1 }}
               content={

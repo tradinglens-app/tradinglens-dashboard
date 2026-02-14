@@ -60,63 +60,187 @@ export const navItems: NavItem[] = [
     // access: { requireOrg: true, permission: 'org:teams:view' }
   },
   {
-    title: 'Product',
-    url: '/dashboard/product',
-    icon: 'product',
-    shortcut: ['p', 'p'],
-    isActive: false,
-    items: []
-  },
-  {
-    title: 'Kanban',
-    url: '/dashboard/kanban',
-    icon: 'kanban',
-    shortcut: ['k', 'k'],
-    isActive: false,
-    items: []
-  },
-  {
-    title: 'Pro',
+    title: 'Reports Center',
     url: '#', // Placeholder as there is no direct link for the parent
-    icon: 'pro',
+    icon: 'post',
     isActive: true,
     items: [
       {
-        title: 'Exclusive',
-        url: '/dashboard/exclusive',
-        icon: 'exclusive',
-        shortcut: ['m', 'm']
+        title: 'Bug Reports',
+        url: '/dashboard/reports/bugs',
+        icon: 'userPen',
+        shortcut: ['b', 'b']
+      },
+      {
+        title: 'Post Reports',
+        url: '/dashboard/reports/posts',
+        icon: 'post',
+        shortcut: ['p', 'r']
       }
     ]
   },
   {
-    title: 'Account',
-    url: '#', // Placeholder as there is no direct link for the parent
-    icon: 'account',
+    title: 'Community Moderation',
+    url: '#',
+    icon: 'community',
     isActive: true,
     items: [
       {
-        title: 'Profile',
-        url: '/dashboard/profile',
-        icon: 'profile',
-        shortcut: ['m', 'm']
+        title: 'Posts',
+        url: '/dashboard/community/posts',
+        icon: 'posts',
+        shortcut: ['p', 'o']
+      },
+      // {
+      //   title: 'Comments',
+      //   url: '/dashboard/community/comments',
+      //   icon: 'comments',
+      //   shortcut: ['c', 'm']
+      // },
+      {
+        title: 'Users',
+        url: '/dashboard/community/users',
+        icon: 'users',
+        shortcut: ['u', 's']
+      }
+    ]
+  },
+
+  // {
+  //   title: 'Product',
+  //   url: '/dashboard/product',
+  //   icon: 'product',
+  //   shortcut: ['p', 'p'],
+  //   isActive: false,
+  //   items: []
+  // },
+  // {
+  //   title: 'Kanban',
+  //   url: '/dashboard/kanban',
+  //   icon: 'kanban',
+  //   shortcut: ['k', 'k'],
+  //   isActive: false,
+  //   items: []
+  // },
+  {
+    title: 'User Verification',
+    url: '#', // Placeholder
+    icon: 'verification',
+    isActive: true,
+    items: [
+      {
+        title: 'Badge',
+        url: '/dashboard/user-verification/badge',
+        icon: 'badge',
+        shortcut: ['u', 'v']
+      }
+    ]
+  },
+  {
+    title: 'News & Articles',
+    url: '/dashboard/news-articles',
+    icon: 'article',
+    shortcut: ['n', 'a'],
+    items: []
+  },
+  {
+    title: 'Ads Manager',
+    url: '/dashboard/ads-manager',
+    icon: 'adsManager',
+    items: []
+  },
+  {
+    title: 'Symbols Database',
+    url: '/dashboard/symbols-database',
+    icon: 'database',
+    items: []
+  },
+  // {
+  //   title: 'Campaigns',
+  //   url: '/dashboard/campaigns',
+  //   icon: 'campaign',
+  //   items: []
+  // },
+  // {
+  //   title: 'Notifications Center',
+  //   url: '/dashboard/notifications',
+  //   icon: 'notification',
+  //   items: []
+  // },
+  {
+    title: 'Settings',
+    url: '#',
+    icon: 'settings',
+    items: [
+      {
+        title: 'RBAC',
+        url: '/dashboard/settings/rbac',
+        icon: 'rbac',
+        shortcut: ['r', 'b']
       },
       {
-        title: 'Billing',
-        url: '/dashboard/billing',
-        icon: 'billing',
-        shortcut: ['b', 'b'],
-        // Only show billing if in organization context
-        access: { requireOrg: true }
-        // Alternative: require billing management permission
-        // access: { requireOrg: true, permission: 'org:manage:billing' }
+        title: 'Rules',
+        url: '/dashboard/settings/rules',
+        icon: 'rules',
+        shortcut: ['r', 'u']
       },
       {
-        title: 'Login',
-        shortcut: ['l', 'l'],
-        url: '/',
-        icon: 'login'
+        title: 'Integrations',
+        url: '/dashboard/settings/integrations',
+        icon: 'integrations',
+        shortcut: ['i', 'n']
+      },
+      {
+        title: 'Audit Logs',
+        url: '/dashboard/settings/audit-logs',
+        icon: 'audit',
+        shortcut: ['a', 'l']
       }
     ]
   }
+
+  // {
+  //   title: 'Pro',
+  //   url: '#', // Placeholder as there is no direct link for the parent
+  //   icon: 'pro',
+  //   isActive: true,
+  //   items: [
+  //     {
+  //       title: 'Exclusive',
+  //       url: '/dashboard/exclusive',
+  //       icon: 'exclusive',
+  //       shortcut: ['m', 'm']
+  //     }
+  //   ]
+  // },
+  // {
+  //   title: 'Account',
+  //   url: '#', // Placeholder as there is no direct link for the parent
+  //   icon: 'account',
+  //   isActive: true,
+  //   items: [
+  //     {
+  //       title: 'Profile',
+  //       url: '/dashboard/profile',
+  //       icon: 'profile',
+  //       shortcut: ['m', 'm']
+  //     },
+  //     {
+  //       title: 'Billing',
+  //       url: '/dashboard/billing',
+  //       icon: 'billing',
+  //       shortcut: ['b', 'b'],
+  //       // Only show billing if in organization context
+  //       access: { requireOrg: true }
+  //       // Alternative: require billing management permission
+  //       // access: { requireOrg: true, permission: 'org:manage:billing' }
+  //     },
+  //     {
+  //       title: 'Login',
+  //       shortcut: ['l', 'l'],
+  //       url: '/',
+  //       icon: 'login'
+  //     }
+  //   ]
+  // }
 ];
