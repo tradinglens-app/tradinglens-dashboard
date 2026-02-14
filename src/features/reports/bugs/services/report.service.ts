@@ -86,7 +86,14 @@ export async function getBugReportsService(params: GetBugReportsParams = {}) {
       where,
       take: pageSize,
       skip: (page - 1) * pageSize,
-      orderBy: { created_at: 'desc' }
+      orderBy: { created_at: 'desc' },
+      select: {
+        id: true,
+        topic: true,
+        status: true,
+        created_at: true
+        // Exclude: details, user_id, platform, app_version, device_info, screenshots, updated_at
+      }
     }),
     prisma.app_problem_report.count({ where })
   ]);

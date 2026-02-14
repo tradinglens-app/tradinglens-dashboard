@@ -78,13 +78,41 @@ export async function getAds(params: GetAdsParams = {}) {
       where,
       take: pageSize,
       skip: (page - 1) * pageSize,
-      orderBy: { id: 'desc' }
+      orderBy: { id: 'desc' },
+      select: {
+        id: true,
+        title_en: true,
+        title_th: true,
+        description_en: true,
+        description_th: true,
+        type: true,
+        image_banner_dark: true,
+        image_banner_white: true,
+        path: true
+        // Exclude content and button text if not needed in list
+      }
     }),
     prisma.promotion_articles.count({ where })
   ]);
 
+  const data: Ad[] = ads.map((ad) => ({
+    id: ad.id,
+    image_banner_dark: ad.image_banner_dark,
+    image_banner_white: ad.image_banner_white,
+    title_th: ad.title_th,
+    title_en: ad.title_en,
+    description_th: ad.description_th,
+    description_en: ad.description_en,
+    content_th: null, // Excluded
+    content_en: null, // Excluded
+    button_text_th: null, // Excluded
+    button_text_en: null, // Excluded
+    path: ad.path,
+    type: ad.type
+  }));
+
   return {
-    data: ads,
+    data,
     totalCount,
     pageCount: Math.ceil(totalCount / pageSize)
   };

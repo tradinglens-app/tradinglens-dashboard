@@ -64,9 +64,11 @@ export function PostDetailSheet({
               <Badge variant='secondary' className='font-normal'>
                 {post.visibility || 'Public'}
               </Badge>
-              <Badge variant='outline' className='font-normal'>
-                Level {post.parent_level}
-              </Badge>
+              {post.parent_level !== undefined && (
+                <Badge variant='outline' className='font-normal'>
+                  Level {post.parent_level}
+                </Badge>
+              )}
               <Badge variant='outline'>ID: {post.id.slice(0, 8)}...</Badge>
             </div>
             <SheetDescription className='sr-only'>
@@ -107,7 +109,9 @@ export function PostDetailSheet({
                       Last Updated
                     </p>
                     <p className='text-muted-foreground text-sm'>
-                      {format(new Date(post.updated_at), 'PPP p')}
+                      {post.updated_at
+                        ? format(new Date(post.updated_at), 'PPP p')
+                        : 'N/A'}
                     </p>
                   </div>
                 </div>
@@ -160,17 +164,19 @@ export function PostDetailSheet({
                   </div>
                 </div>
 
-                <div className='flex items-center gap-3'>
-                  <Layers className='text-muted-foreground h-5 w-5' />
-                  <div className='space-y-1'>
-                    <p className='text-sm leading-none font-medium'>
-                      Parent Level
-                    </p>
-                    <p className='text-muted-foreground text-sm'>
-                      {post.parent_level}
-                    </p>
+                {post.parent_level !== undefined && (
+                  <div className='flex items-center gap-3'>
+                    <Layers className='text-muted-foreground h-5 w-5' />
+                    <div className='space-y-1'>
+                      <p className='text-sm leading-none font-medium'>
+                        Parent Level
+                      </p>
+                      <p className='text-muted-foreground text-sm'>
+                        {post.parent_level}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
               <Separator />

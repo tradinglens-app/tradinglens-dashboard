@@ -94,7 +94,30 @@ export async function getAnnouncements(params: GetAnnouncementsParams = {}) {
       where,
       take: pageSize,
       skip: (page - 1) * pageSize,
-      orderBy: { id: 'desc' }
+      orderBy: { id: 'desc' },
+      select: {
+        id: true,
+        type: true,
+        display_type: true,
+        title_en: true,
+        title_th: true,
+        message_en: true,
+        message_th: true,
+        button_text_en: true,
+        button_text_th: true,
+        action_type: true,
+        action_value: true,
+        platform: true,
+        min_app_version: true,
+        max_app_version: true,
+        start_at: true,
+        end_at: true,
+        priority: true,
+        is_active: true,
+        dismissible: true,
+        created_at: true,
+        updated_at: true
+      }
     }),
     prisma.in_app_announcements.count({ where })
   ]);

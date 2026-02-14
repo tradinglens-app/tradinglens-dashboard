@@ -146,8 +146,32 @@ export async function getNews(params: GetNewsParams = {}) {
       take: pageSize,
       skip: (page - 1) * pageSize,
       orderBy,
-      include: {
-        stock_news_translation: true
+      select: {
+        id: true,
+        symbol: true,
+        exchange: true,
+        title: true,
+        summary: true,
+        image_url: true,
+        publisher: true,
+        published_date: true,
+        language: true,
+        view_count: true,
+        like_count: true,
+        is_featured: true,
+        is_hot: true,
+        is_active: true,
+        created_at: true,
+        stock_news_translation: {
+          select: {
+            id: true,
+            language: true,
+            title: true,
+            summary: true
+            // Exclude: content (heavy field)
+          }
+        }
+        // Exclude: content, source_url, share_count, tags, categories, updated_at
       }
     }),
     prisma.stock_news.count({ where })
@@ -158,30 +182,30 @@ export async function getNews(params: GetNewsParams = {}) {
     symbol: n.symbol,
     exchange: n.exchange,
     title: n.title,
-    content: n.content,
+    content: null, // Excluded from list query
     summary: n.summary,
     imageUrl: n.image_url,
-    sourceUrl: n.source_url,
+    sourceUrl: null, // Excluded from list query
     publisher: n.publisher,
     publishedDate: n.published_date,
     language: n.language,
     viewCount: n.view_count ?? 0,
     likeCount: n.like_count ?? 0,
-    shareCount: n.share_count ?? 0,
+    shareCount: 0, // Excluded from list query
     isFeatured: n.is_featured ?? false,
     isHot: n.is_hot ?? false,
     isActive: n.is_active ?? true,
-    tags: n.tags,
-    categories: n.categories,
+    tags: [], // Excluded from list query
+    categories: null, // Excluded from list query
     translations: n.stock_news_translation.map((t) => ({
       id: t.id,
       language: t.language,
       title: t.title,
-      content: t.content,
+      content: null, // Excluded from list query
       summary: t.summary
     })),
     createdAt: n.created_at,
-    updatedAt: n.updated_at
+    updatedAt: null // Excluded from list query
   }));
 
   return {

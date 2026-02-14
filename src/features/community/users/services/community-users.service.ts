@@ -222,7 +222,32 @@ export async function getCommunityUsers(
       where,
       take: pageSize,
       skip: (page - 1) * pageSize,
-      orderBy
+      orderBy,
+      select: {
+        user_id: true,
+        name: true,
+        username: true,
+        email: true,
+        is_verified: true,
+        created_at: true,
+        account_status: true,
+        last_login_at: true,
+        profile_pic: true,
+        google_id: true,
+        updated_at: true,
+        stripe_customer_id: true,
+        has_used_trial: true,
+        trial_used_at: true,
+        bio: true,
+        status_message: true,
+        birthdate: true,
+        language_preference: true,
+        theme_preference: true,
+        onboarding_completed: true,
+        active_watchlist_id: true,
+        is_private: true,
+        apple_id: true
+      }
     }),
     prisma.users.count({ where })
   ]);

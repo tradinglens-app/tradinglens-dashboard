@@ -15,12 +15,12 @@ export interface Notification {
   sender_id: number | null;
   message_th: string | null;
   message_en: string | null;
-  metadata: any;
+  metadata?: any;
   is_read: boolean | null;
   type: string | null;
   created_at: Date;
-  updated_at: Date;
-  deleted_at: Date | null;
+  updated_at?: Date;
+  deleted_at?: Date | null;
   sender?: {
     name: string | null;
     username: string | null;
@@ -102,7 +102,18 @@ export async function getNotifications(params: GetNotificationsParams = {}) {
       where,
       take: pageSize,
       skip: (page - 1) * pageSize,
-      orderBy: { created_at: 'desc' }
+      orderBy: { created_at: 'desc' },
+      select: {
+        id: true,
+        user_id: true,
+        sender_id: true,
+        message_th: true,
+        message_en: true,
+        is_read: true,
+        type: true,
+        created_at: true
+        // Exclude: metadata, updated_at, deleted_at
+      }
     }),
     prismaThread.notifications.count({ where })
   ]);

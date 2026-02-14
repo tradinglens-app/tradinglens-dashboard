@@ -10,7 +10,20 @@ export async function getPostEnumValues(): Promise<Record<string, string[]>> {
   return { visibility, type };
 }
 
-export interface Post extends Threads {
+export interface Post {
+  id: string;
+  user_id: number;
+  content: string | null;
+  visibility: string | null;
+  created_at: Date;
+  updated_at?: Date;
+  poll_id: string | null;
+  company_info_id: string | null;
+  quoted_thread_id: string | null;
+  news_id: string | null;
+  start_thread_id?: string | null;
+  parent_thread_id?: string | null;
+  parent_level?: number;
   user?: {
     name: string | null;
     username: string | null;
@@ -113,7 +126,23 @@ export async function getPosts(params: GetPostsParams = {}) {
       where,
       take: pageSize,
       skip: (page - 1) * pageSize,
-      orderBy: { created_at: 'desc' }
+      orderBy: { created_at: 'desc' },
+      select: {
+        id: true,
+        user_id: true,
+        content: true,
+        visibility: true,
+        created_at: true,
+        updated_at: true,
+        poll_id: true,
+        company_info_id: true,
+        quoted_thread_id: true,
+        news_id: true,
+        start_thread_id: true,
+        parent_thread_id: true,
+        parent_level: true
+        // Exclude: deleted_at (already filtered in where clause)
+      }
     }),
     prismaThread.threads.count({ where })
   ]);
