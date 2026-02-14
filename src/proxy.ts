@@ -1,10 +1,18 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const isProtectedRoute = createRouteMatcher(['/dashboard(.*)']);
 
 export default clerkMiddleware(async (auth, req: NextRequest) => {
-  if (isProtectedRoute(req)) await auth.protect();
+  if (isProtectedRoute(req)) {
+    const { userId, orgId } = await auth.protect();
+
+    // If user is authenticated but has no organization, redirect to no-org page
+    if (userId && !orgId) {
+      const noOrgUrl = new URL('/no-organization', req.url);
+      return NextResponse.redirect(noOrgUrl);
+    }
+  }
 });
 export const config = {
   matcher: [
