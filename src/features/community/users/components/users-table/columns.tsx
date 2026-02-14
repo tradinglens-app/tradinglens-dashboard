@@ -26,10 +26,12 @@ import {
 } from 'lucide-react';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { toLabel, toOptions } from '@/lib/db-enums.utils';
 
 export const getColumns = (
   onDetail: (user: CommunityUser) => void,
-  onStatusChange: (user: CommunityUser, status: string) => void
+  onStatusChange: (user: CommunityUser, status: string) => void,
+  enumValues?: Record<string, string[]>
 ): ColumnDef<CommunityUser>[] => [
   {
     accessorKey: 'id',
@@ -166,15 +168,17 @@ export const getColumns = (
     },
     enableSorting: true,
     meta: {
-      options: [
-        { label: 'Normal', value: 'NORMAL' },
-        { label: 'Warning', value: 'WARNING' },
-        { label: 'Limited', value: 'LIMITED' },
-        { label: 'Restricted', value: 'RESTRICTED' },
-        { label: 'Suspended', value: 'SUSPENDED' },
-        { label: 'Banned', value: 'BANNED' },
-        { label: 'Under Review', value: 'UNDER_REVIEW' }
-      ]
+      options: enumValues?.accountStatus
+        ? toOptions(enumValues.accountStatus)
+        : [
+            { label: 'Normal', value: 'NORMAL' },
+            { label: 'Warning', value: 'WARNING' },
+            { label: 'Limited', value: 'LIMITED' },
+            { label: 'Restricted', value: 'RESTRICTED' },
+            { label: 'Suspended', value: 'SUSPENDED' },
+            { label: 'Banned', value: 'BANNED' },
+            { label: 'Under Review', value: 'UNDER_REVIEW' }
+          ]
     }
   },
   {

@@ -1,4 +1,10 @@
 import { prisma } from '@/lib/prisma';
+import { getDistinctValues } from '@/lib/db-enums.service';
+
+export async function getSymbolEnumValues(): Promise<Record<string, string[]>> {
+  const types = await getDistinctValues('symbol', 'type', 'main');
+  return { type: types };
+}
 
 export interface SymbolData {
   id: string;

@@ -1,6 +1,9 @@
 import PageContainer from '@/components/layout/page-container';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getCommunityUsers } from '@/features/community/users/services/community-users.service';
+import {
+  getCommunityUsers,
+  getCommunityUserEnumValues
+} from '@/features/community/users/services/community-users.service';
 import { UsersTable } from '@/features/community/users/components/users-table';
 import { searchParamsCache } from '@/lib/searchparams';
 
@@ -47,7 +50,10 @@ export default async function CommunityUsersPage({
     sort: sort as string
   };
 
-  const { data, totalCount } = await getCommunityUsers(filters);
+  const [{ data, totalCount }, enumValues] = await Promise.all([
+    getCommunityUsers(filters),
+    getCommunityUserEnumValues()
+  ]);
 
   return (
     <PageContainer scrollable={false}>
@@ -60,7 +66,11 @@ export default async function CommunityUsersPage({
             <CardTitle>All Users</CardTitle>
           </CardHeader>
           <CardContent className='flex flex-1 flex-col'>
-            <UsersTable data={data} totalItems={totalCount} />
+            <UsersTable
+              data={data}
+              totalItems={totalCount}
+              enumValues={enumValues}
+            />
           </CardContent>
         </Card>
       </div>

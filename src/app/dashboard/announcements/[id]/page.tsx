@@ -1,6 +1,9 @@
 import PageContainer from '@/components/layout/page-container';
 import { AnnouncementsForm } from '@/features/announcements/components/announcements-form';
-import { getAnnouncementById } from '@/features/announcements/services/announcements.service';
+import {
+  getAnnouncementById,
+  getAnnouncementEnumValues
+} from '@/features/announcements/services/announcements.service';
 
 export default async function AnnouncementEditPage({
   params
@@ -18,6 +21,8 @@ export default async function AnnouncementEditPage({
     }
   }
 
+  const enumValues = await getAnnouncementEnumValues();
+
   return (
     <PageContainer scrollable={true}>
       <div className='max-w-4xl space-y-4'>
@@ -26,7 +31,7 @@ export default async function AnnouncementEditPage({
             {isNew ? 'Create Announcement' : 'Edit Announcement'}
           </h2>
         </div>
-        <AnnouncementsForm initialData={announcement} />
+        <AnnouncementsForm initialData={announcement} enumValues={enumValues} />
       </div>
     </PageContainer>
   );

@@ -24,8 +24,11 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip';
+import { toOptions } from '@/lib/db-enums.utils';
 
-export const columns: ColumnDef<Post>[] = [
+export const getColumns = (
+  enumValues?: Record<string, string[]>
+): ColumnDef<Post>[] => [
   {
     accessorKey: 'id',
     header: ({ column }) => (
@@ -125,16 +128,18 @@ export const columns: ColumnDef<Post>[] = [
     },
     enableColumnFilter: true,
     meta: {
-      options: [
-        { label: 'Public', value: 'public' },
-        { label: 'Private', value: 'private' },
-        { label: 'Followers Only', value: 'followers_only' },
-        { label: 'Following Only', value: 'following_only' },
-        {
-          label: 'Followers & Following',
-          value: 'followers_and_following_only'
-        }
-      ]
+      options: enumValues?.visibility
+        ? toOptions(enumValues.visibility)
+        : [
+            { label: 'Public', value: 'public' },
+            { label: 'Private', value: 'private' },
+            { label: 'Followers Only', value: 'followers_only' },
+            { label: 'Following Only', value: 'following_only' },
+            {
+              label: 'Followers & Following',
+              value: 'followers_and_following_only'
+            }
+          ]
     }
   },
   {
@@ -165,13 +170,15 @@ export const columns: ColumnDef<Post>[] = [
     },
     enableColumnFilter: true,
     meta: {
-      options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Poll', value: 'poll' },
-        { label: 'Company Info', value: 'company_info' },
-        { label: 'Quote', value: 'quote' },
-        { label: 'News', value: 'news' }
-      ]
+      options: enumValues?.type
+        ? toOptions(enumValues.type)
+        : [
+            { label: 'Default', value: 'default' },
+            { label: 'Poll', value: 'poll' },
+            { label: 'Company Info', value: 'company_info' },
+            { label: 'Quote', value: 'quote' },
+            { label: 'News', value: 'news' }
+          ]
     }
   },
   {

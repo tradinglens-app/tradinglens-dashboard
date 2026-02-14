@@ -16,10 +16,13 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Icons } from '@/components/icons';
 
+import { toOptions } from '@/lib/db-enums.utils';
+
 export const getColumns = (
   onDetail: (symbol: SymbolData) => void,
   onEdit: (symbol: SymbolData) => void,
-  onDelete: (symbol: SymbolData) => void
+  onDelete: (symbol: SymbolData) => void,
+  enumValues?: Record<string, string[]>
 ): ColumnDef<SymbolData>[] => [
   {
     accessorKey: 'symbol',
@@ -82,11 +85,13 @@ export const getColumns = (
     meta: {
       label: 'Type',
       variant: 'multiSelect',
-      options: [
-        { label: 'Stock', value: 'Stock' },
-        { label: 'ETF', value: 'ETF' },
-        { label: 'Crypto', value: 'Crypto' }
-      ]
+      options: enumValues?.type
+        ? toOptions(enumValues.type)
+        : [
+            { label: 'Stock', value: 'Stock' },
+            { label: 'ETF', value: 'ETF' },
+            { label: 'Crypto', value: 'Crypto' }
+          ]
     }
   },
   {

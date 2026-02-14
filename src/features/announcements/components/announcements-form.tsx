@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
+import { toLabel } from '@/lib/db-enums.utils';
 import {
   Form,
   FormControl,
@@ -57,6 +58,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 interface AnnouncementsFormProps {
   initialData: Announcement | null;
+  enumValues: Record<string, string[]>;
 }
 
 function toDatetimeLocal(date: Date | string | null): string {
@@ -68,7 +70,10 @@ function toDatetimeLocal(date: Date | string | null): string {
   return local.toISOString().slice(0, 16);
 }
 
-export function AnnouncementsForm({ initialData }: AnnouncementsFormProps) {
+export function AnnouncementsForm({
+  initialData,
+  enumValues
+}: AnnouncementsFormProps) {
   const router = useRouter();
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema) as any,
@@ -304,10 +309,11 @@ export function AnnouncementsForm({ initialData }: AnnouncementsFormProps) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value='popup'>Popup</SelectItem>
-                        <SelectItem value='banner'>Banner</SelectItem>
-                        <SelectItem value='modal'>Modal</SelectItem>
-                        <SelectItem value='toast'>Toast</SelectItem>
+                        {(enumValues.type || []).map((v) => (
+                          <SelectItem key={v} value={v}>
+                            {toLabel(v)}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -330,9 +336,11 @@ export function AnnouncementsForm({ initialData }: AnnouncementsFormProps) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value='once'>Once</SelectItem>
-                        <SelectItem value='always'>Always</SelectItem>
-                        <SelectItem value='session'>Per Session</SelectItem>
+                        {(enumValues.display_type || []).map((v) => (
+                          <SelectItem key={v} value={v}>
+                            {toLabel(v)}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -355,9 +363,11 @@ export function AnnouncementsForm({ initialData }: AnnouncementsFormProps) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value='all'>All</SelectItem>
-                        <SelectItem value='ios'>iOS</SelectItem>
-                        <SelectItem value='android'>Android</SelectItem>
+                        {(enumValues.platform || []).map((v) => (
+                          <SelectItem key={v} value={v}>
+                            {toLabel(v)}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -370,13 +380,23 @@ export function AnnouncementsForm({ initialData }: AnnouncementsFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Action Type</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder='e.g., url, deeplink, screen'
-                        {...field}
-                        value={field.value || ''}
-                      />
-                    </FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value || ''}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select action type' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {(enumValues.action_type || []).map((v) => (
+                          <SelectItem key={v} value={v}>
+                            {toLabel(v)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

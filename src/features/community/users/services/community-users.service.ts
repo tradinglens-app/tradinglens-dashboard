@@ -1,5 +1,17 @@
 import { prisma } from '@/lib/prisma';
 import { format } from 'date-fns';
+import { getDistinctValues } from '@/lib/db-enums.service';
+
+export async function getCommunityUserEnumValues(): Promise<
+  Record<string, string[]>
+> {
+  const accountStatus = await getDistinctValues(
+    'users',
+    'account_status',
+    'main'
+  );
+  return { accountStatus };
+}
 
 export interface CommunityUser {
   id: string; // user_id as string

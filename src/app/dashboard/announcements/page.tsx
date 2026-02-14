@@ -1,7 +1,10 @@
 import PageContainer from '@/components/layout/page-container';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AnnouncementsTable } from '@/features/announcements/components/announcements-table';
-import { getAnnouncements } from '@/features/announcements/services/announcements.service';
+import {
+  getAnnouncements,
+  getAnnouncementEnumValues
+} from '@/features/announcements/services/announcements.service';
 import { searchParamsCache } from '@/lib/searchparams';
 
 export default async function AnnouncementsPage({
@@ -16,6 +19,7 @@ export default async function AnnouncementsPage({
   const pageLimit = searchParamsCache.get('perPage');
   const search = searchParamsCache.get('search');
   const title_en = searchParamsCache.get('title_en');
+  const type = searchParamsCache.get('type');
 
   // Created At date range filter
   const createdAtRange = searchParamsCache.get('created_at');
@@ -36,9 +40,12 @@ export default async function AnnouncementsPage({
     pageSize: pageLimit,
     search: search || undefined,
     title_en: title_en || undefined,
+    type: type && type.length > 0 ? type : undefined,
     created_at_from,
     created_at_to
   });
+
+  const enumValues = await getAnnouncementEnumValues();
 
   return (
     <PageContainer scrollable={false}>
@@ -53,7 +60,11 @@ export default async function AnnouncementsPage({
             <CardTitle>Announcements</CardTitle>
           </CardHeader>
           <CardContent className='flex flex-1 flex-col'>
-            <AnnouncementsTable data={data} totalItems={totalCount} />
+            <AnnouncementsTable
+              data={data}
+              totalItems={totalCount}
+              enumValues={enumValues}
+            />
           </CardContent>
         </Card>
       </div>

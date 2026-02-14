@@ -1,6 +1,14 @@
 import { prisma as prismaMain } from '@/lib/prisma';
 import { prismaThread } from '@/lib/prisma-thread';
 import { Threads } from '@/generated/prisma-client-thread';
+import { getEnumValues } from '@/lib/db-enums.service';
+
+export async function getPostEnumValues(): Promise<Record<string, string[]>> {
+  const visibility = await getEnumValues('visibility_enum', 'thread');
+  // Post types are computed from ID fields, not DB constraints
+  const type = ['default', 'poll', 'company_info', 'quote', 'news'];
+  return { visibility, type };
+}
 
 export interface Post extends Threads {
   user?: {

@@ -1,4 +1,16 @@
 import { prisma } from '@/lib/prisma';
+import { getDistinctValues } from '@/lib/db-enums.service';
+
+export async function getBugReportEnumValues(): Promise<
+  Record<string, string[]>
+> {
+  const status = await getDistinctValues(
+    'app_problem_report',
+    'status',
+    'main'
+  );
+  return { status };
+}
 
 export interface GetBugReportsParams {
   page?: number;

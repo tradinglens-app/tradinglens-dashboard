@@ -23,8 +23,11 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip';
+import { toOptions } from '@/lib/db-enums.utils';
 
-export const getColumns = (): ColumnDef<app_problem_report>[] => [
+export const getColumns = (
+  enumValues?: Record<string, string[]>
+): ColumnDef<app_problem_report>[] => [
   {
     accessorKey: 'id',
     header: ({ column }) => (
@@ -123,12 +126,14 @@ export const getColumns = (): ColumnDef<app_problem_report>[] => [
     meta: {
       label: 'Status',
       variant: 'select',
-      options: [
-        { label: 'Open', value: 'Open' },
-        { label: 'In Progress', value: 'In Progress' },
-        { label: 'Resolved', value: 'Resolved' },
-        { label: 'Pending', value: 'Pending' }
-      ]
+      options: enumValues?.status
+        ? toOptions(enumValues.status)
+        : [
+            { label: 'Open', value: 'Open' },
+            { label: 'In Progress', value: 'In Progress' },
+            { label: 'Resolved', value: 'Resolved' },
+            { label: 'Pending', value: 'Pending' }
+          ]
     },
     enableColumnFilter: true
   },

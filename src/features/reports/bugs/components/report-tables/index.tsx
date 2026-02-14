@@ -12,16 +12,21 @@ import { DEFAULT_PAGE_SIZE } from '@/constants/data-table-config';
 interface ReportListingProps {
   data: app_problem_report[];
   totalCount: number;
+  enumValues?: Record<string, string[]>;
 }
 
-export function ReportListing({ data, totalCount }: ReportListingProps) {
+export function ReportListing({
+  data,
+  totalCount,
+  enumValues
+}: ReportListingProps) {
   const [pageSize] = useQueryState(
     'perPage',
     parseAsInteger.withDefault(DEFAULT_PAGE_SIZE)
   );
 
   // Memoize columns to prevent unnecessary re-renders
-  const columns = useMemo(() => getColumns(), []);
+  const columns = useMemo(() => getColumns(enumValues), [enumValues]);
 
   const { table } = useDataTable({
     data,

@@ -1,4 +1,11 @@
 import { prisma } from '@/lib/prisma';
+import { getCheckConstraintValues } from '@/lib/db-enums.service';
+
+export async function getAnnouncementEnumValues(): Promise<
+  Record<string, string[]>
+> {
+  return getCheckConstraintValues('in_app_announcements');
+}
 
 export interface Announcement {
   id: number;
@@ -29,7 +36,7 @@ export interface GetAnnouncementsParams {
   pageSize?: number;
   search?: string;
   title_en?: string;
-  type?: string;
+  type?: string[];
   created_at_from?: string;
   created_at_to?: string;
 }
@@ -64,8 +71,8 @@ export async function getAnnouncements(params: GetAnnouncementsParams = {}) {
     });
   }
 
-  if (type) {
-    where.AND.push({ type: { equals: type } });
+  if (type && type.length > 0) {
+    where.AND.push({ type: { in: type } });
   }
 
   // Date range filter

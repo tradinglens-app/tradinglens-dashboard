@@ -18,8 +18,11 @@ import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { formatDateApp } from '@/lib/format';
 import { AnnouncementsDeleteDialog } from '@/features/announcements/components/announcements-delete-dialog';
+import { toLabel, toOptions } from '@/lib/db-enums.utils';
 
-export const columns: ColumnDef<Announcement>[] = [
+export const getColumns = (
+  enumValues: Record<string, string[]>
+): ColumnDef<Announcement>[] => [
   {
     accessorKey: 'id',
     header: ({ column }) => (
@@ -56,7 +59,16 @@ export const columns: ColumnDef<Announcement>[] = [
       <Badge variant='outline' className='capitalize'>
         {row.getValue('type')}
       </Badge>
-    )
+    ),
+    enableColumnFilter: true,
+    meta: {
+      label: 'Type',
+      variant: 'multiSelect',
+      options: (enumValues.type || []).map((v) => ({
+        label: toLabel(v),
+        value: v
+      }))
+    }
   },
   {
     accessorKey: 'display_type',
