@@ -41,7 +41,8 @@ export const searchParams = {
   postTitle: parseAsString.withDefault(''),
   content: parseAsString.withDefault(''),
   accountStatus: parseAsArrayOf(parseAsString).withDefault([]),
-  visibility: parseAsArrayOf(parseAsString).withDefault([])
+  visibility: parseAsArrayOf(parseAsString).withDefault([]),
+  is_read: parseAsArrayOf(parseAsString).withDefault([])
 };
 
 export const searchParamsCache = createSearchParamsCache(searchParams);

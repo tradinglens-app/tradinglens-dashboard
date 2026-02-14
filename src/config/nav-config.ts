@@ -167,12 +167,12 @@ export const navItems: NavItem[] = [
   //   icon: 'campaign',
   //   items: []
   // },
-  // {
-  //   title: 'Notifications Center',
-  //   url: '/dashboard/notifications',
-  //   icon: 'notification',
-  //   items: []
-  // },
+  {
+    title: 'Notifications',
+    url: '/dashboard/notifications',
+    icon: 'notification',
+    items: []
+  },
   {
     title: 'Settings',
     url: '#',
