@@ -27,6 +27,7 @@ export interface GetSymbolsParams {
   exchange?: string;
   createdAt?: number[];
   hasLogo?: string[];
+  sort?: string;
 }
 
 export async function getSymbols(params: GetSymbolsParams = {}) {
@@ -39,7 +40,8 @@ export async function getSymbols(params: GetSymbolsParams = {}) {
     type,
     exchange,
     createdAt,
-    hasLogo
+    hasLogo,
+    sort
   } = params;
 
   const where: any = {};
@@ -81,12 +83,44 @@ export async function getSymbols(params: GetSymbolsParams = {}) {
     }
   }
 
+  // Sorting logic
+  let orderBy: any = { created_at: 'desc' }; // Default sort
+  if (sort) {
+    try {
+      const sortParsed = JSON.parse(sort);
+      if (Array.isArray(sortParsed) && sortParsed.length > 0) {
+        const { id, desc } = sortParsed[0];
+        const direction = desc ? 'desc' : 'asc';
+
+        switch (id) {
+          case 'symbol':
+          case 'type':
+            orderBy = { [id]: direction };
+            break;
+          case 'name':
+            orderBy = { company_name: direction };
+            break;
+          case 'exchange':
+            orderBy = { exchange_short_name: direction };
+            break;
+          case 'createdAt':
+            orderBy = { created_at: direction };
+            break;
+          default:
+            orderBy = { created_at: 'desc' };
+        }
+      }
+    } catch (e) {
+      console.error('Failed to parse sort param:', e);
+    }
+  }
+
   const [symbols, totalCount] = await Promise.all([
     prisma.symbol.findMany({
       where,
       take: pageSize,
       skip: (page - 1) * pageSize,
-      orderBy: { created_at: 'desc' }
+      orderBy
     }),
     prisma.symbol.count({ where })
   ]);

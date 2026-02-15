@@ -41,6 +41,7 @@ export interface GetNotificationsParams {
   is_read?: string[];
   created_at_from?: string;
   created_at_to?: string;
+  sort?: string;
 }
 
 export async function getNotifications(params: GetNotificationsParams = {}) {
@@ -51,7 +52,8 @@ export async function getNotifications(params: GetNotificationsParams = {}) {
     type,
     is_read,
     created_at_from,
-    created_at_to
+    created_at_to,
+    sort
   } = params;
 
   const where: any = {
@@ -97,12 +99,34 @@ export async function getNotifications(params: GetNotificationsParams = {}) {
     where.created_at = dateFilter;
   }
 
+  // Sorting
+  let orderBy: any = { created_at: 'desc' };
+  const fieldMapping: Record<string, string> = {
+    is_read: 'is_read',
+    type: 'type',
+    created_at: 'created_at',
+    createdAt: 'created_at'
+  };
+
+  if (sort) {
+    try {
+      const parsedSort = JSON.parse(sort);
+      if (Array.isArray(parsedSort) && parsedSort.length > 0) {
+        const { id, desc } = parsedSort[0];
+        const dbField = fieldMapping[id] || id;
+        orderBy = { [dbField]: desc ? 'desc' : 'asc' };
+      }
+    } catch (e) {
+      console.error('Error parsing sort:', e);
+    }
+  }
+
   const [notifications, totalCount] = await Promise.all([
     prismaThread.notifications.findMany({
       where,
       take: pageSize,
       skip: (page - 1) * pageSize,
-      orderBy: { created_at: 'desc' },
+      orderBy,
       select: {
         id: true,
         user_id: true,

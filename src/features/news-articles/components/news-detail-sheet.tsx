@@ -155,6 +155,13 @@ export function NewsDetailSheet({
           />
 
           <div className='flex-1 overflow-y-auto px-6'>
+            {/* Hero Image - Always Visible */}
+            {news.imageUrl && (
+              <div className='pt-6 pb-6'>
+                <NewsDetailImage imageUrl={news.imageUrl} title={news.title} />
+              </div>
+            )}
+
             {thaiTranslation ? (
               <Tabs
                 defaultValue='original'
@@ -162,7 +169,7 @@ export function NewsDetailSheet({
                 onValueChange={setActiveTab}
                 className='w-full'
               >
-                <div className='py-4'>
+                <div className='pb-4'>
                   <TabsList className='grid w-full grid-cols-2'>
                     <TabsTrigger value='original'>
                       Original ({news.language || 'EN'})
@@ -172,14 +179,6 @@ export function NewsDetailSheet({
                 </div>
 
                 <div className='space-y-6 pb-6'>
-                  {/* Image */}
-                  {news.imageUrl && (
-                    <NewsDetailImage
-                      imageUrl={news.imageUrl}
-                      title={news.title}
-                    />
-                  )}
-
                   {/* Meta Info */}
                   <div className='grid grid-cols-2 gap-4 text-sm'>
                     <DetailInfoRow
@@ -375,15 +374,7 @@ export function NewsDetailSheet({
                 </div>
               </Tabs>
             ) : (
-              <div className='space-y-6 pt-6 pb-6'>
-                {/* Image */}
-                {news.imageUrl && (
-                  <NewsDetailImage
-                    imageUrl={news.imageUrl}
-                    title={news.title}
-                  />
-                )}
-
+              <div className='space-y-6 pb-6'>
                 {/* Meta Info */}
                 <div className='grid grid-cols-2 gap-4 text-sm'>
                   <DetailInfoRow

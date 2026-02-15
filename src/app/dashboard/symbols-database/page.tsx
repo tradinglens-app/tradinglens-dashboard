@@ -24,6 +24,7 @@ export default async function SymbolsDatabasePage({
   const pageSize = searchParamsCache.get('perPage');
   const createdAt = searchParamsCache.get('createdAt');
   const hasLogo = searchParamsCache.get('hasLogo');
+  const sort = searchParamsCache.get('sort');
 
   const [{ data, totalCount }, enumValues] = await Promise.all([
     getSymbols({
@@ -34,7 +35,8 @@ export default async function SymbolsDatabasePage({
       type,
       exchange: exchange || undefined,
       createdAt: createdAt || undefined,
-      hasLogo: hasLogo || undefined
+      hasLogo: hasLogo || undefined,
+      sort
     }),
     getSymbolEnumValues()
   ]);

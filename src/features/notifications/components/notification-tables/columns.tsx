@@ -123,7 +123,8 @@ export const getColumns = (
         { label: 'Read', value: 'true' },
         { label: 'Unread', value: 'false' }
       ]
-    }
+    },
+    enableSorting: true
   },
   {
     accessorKey: 'type',
@@ -154,7 +155,8 @@ export const getColumns = (
             { label: 'Follow', value: 'follow' },
             { label: 'System', value: 'system' }
           ]
-    }
+    },
+    enableSorting: true
   },
   {
     accessorKey: 'created_at',
@@ -168,7 +170,8 @@ export const getColumns = (
     meta: {
       label: 'Created At',
       variant: 'dateRange'
-    }
+    },
+    enableSorting: true
   },
   {
     id: 'actions',

@@ -156,7 +156,9 @@ export function DataTableFacetedFilter<TData, TValue>({
                       <CheckIcon />
                     </div>
                     {option.icon && <option.icon />}
-                    <span className='truncate'>{option.label}</span>
+                    <span className='truncate' title={option.label}>
+                      {option.label}
+                    </span>
                     {option.count && (
                       <span className='ml-auto font-mono text-xs'>
                         {option.count}

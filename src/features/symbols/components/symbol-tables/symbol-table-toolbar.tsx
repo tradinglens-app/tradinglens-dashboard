@@ -29,6 +29,10 @@ export function SymbolTableToolbar<TData>({
     'symbol',
     parseAsString.withDefault('')
   );
+  const [exchange, setExchange] = useQueryState(
+    'exchange',
+    parseAsString.withDefault('')
+  );
 
   const handleNameChange = useDebouncedCallback((value: string) => {
     setName(value || null);
@@ -40,6 +44,11 @@ export function SymbolTableToolbar<TData>({
     table.setPageIndex(0);
   }, 300);
 
+  const handleExchangeChange = useDebouncedCallback((value: string) => {
+    setExchange(value || null);
+    table.setPageIndex(0);
+  }, 300);
+
   // Local state for immediate input feedback
   const [nameInput, setNameInput] = useQueryState(
     'name',
@@ -47,6 +56,10 @@ export function SymbolTableToolbar<TData>({
   );
   const [symbolInput, setSymbolInput] = useQueryState(
     'symbol',
+    parseAsString.withDefault('')
+  );
+  const [exchangeInput, setExchangeInput] = useQueryState(
+    'exchange',
     parseAsString.withDefault('')
   );
 
@@ -68,6 +81,15 @@ export function SymbolTableToolbar<TData>({
           onChange={(event) => {
             setNameInput(event.target.value);
             handleNameChange(event.target.value);
+          }}
+          className='h-8 w-[150px] lg:w-[200px]'
+        />
+        <Input
+          placeholder='Exchange...'
+          value={exchangeInput}
+          onChange={(event) => {
+            setExchangeInput(event.target.value);
+            handleExchangeChange(event.target.value);
           }}
           className='h-8 w-[150px] lg:w-[200px]'
         />
@@ -99,15 +121,17 @@ export function SymbolTableToolbar<TData>({
           />
         )}
 
-        {(isFiltered || nameInput || symbolInput) && (
+        {(isFiltered || nameInput || symbolInput || exchangeInput) && (
           <Button
             variant='ghost'
             onClick={() => {
               table.resetColumnFilters();
               setName(null);
               setSymbol(null);
+              setExchange(null);
               setNameInput('');
               setSymbolInput('');
+              setExchangeInput('');
             }}
             className='h-8 px-2 lg:px-3'
           >

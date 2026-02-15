@@ -312,6 +312,54 @@ export function NewsForm({ initialData }: NewsFormProps) {
                   </Tabs>
                 </CardContent>
               </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Organization</CardTitle>
+                </CardHeader>
+                <CardContent className='space-y-4'>
+                  <FormField
+                    control={form.control}
+                    name='tags'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tags</FormLabel>
+                        <FormControl>
+                          <Input
+                            disabled={loading}
+                            placeholder='Comma separated tags'
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Separate tags with commas
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name='categories'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Categories</FormLabel>
+                        <FormControl>
+                          <Input
+                            disabled={loading}
+                            placeholder='Comma separated categories'
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Separate categories with commas
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
             </div>
 
             {/* Right Column: Settings & Original Metadata */}
@@ -426,6 +474,19 @@ export function NewsForm({ initialData }: NewsFormProps) {
                     name='imageUrl'
                     render={({ field }) => (
                       <FormItem>
+                        {field.value && (
+                          <div className='relative mt-2 aspect-video w-full max-w-sm overflow-hidden rounded-lg border'>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={field.value}
+                              alt='Preview'
+                              className='h-full w-full object-cover'
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                              }}
+                            />
+                          </div>
+                        )}
                         <FormLabel>Image URL</FormLabel>
                         <FormControl>
                           <Input
@@ -438,6 +499,7 @@ export function NewsForm({ initialData }: NewsFormProps) {
                       </FormItem>
                     )}
                   />
+                  {/* Removed separate Cover Image card */}
                   <FormField
                     control={form.control}
                     name='sourceUrl'
@@ -451,54 +513,6 @@ export function NewsForm({ initialData }: NewsFormProps) {
                             {...field}
                           />
                         </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Organization</CardTitle>
-                </CardHeader>
-                <CardContent className='space-y-4'>
-                  <FormField
-                    control={form.control}
-                    name='tags'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tags</FormLabel>
-                        <FormControl>
-                          <Input
-                            disabled={loading}
-                            placeholder='Comma separated tags'
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Separate tags with commas
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name='categories'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Categories</FormLabel>
-                        <FormControl>
-                          <Input
-                            disabled={loading}
-                            placeholder='Comma separated categories'
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Separate categories with commas
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
