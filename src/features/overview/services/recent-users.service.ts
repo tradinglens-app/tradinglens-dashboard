@@ -8,13 +8,15 @@ export interface RecentUser {
   created_at: Date;
 }
 
-export async function getRecentUsers(): Promise<RecentUser[]> {
+export async function getRecentUsers(): Promise<{
+  users: RecentUser[];
+  todayCount: number;
+}> {
   try {
     const users = await prisma.users.findMany({
       orderBy: {
         created_at: 'desc'
       },
-      take: 5,
       select: {
         user_id: true,
         name: true,
@@ -24,15 +26,38 @@ export async function getRecentUsers(): Promise<RecentUser[]> {
       }
     });
 
-    return users.map((user) => ({
+    const now = new Date();
+    const startOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
+
+    const todayCount = await prisma.users.count({
+      where: {
+        created_at: {
+          gte: startOfToday
+        }
+      }
+    });
+
+    const mappedUsers = users.map((user) => ({
       id: user.user_id,
       name: user.name,
       email: user.email || 'No email',
       profile_pic: user.profile_pic,
       created_at: user.created_at || new Date()
     }));
+
+    return {
+      users: mappedUsers,
+      todayCount
+    };
   } catch (error) {
     console.error('Error fetching recent users:', error);
-    return [];
+    return {
+      users: [],
+      todayCount: 0
+    };
   }
 }

@@ -97,14 +97,14 @@ export function PlatformGrowthChart({ data }: PlatformGrowthChartProps) {
               />
               <Area
                 dataKey='android'
-                type='natural'
+                type='monotone'
                 fill='url(#fillAndroid)'
                 stroke='var(--color-android)'
                 stackId='a'
               />
               <Area
                 dataKey='ios'
-                type='natural'
+                type='monotone'
                 fill='url(#fillIos)'
                 stroke='var(--color-ios)'
                 stackId='a'
