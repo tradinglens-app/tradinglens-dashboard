@@ -17,6 +17,28 @@ import {
 
 import { toOptions } from '@/lib/db-enums.utils';
 
+const SymbolLogoCell = ({
+  logo,
+  symbol,
+  id
+}: {
+  logo: string | null;
+  symbol: string;
+  id: string;
+}) => {
+  return (
+    <div className='flex items-center gap-2'>
+      <Avatar className='h-8 w-8 rounded-full'>
+        <AvatarImage src={logo || ''} alt={symbol} className='rounded-full' />
+        <AvatarFallback className='rounded-full'>
+          {symbol.slice(0, 2)}
+        </AvatarFallback>
+      </Avatar>
+      <span className='font-medium'>{symbol}</span>
+    </div>
+  );
+};
+
 export const getColumns = (
   onDetail: (symbol: SymbolData) => void,
   onEdit: (symbol: SymbolData) => void,
@@ -29,19 +51,11 @@ export const getColumns = (
       <DataTableColumnHeader column={column} title='Symbol' />
     ),
     cell: ({ row }) => (
-      <div className='flex items-center gap-2'>
-        <Avatar className='h-8 w-8 rounded-full'>
-          <AvatarImage
-            src={row.original.logo || ''}
-            alt={row.original.symbol}
-            className='rounded-full'
-          />
-          <AvatarFallback className='rounded-full'>
-            {row.original.symbol.slice(0, 2)}
-          </AvatarFallback>
-        </Avatar>
-        <span className='font-medium'>{row.original.symbol}</span>
-      </div>
+      <SymbolLogoCell
+        logo={row.original.logo}
+        symbol={row.original.symbol}
+        id={row.original.id}
+      />
     ),
     meta: {
       label: 'Symbol',
@@ -92,6 +106,29 @@ export const getColumns = (
             { label: 'Crypto', value: 'Crypto' }
           ]
     }
+  },
+  {
+    accessorKey: 'hasLogo',
+    id: 'hasLogo',
+    header: ({ column }) => null,
+    cell: ({ row }) => {
+      return null;
+    },
+    enableSorting: false,
+    enableHiding: true,
+    filterFn: (row, id, value) => {
+      return value.includes(String(row.getValue(id)));
+    },
+    accessorFn: (row) => (row.logo ? 'true' : 'false'),
+    meta: {
+      label: 'Image',
+      variant: 'multiSelect',
+      options: [
+        { label: 'Has Image', value: 'true' },
+        { label: 'No Image', value: 'false' }
+      ]
+    },
+    enableColumnFilter: true
   },
   {
     accessorKey: 'createdAt',

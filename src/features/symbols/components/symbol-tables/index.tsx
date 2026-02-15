@@ -93,7 +93,8 @@ export function SymbolListing({
         symbol: true,
         name: true,
         exchange: true,
-        type: true
+        type: true,
+        hasLogo: false
       }
     }
   });

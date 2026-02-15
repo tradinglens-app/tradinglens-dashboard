@@ -10,8 +10,6 @@ import { useQueryState, parseAsString } from 'nuqs';
 import { useDebouncedCallback } from '@/hooks/use-debounced-callback';
 import { DataTableFacetedFilter } from '@/components/ui/table/data-table-faceted-filter';
 import { toOptions } from '@/lib/db-enums.utils';
-import { RefreshCw } from 'lucide-react';
-import { useState } from 'react';
 
 interface SymbolTableToolbarProps<TData> {
   table: Table<TData>;
@@ -31,8 +29,6 @@ export function SymbolTableToolbar<TData>({
     'symbol',
     parseAsString.withDefault('')
   );
-
-  const [showScanModal, setShowScanModal] = useState(false);
 
   const handleNameChange = useDebouncedCallback((value: string) => {
     setName(value || null);
@@ -89,6 +85,17 @@ export function SymbolTableToolbar<TData>({
                     { label: 'Crypto', value: 'Crypto' }
                   ]
             }
+          />
+        )}
+
+        {table.getColumn('hasLogo') && (
+          <DataTableFacetedFilter
+            column={table.getColumn('hasLogo')}
+            title='Image'
+            options={[
+              { label: 'Has Image', value: 'true' },
+              { label: 'No Image', value: 'false' }
+            ]}
           />
         )}
 
