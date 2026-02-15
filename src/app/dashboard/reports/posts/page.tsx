@@ -18,6 +18,7 @@ export default async function PostReportsPage(props: pageProps) {
   const id = searchParamsCache.get('id');
   const postTitle = searchParamsCache.get('postTitle');
   const createdAt = searchParamsCache.get('created_at');
+  const sort = searchParamsCache.get('sort');
 
   const from = createdAt?.[0]
     ? new Date(createdAt[0]).toISOString()
@@ -30,7 +31,8 @@ export default async function PostReportsPage(props: pageProps) {
     id,
     postTitle,
     from,
-    to
+    to,
+    sort
   });
 
   return (

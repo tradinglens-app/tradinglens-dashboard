@@ -21,13 +21,28 @@ export interface GetSymbolsParams {
   page?: number;
   pageSize?: number;
   search?: string;
+  name?: string;
+  symbol?: string;
   type?: string[];
   exchange?: string;
   createdAt?: number[];
+  hasLogo?: string[];
+  sort?: string;
 }
 
 export async function getSymbols(params: GetSymbolsParams = {}) {
-  const { page = 1, pageSize = 10, search, type, exchange, createdAt } = params;
+  const {
+    page = 1,
+    pageSize = 10,
+    search,
+    name,
+    symbol,
+    type,
+    exchange,
+    createdAt,
+    hasLogo,
+    sort
+  } = params;
 
   const where: any = {};
 
@@ -38,10 +53,12 @@ export async function getSymbols(params: GetSymbolsParams = {}) {
     ];
   }
 
-  if (type && type.length > 0) {
-    where.type = {
-      in: type
-    };
+  if (name) {
+    where.company_name = { contains: name, mode: 'insensitive' };
+  }
+
+  if (symbol) {
+    where.symbol = { contains: symbol, mode: 'insensitive' };
   }
 
   if (exchange) {
@@ -55,12 +72,55 @@ export async function getSymbols(params: GetSymbolsParams = {}) {
     };
   }
 
+  if (hasLogo && hasLogo.length > 0) {
+    const hasLogoBool = hasLogo.includes('true');
+    const noLogoBool = hasLogo.includes('false');
+
+    if (hasLogoBool && !noLogoBool) {
+      where.company_logo = { not: null };
+    } else if (!hasLogoBool && noLogoBool) {
+      where.company_logo = null;
+    }
+  }
+
+  // Sorting logic
+  let orderBy: any = { created_at: 'desc' }; // Default sort
+  if (sort) {
+    try {
+      const sortParsed = JSON.parse(sort);
+      if (Array.isArray(sortParsed) && sortParsed.length > 0) {
+        const { id, desc } = sortParsed[0];
+        const direction = desc ? 'desc' : 'asc';
+
+        switch (id) {
+          case 'symbol':
+          case 'type':
+            orderBy = { [id]: direction };
+            break;
+          case 'name':
+            orderBy = { company_name: direction };
+            break;
+          case 'exchange':
+            orderBy = { exchange_short_name: direction };
+            break;
+          case 'createdAt':
+            orderBy = { created_at: direction };
+            break;
+          default:
+            orderBy = { created_at: 'desc' };
+        }
+      }
+    } catch (e) {
+      console.error('Failed to parse sort param:', e);
+    }
+  }
+
   const [symbols, totalCount] = await Promise.all([
     prisma.symbol.findMany({
       where,
       take: pageSize,
       skip: (page - 1) * pageSize,
-      orderBy: { created_at: 'desc' }
+      orderBy
     }),
     prisma.symbol.count({ where })
   ]);

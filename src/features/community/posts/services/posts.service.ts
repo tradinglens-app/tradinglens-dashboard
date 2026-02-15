@@ -1,16 +1,27 @@
 import { prisma as prismaMain } from '@/lib/prisma';
 import { prismaThread } from '@/lib/prisma-thread';
-import { Threads } from '@/generated/prisma-client-thread';
 import { getEnumValues } from '@/lib/db-enums.service';
 
 export async function getPostEnumValues(): Promise<Record<string, string[]>> {
   const visibility = await getEnumValues('visibility_enum', 'thread');
-  // Post types are computed from ID fields, not DB constraints
   const type = ['default', 'poll', 'company_info', 'quote', 'news'];
   return { visibility, type };
 }
 
-export interface Post extends Threads {
+export interface Post {
+  id: string;
+  user_id: number;
+  content: string | null;
+  visibility: string | null;
+  created_at: Date;
+  updated_at?: Date;
+  poll_id: string | null;
+  company_info_id: string | null;
+  quoted_thread_id: string | null;
+  news_id: string | null;
+  start_thread_id?: string | null;
+  parent_thread_id?: string | null;
+  parent_level?: number;
   user?: {
     name: string | null;
     username: string | null;
@@ -27,6 +38,7 @@ export interface GetPostsParams {
   created_at?: number[];
   visibility?: string[];
   type?: string[];
+  sort?: string;
 }
 
 export async function getPosts(params: GetPostsParams = {}) {
@@ -37,12 +49,13 @@ export async function getPosts(params: GetPostsParams = {}) {
     id,
     created_at,
     visibility,
-    type
+    type,
+    sort
   } = params;
 
   const where: any = {
     deleted_at: null,
-    parent_thread_id: null // Only fetch top-level threads (posts), not replies
+    parent_thread_id: null
   };
 
   if (search) {
@@ -75,7 +88,6 @@ export async function getPosts(params: GetPostsParams = {}) {
     }
   }
 
-  // Type filtering based on ID fields
   if (type && type.length > 0) {
     const typeConditions = [];
 
@@ -107,21 +119,46 @@ export async function getPosts(params: GetPostsParams = {}) {
     }
   }
 
-  // 1. Fetch Threads from Thread DB
+  let orderBy: any = { created_at: 'desc' };
+  if (sort) {
+    try {
+      const parsedSort = JSON.parse(sort);
+      if (Array.isArray(parsedSort) && parsedSort.length > 0) {
+        let { id, desc } = parsedSort[0];
+        if (id === 'createdAt') id = 'created_at';
+        orderBy = { [id]: desc ? 'desc' : 'asc' };
+      }
+    } catch (e) {
+      console.error('Error parsing sort:', e);
+    }
+  }
+
   const [threads, totalCount] = await Promise.all([
     prismaThread.threads.findMany({
       where,
       take: pageSize,
       skip: (page - 1) * pageSize,
-      orderBy: { created_at: 'desc' }
+      orderBy,
+      select: {
+        id: true,
+        user_id: true,
+        content: true,
+        visibility: true,
+        created_at: true,
+        updated_at: true,
+        poll_id: true,
+        company_info_id: true,
+        quoted_thread_id: true,
+        news_id: true,
+        parent_thread_id: true,
+        parent_level: true
+      }
     }),
     prismaThread.threads.count({ where })
   ]);
 
-  // 2. Extract User IDs
   const userIds = Array.from(new Set(threads.map((t) => t.user_id)));
 
-  // 3. Fetch Users from Main DB
   const users: Array<{
     user_id: number;
     name: string;
@@ -139,7 +176,7 @@ export async function getPosts(params: GetPostsParams = {}) {
     }
   });
 
-  // 4. Map Users to Threads
+  //Map Users to Threads
   const userMap = new Map(users.map((u) => [u.user_id, u]));
 
   const data: Post[] = threads.map((thread) => {

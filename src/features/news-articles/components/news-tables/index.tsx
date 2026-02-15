@@ -110,7 +110,8 @@ export function NewsListing({ data, totalCount }: NewsListingProps) {
         isFeatured: true,
         isActive: true,
         createdAt: true,
-        actions: true
+        actions: true,
+        hasImage: false
       }
     }
   });

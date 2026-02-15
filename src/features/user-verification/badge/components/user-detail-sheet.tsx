@@ -1,26 +1,27 @@
 'use client';
 
 import { VerificationRequest } from '../services/user.service';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription
-} from '@/components/ui/sheet';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { format } from 'date-fns';
 import {
+  Calendar,
   CalendarDays,
   Mail,
   User,
   Shield,
   Activity,
-  Clock
+  Clock,
+  MessageCircle,
+  Globe,
+  Palette,
+  CheckCircle2,
+  HelpCircle
 } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { DetailSheetHeader } from '@/components/ui/detail-sheet-header';
+import { DetailInfoRow } from '@/components/ui/detail-info-row';
+import { StatusBadge } from '@/components/ui/status-badge';
 
 interface UserDetailSheetProps {
   isOpen: boolean;
@@ -39,153 +40,83 @@ export function UserDetailSheet({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className='w-full p-0 sm:max-w-xl' side='right'>
         <div className='flex h-full flex-col'>
-          <SheetHeader className='p-6 pb-2'>
-            <div className='flex items-start gap-4'>
-              <Avatar className='h-16 w-16 flex-shrink-0'>
-                <AvatarImage
-                  src={user.profilePic || ''}
-                  alt={user.userName || 'User'}
+          <DetailSheetHeader
+            avatar={{
+              src: user.profilePic || null,
+              fallback: user.userName?.charAt(0)?.toUpperCase() || 'U'
+            }}
+            title={user.userName || 'Unknown User'}
+            subtitle={`@${user.username || 'unknown'}`}
+            badges={
+              <>
+                <StatusBadge
+                  status={user.status}
+                  colorMap={{
+                    Verified: 'green',
+                    Pending: 'yellow',
+                    Rejected: 'red'
+                  }}
+                  defaultColor='gray'
                 />
-                <AvatarFallback className='text-lg'>
-                  {user.userName?.charAt(0)?.toUpperCase() || 'U'}
-                </AvatarFallback>
-              </Avatar>
-              <div className='flex-1'>
-                <SheetTitle className='text-xl leading-tight font-bold'>
-                  {user.userName || 'Unknown User'}
-                </SheetTitle>
-                <p className='text-muted-foreground mt-1 text-sm'>
-                  @{user.username || 'unknown'}
-                </p>
-              </div>
-            </div>
-            <div className='mt-2 flex flex-wrap gap-2'>
-              <Badge
-                variant={
-                  user.status === 'Verified'
-                    ? 'default'
-                    : user.status === 'Pending'
-                      ? 'secondary'
-                      : 'outline'
-                }
-                className={
-                  user.status === 'Verified'
-                    ? 'bg-green-100 text-green-800 hover:bg-green-100'
-                    : user.status === 'Pending'
-                      ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100'
-                      : 'bg-gray-100 text-gray-800 hover:bg-gray-100'
-                }
-              >
-                {user.status}
-              </Badge>
-              <Badge
-                variant={
-                  user.accountStatus === 'NORMAL'
-                    ? 'outline'
-                    : user.accountStatus === 'BANNED' ||
-                        user.accountStatus === 'SUSPENDED'
-                      ? 'destructive'
-                      : user.accountStatus === 'WARNING' ||
-                          user.accountStatus === 'LIMITED' ||
-                          user.accountStatus === 'RESTRICTED'
-                        ? 'secondary'
-                        : 'secondary'
-                }
-                className={
-                  user.accountStatus === 'NORMAL'
-                    ? 'border-green-200 bg-green-100 text-green-800'
-                    : user.accountStatus === 'WARNING'
-                      ? 'border-yellow-200 bg-yellow-100 text-yellow-800'
-                      : user.accountStatus === 'LIMITED' ||
-                          user.accountStatus === 'RESTRICTED'
-                        ? 'border-orange-200 bg-orange-100 text-orange-800'
-                        : user.accountStatus === 'UNDER_REVIEW'
-                          ? 'border-blue-200 bg-blue-100 text-blue-800'
-                          : ''
-                }
-              >
-                {user.accountStatus || 'Unknown (Account)'}
-              </Badge>
-              <Badge variant='outline'>ID: {user.id}</Badge>
-            </div>
-            <SheetDescription className='sr-only'>
-              Detailed view of the user verification request
-            </SheetDescription>
-          </SheetHeader>
+                <StatusBadge
+                  status={user.accountStatus}
+                  colorMap={{
+                    NORMAL: 'green',
+                    WARNING: 'yellow',
+                    LIMITED: 'orange',
+                    RESTRICTED: 'orange',
+                    SUSPENDED: 'red',
+                    BANNED: 'red',
+                    UNDER_REVIEW: 'blue'
+                  }}
+                />
+                <Badge variant='outline'>ID: {user.id}</Badge>
+              </>
+            }
+            description='Detailed view of the user verification request'
+          />
 
           <div className='flex-1 overflow-y-auto px-6'>
             <div className='space-y-6 pb-6'>
               {/* User Info */}
               <div className='grid gap-4 py-4'>
-                <div className='flex items-center gap-3'>
-                  <User className='text-muted-foreground h-5 w-5' />
-                  <div className='space-y-1'>
-                    <p className='text-sm leading-none font-medium'>Username</p>
-                    <p className='text-muted-foreground text-sm'>
-                      @{user.username}
-                    </p>
-                  </div>
-                </div>
+                <DetailInfoRow
+                  icon={User}
+                  label='Username'
+                  value={`@${user.username}`}
+                />
 
-                <div className='flex items-center gap-3'>
-                  <Mail className='text-muted-foreground h-5 w-5' />
-                  <div className='space-y-1'>
-                    <p className='text-sm leading-none font-medium'>Email</p>
-                    <p className='text-muted-foreground text-sm'>
-                      {user.email}
-                    </p>
-                  </div>
-                </div>
+                <DetailInfoRow icon={Mail} label='Email' value={user.email} />
 
-                <div className='flex items-center gap-3'>
-                  <CalendarDays className='text-muted-foreground h-5 w-5' />
-                  <div className='space-y-1'>
-                    <p className='text-sm leading-none font-medium'>
-                      Joined At
-                    </p>
-                    <p className='text-muted-foreground text-sm'>{user.date}</p>
-                  </div>
-                </div>
+                <DetailInfoRow
+                  icon={CalendarDays}
+                  label='Joined At'
+                  value={user.date}
+                />
 
-                <div className='flex items-center gap-3'>
-                  <Activity className='text-muted-foreground h-5 w-5' />
-                  <div className='space-y-1'>
-                    <p className='text-sm leading-none font-medium'>
-                      Account Status
-                    </p>
-                    <p className='text-muted-foreground text-sm capitalize'>
+                <DetailInfoRow
+                  icon={Activity}
+                  label='Account Status'
+                  value={
+                    <span className='capitalize'>
                       {user.accountStatus || 'N/A'}
-                    </p>
-                  </div>
-                </div>
+                    </span>
+                  }
+                />
 
                 {user.statusMessage && (
-                  <div className='flex items-center gap-3'>
-                    <div className='flex h-5 w-5 items-center justify-center'>
-                      <span className='text-muted-foreground text-xs'>💬</span>
-                    </div>
-                    <div className='space-y-1'>
-                      <p className='text-sm leading-none font-medium'>
-                        Status Message
-                      </p>
-                      <p className='text-muted-foreground text-sm'>
-                        {user.statusMessage}
-                      </p>
-                    </div>
-                  </div>
+                  <DetailInfoRow
+                    icon={MessageCircle}
+                    label='Status Message'
+                    value={user.statusMessage}
+                  />
                 )}
 
-                <div className='flex items-center gap-3'>
-                  <Clock className='text-muted-foreground h-5 w-5' />
-                  <div className='space-y-1'>
-                    <p className='text-sm leading-none font-medium'>
-                      Last Login
-                    </p>
-                    <p className='text-muted-foreground text-sm'>
-                      {user.lastLogin}
-                    </p>
-                  </div>
-                </div>
+                <DetailInfoRow
+                  icon={Clock}
+                  label='Last Login'
+                  value={user.lastLogin}
+                />
               </div>
 
               <Separator />
@@ -197,50 +128,62 @@ export function UserDetailSheet({
                 </h4>
 
                 <div className='grid grid-cols-2 gap-4 text-sm'>
-                  <div>
-                    <span className='text-muted-foreground'>Bio:</span>
-                    <p className='font-medium'>{user.bio || 'N/A'}</p>
-                  </div>
-                  <div>
-                    <span className='text-muted-foreground'>Birthdate:</span>
-                    <p className='font-medium'>{user.birthdate || 'N/A'}</p>
-                  </div>
-                  <div>
-                    <span className='text-muted-foreground'>Language:</span>
-                    <p className='font-medium uppercase'>
-                      {user.languagePreference}
-                    </p>
-                  </div>
-                  <div>
-                    <span className='text-muted-foreground'>Theme:</span>
-                    <p className='font-medium capitalize'>
-                      {user.themePreference || 'Default'}
-                    </p>
-                  </div>
-                  <div>
-                    <span className='text-muted-foreground'>Onboarding:</span>
-                    <p className='font-medium'>
-                      {user.onboardingCompleted ? 'Completed' : 'Incomplete'}
-                    </p>
-                  </div>
-                  <div>
-                    <span className='text-muted-foreground'>Used Trial:</span>
-                    <p className='font-medium'>
-                      {user.hasUsedTrial ? 'Yes' : 'No'}
-                    </p>
-                  </div>
-                  {user.trialUsedAt && (
-                    <div>
-                      <span className='text-muted-foreground'>
-                        Trial Used At:
+                  <DetailInfoRow
+                    icon={User}
+                    label='Bio'
+                    value={
+                      <p className='truncate' title={user.bio || 'N/A'}>
+                        {user.bio || 'N/A'}
+                      </p>
+                    }
+                  />
+                  <DetailInfoRow
+                    icon={Calendar}
+                    label='Birthdate'
+                    value={user.birthdate || 'N/A'}
+                  />
+                  <DetailInfoRow
+                    icon={Globe}
+                    label='Language'
+                    value={
+                      <span className='uppercase'>
+                        {user.languagePreference}
                       </span>
-                      <p className='font-medium'>{user.trialUsedAt}</p>
-                    </div>
+                    }
+                  />
+                  <DetailInfoRow
+                    icon={Palette}
+                    label='Theme'
+                    value={
+                      <span className='capitalize'>
+                        {user.themePreference || 'Default'}
+                      </span>
+                    }
+                  />
+                  <DetailInfoRow
+                    icon={CheckCircle2}
+                    label='Onboarding'
+                    value={
+                      user.onboardingCompleted ? 'Completed' : 'Incomplete'
+                    }
+                  />
+                  <DetailInfoRow
+                    icon={HelpCircle}
+                    label='Used Trial'
+                    value={user.hasUsedTrial ? 'Yes' : 'No'}
+                  />
+                  {user.trialUsedAt && (
+                    <DetailInfoRow
+                      icon={Calendar}
+                      label='Trial Used At'
+                      value={user.trialUsedAt}
+                    />
                   )}
-                  <div>
-                    <span className='text-muted-foreground'>Updated At:</span>
-                    <p className='font-medium'>{user.updatedAt || 'N/A'}</p>
-                  </div>
+                  <DetailInfoRow
+                    icon={Clock}
+                    label='Updated At'
+                    value={user.updatedAt || 'N/A'}
+                  />
                 </div>
               </div>
 

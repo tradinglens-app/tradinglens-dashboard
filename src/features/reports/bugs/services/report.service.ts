@@ -21,6 +21,7 @@ export interface GetBugReportsParams {
   status?: string | string[];
   from?: string;
   to?: string;
+  sort?: string;
 }
 
 // Basic UUID regex check
@@ -36,7 +37,8 @@ export async function getBugReportsService(params: GetBugReportsParams = {}) {
     topic,
     status,
     from,
-    to
+    to,
+    sort
   } = params;
 
   const where: any = {};
@@ -81,12 +83,44 @@ export async function getBugReportsService(params: GetBugReportsParams = {}) {
     if (to) where.created_at.lte = new Date(to);
   }
 
+  // Sorting
+  let orderBy: any = { created_at: 'desc' };
+
+  if (sort) {
+    try {
+      const parsedSort = JSON.parse(sort);
+      if (Array.isArray(parsedSort) && parsedSort.length > 0) {
+        const { id, desc } = parsedSort[0];
+        const fieldMapping: Record<string, string> = {
+          topic: 'topic',
+          details: 'details',
+          status: 'status',
+          created_at: 'created_at'
+        };
+        const dbField = fieldMapping[id] || id;
+        orderBy = { [dbField]: desc ? 'desc' : 'asc' };
+      }
+    } catch (e) {
+      // Keep default sorting
+    }
+  }
+
   const [reports, totalCount] = await Promise.all([
     prisma.app_problem_report.findMany({
       where,
       take: pageSize,
       skip: (page - 1) * pageSize,
-      orderBy: { created_at: 'desc' }
+      orderBy,
+      select: {
+        id: true,
+        topic: true,
+        details: true,
+        status: true,
+        created_at: true,
+        updated_at: true
+        // Exclude: user_id, platform, app_version, device_info, screenshots, updated_at
+        // Exclude: user_id, platform, app_version, device_info, screenshots
+      }
     }),
     prisma.app_problem_report.count({ where })
   ]);

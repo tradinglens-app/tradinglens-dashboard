@@ -44,6 +44,7 @@ export interface GetNewsParams {
   isHot?: boolean;
   isActive?: boolean;
   sort?: string;
+  hasImage?: boolean;
 }
 
 export async function getNews(params: GetNewsParams = {}) {
@@ -59,7 +60,8 @@ export async function getNews(params: GetNewsParams = {}) {
     isFeatured,
     isHot,
     isActive,
-    sort
+    sort,
+    hasImage
   } = params;
 
   const where: any = {};
@@ -114,6 +116,27 @@ export async function getNews(params: GetNewsParams = {}) {
     where.is_hot = isHot;
   }
 
+  // Has Image filter
+  if (hasImage !== undefined) {
+    if (hasImage) {
+      where.AND = [
+        { image_url: { not: null } },
+        { image_url: { not: '' } },
+        { image_url: { contains: 'http' } }
+      ];
+    } else {
+      where.OR = [
+        { image_url: null },
+        { image_url: '' },
+        {
+          NOT: {
+            image_url: { contains: 'http' }
+          }
+        }
+      ];
+    }
+  }
+
   // Sorting
   let orderBy: any = { created_at: 'desc' };
 
@@ -130,7 +153,9 @@ export async function getNews(params: GetNewsParams = {}) {
           createdAt: 'created_at',
           isFeatured: 'is_featured',
           isHot: 'is_hot',
-          isActive: 'is_active'
+          isActive: 'is_active',
+          symbol: 'symbol',
+          publisher: 'publisher'
         };
         const dbField = fieldMapping[id] || id;
         orderBy = { [dbField]: desc ? 'desc' : 'asc' };
@@ -146,8 +171,21 @@ export async function getNews(params: GetNewsParams = {}) {
       take: pageSize,
       skip: (page - 1) * pageSize,
       orderBy,
-      include: {
-        stock_news_translation: true
+      select: {
+        id: true,
+        symbol: true,
+        title: true,
+        summary: true,
+        image_url: true,
+        publisher: true,
+        published_date: true,
+        language: true,
+        is_featured: true,
+        is_hot: true,
+        is_active: true,
+        created_at: true
+        // Exclude: content, source_url, share_count, tags, categories, updated_at, exchange, view_count, like_count, translations
+        // Exclude: content, source_url, share_count, tags, categories, updated_at
       }
     }),
     prisma.stock_news.count({ where })
@@ -156,32 +194,26 @@ export async function getNews(params: GetNewsParams = {}) {
   const data: NewsArticle[] = news.map((n) => ({
     id: n.id,
     symbol: n.symbol,
-    exchange: n.exchange,
+    exchange: null, // Excluded from list query
     title: n.title,
-    content: n.content,
+    content: null, // Excluded from list query
     summary: n.summary,
     imageUrl: n.image_url,
-    sourceUrl: n.source_url,
+    sourceUrl: null, // Excluded from list query
     publisher: n.publisher,
     publishedDate: n.published_date,
     language: n.language,
-    viewCount: n.view_count ?? 0,
-    likeCount: n.like_count ?? 0,
-    shareCount: n.share_count ?? 0,
+    viewCount: 0, // Excluded from list query
+    likeCount: 0, // Excluded from list query
+    shareCount: 0, // Excluded from list query
     isFeatured: n.is_featured ?? false,
     isHot: n.is_hot ?? false,
     isActive: n.is_active ?? true,
-    tags: n.tags,
-    categories: n.categories,
-    translations: n.stock_news_translation.map((t) => ({
-      id: t.id,
-      language: t.language,
-      title: t.title,
-      content: t.content,
-      summary: t.summary
-    })),
+    tags: [], // Excluded from list query
+    categories: null, // Excluded from list query
+    translations: [], // Excluded from list query
     createdAt: n.created_at,
-    updatedAt: n.updated_at
+    updatedAt: null // Excluded from list query
   }));
 
   return {
@@ -360,5 +392,15 @@ export async function toggleNewsActive(id: string, isActive: boolean) {
 export async function deleteNews(id: string) {
   return prisma.stock_news.delete({
     where: { id }
+  });
+}
+
+export async function invalidateNewsImage(id: string) {
+  return prisma.stock_news.update({
+    where: { id },
+    data: {
+      image_url: null,
+      updated_at: new Date()
+    }
   });
 }

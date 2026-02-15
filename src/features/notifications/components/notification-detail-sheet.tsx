@@ -1,13 +1,7 @@
 'use client';
 
 import { Notification } from '../services/notifications.service';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription
-} from '@/components/ui/sheet';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -22,6 +16,8 @@ import {
   EyeOff
 } from 'lucide-react';
 import { toLabel } from '@/lib/db-enums.utils';
+import { DetailSheetHeader } from '@/components/ui/detail-sheet-header';
+import { DetailInfoRow } from '@/components/ui/detail-info-row';
 
 interface NotificationDetailSheetProps {
   isOpen: boolean;
@@ -40,49 +36,38 @@ export function NotificationDetailSheet({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className='w-full p-0 sm:max-w-xl' side='right'>
         <div className='flex h-full flex-col'>
-          <SheetHeader className='p-6 pb-2'>
-            <div className='flex items-start gap-4'>
-              <div className='bg-primary/10 text-primary flex h-12 w-12 items-center justify-center rounded-full'>
-                <Bell className='h-6 w-6' />
-              </div>
-              <div className='flex-1'>
-                <SheetTitle className='text-xl leading-tight font-bold'>
+          <DetailSheetHeader
+            icon={{ Icon: Bell }}
+            title={
+              notification.type ? toLabel(notification.type) : 'Notification'
+            }
+            subtitle={`ID: ${notification.id}`}
+            badges={
+              <>
+                <Badge variant='outline' className='capitalize'>
                   {notification.type
                     ? toLabel(notification.type)
-                    : 'Notification'}
-                </SheetTitle>
-                <p className='text-muted-foreground mt-1 text-xs'>
-                  ID: {notification.id}
-                </p>
-              </div>
-            </div>
-
-            <div className='mt-4 flex flex-wrap gap-2'>
-              <Badge variant='outline' className='capitalize'>
-                {notification.type
-                  ? toLabel(notification.type)
-                  : 'Unknown Type'}
-              </Badge>
-              <Badge
-                variant={notification.is_read ? 'secondary' : 'default'}
-                className={
-                  notification.is_read
-                    ? 'bg-green-100 text-green-800 hover:bg-green-100'
-                    : 'bg-blue-100 text-blue-800 hover:bg-blue-100'
-                }
-              >
-                {notification.is_read ? (
-                  <Eye className='mr-1 h-3 w-3' />
-                ) : (
-                  <EyeOff className='mr-1 h-3 w-3' />
-                )}
-                {notification.is_read ? 'Read' : 'Unread'}
-              </Badge>
-            </div>
-            <SheetDescription className='sr-only'>
-              Detailed view of the notification
-            </SheetDescription>
-          </SheetHeader>
+                    : 'Unknown Type'}
+                </Badge>
+                <Badge
+                  variant={notification.is_read ? 'secondary' : 'default'}
+                  className={
+                    notification.is_read
+                      ? 'bg-green-100 text-green-800 hover:bg-green-100'
+                      : 'bg-blue-100 text-blue-800 hover:bg-blue-100'
+                  }
+                >
+                  {notification.is_read ? (
+                    <Eye className='mr-1 h-3 w-3' />
+                  ) : (
+                    <EyeOff className='mr-1 h-3 w-3' />
+                  )}
+                  {notification.is_read ? 'Read' : 'Unread'}
+                </Badge>
+              </>
+            }
+            description='Detailed view of the notification'
+          />
 
           <div className='flex-1 overflow-y-auto px-6'>
             <div className='space-y-6 pb-6'>
@@ -192,33 +177,25 @@ export function NotificationDetailSheet({
 
               {/* Timestamps */}
               <div className='grid grid-cols-2 gap-4 pt-4'>
-                <div className='flex items-center gap-3'>
-                  <Calendar className='text-muted-foreground h-5 w-5' />
-                  <div className='space-y-1'>
-                    <p className='text-sm leading-none font-medium'>
-                      Created At
-                    </p>
-                    <p className='text-muted-foreground text-sm'>
-                      {notification.created_at
-                        ? format(new Date(notification.created_at), 'PP p')
-                        : 'N/A'}
-                    </p>
-                  </div>
-                </div>
+                <DetailInfoRow
+                  icon={Calendar}
+                  label='Created At'
+                  value={
+                    notification.created_at
+                      ? format(new Date(notification.created_at), 'PP p')
+                      : 'N/A'
+                  }
+                />
 
-                <div className='flex items-center gap-3'>
-                  <Clock className='text-muted-foreground h-5 w-5' />
-                  <div className='space-y-1'>
-                    <p className='text-sm leading-none font-medium'>
-                      Last Updated
-                    </p>
-                    <p className='text-muted-foreground text-sm'>
-                      {notification.updated_at
-                        ? format(new Date(notification.updated_at), 'PP p')
-                        : 'N/A'}
-                    </p>
-                  </div>
-                </div>
+                <DetailInfoRow
+                  icon={Clock}
+                  label='Last Updated'
+                  value={
+                    notification.updated_at
+                      ? format(new Date(notification.updated_at), 'PP p')
+                      : 'N/A'
+                  }
+                />
               </div>
             </div>
           </div>

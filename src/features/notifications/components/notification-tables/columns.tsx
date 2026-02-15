@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { formatDateApp } from '@/lib/format';
+import { DateCell } from '@/components/ui/date-cell';
 import { toLabel, toOptions } from '@/lib/db-enums.utils';
 
 const typeBadgeColor: Record<string, string> = {
@@ -122,7 +123,8 @@ export const getColumns = (
         { label: 'Read', value: 'true' },
         { label: 'Unread', value: 'false' }
       ]
-    }
+    },
+    enableSorting: true
   },
   {
     accessorKey: 'type',
@@ -153,7 +155,8 @@ export const getColumns = (
             { label: 'Follow', value: 'follow' },
             { label: 'System', value: 'system' }
           ]
-    }
+    },
+    enableSorting: true
   },
   {
     accessorKey: 'created_at',
@@ -161,15 +164,14 @@ export const getColumns = (
       <DataTableColumnHeader column={column} title='Created At' />
     ),
     cell: ({ row }) => {
-      const date = row.original.created_at;
-      if (!date) return 'N/A';
-      return formatDateApp(date);
+      return <DateCell date={row.original.created_at} />;
     },
     enableColumnFilter: true,
     meta: {
       label: 'Created At',
       variant: 'dateRange'
-    }
+    },
+    enableSorting: true
   },
   {
     id: 'actions',

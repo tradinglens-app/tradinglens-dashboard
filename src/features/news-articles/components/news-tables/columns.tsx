@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
 import { Eye } from 'lucide-react';
 import { formatDateApp } from '@/lib/format';
+import { DateCell } from '@/components/ui/date-cell';
 import {
   Tooltip,
   TooltipContent,
@@ -22,6 +23,105 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useState } from 'react';
+
+import Image from 'next/image';
+
+const isValidUrl = (url: string) => {
+  try {
+    new URL(url);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
+import { invalidateNewsImageAction } from '../../actions/news-actions';
+
+const NewsImageCell = ({
+  imageUrl,
+  title,
+  id
+}: {
+  imageUrl: string;
+  title: string;
+  id: string;
+}) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  // Check URL validity immediately
+  if (error || !imageUrl || !isValidUrl(imageUrl)) {
+    return (
+      <div className='bg-muted flex h-12 w-12 shrink-0 items-center justify-center rounded-full'>
+        <Icons.post className='text-muted-foreground h-6 w-6' />
+      </div>
+    );
+  }
+
+  return (
+    <div className='relative h-12 w-12 shrink-0 overflow-hidden rounded-full'>
+      {isLoading && <Skeleton className='absolute inset-0 h-full w-full' />}
+      <Image
+        src={imageUrl}
+        alt={title}
+        fill
+        className={`object-cover transition-opacity duration-300 ${
+          isLoading ? 'opacity-0' : 'opacity-100'
+        }`}
+        sizes='48px'
+        onLoad={() => setIsLoading(false)}
+        onError={() => {
+          setError(true);
+          setIsLoading(false);
+          // Self-healing: Invalidate image in DB
+          invalidateNewsImageAction(id);
+        }}
+      />
+    </div>
+  );
+};
+
+const NewsTooltipImage = ({
+  imageUrl,
+  title
+}: {
+  imageUrl: string;
+  title: string;
+}) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  // Check URL validity immediately
+  if (error || !imageUrl || !isValidUrl(imageUrl)) {
+    return (
+      <div className='bg-muted flex aspect-video w-full items-center justify-center rounded'>
+        <Icons.post className='text-muted-foreground h-12 w-12' />
+      </div>
+    );
+  }
+
+  return (
+    <div className='relative aspect-video w-full overflow-hidden rounded'>
+      {isLoading && <Skeleton className='absolute inset-0 h-full w-full' />}
+      <Image
+        src={imageUrl}
+        alt={title}
+        fill
+        className={`object-cover transition-opacity duration-300 ${
+          isLoading ? 'opacity-0' : 'opacity-100'
+        }`}
+        sizes='(max-width: 768px) 100vw, 400px'
+        onLoad={() => setIsLoading(false)}
+        onError={() => {
+          setError(true);
+          setIsLoading(false);
+        }}
+      />
+    </div>
+  );
+};
 
 export const getColumns = (
   onDetail?: (news: NewsArticle) => void,
@@ -39,10 +139,10 @@ export const getColumns = (
           <TooltipTrigger asChild>
             <div className='flex max-w-[300px] cursor-pointer gap-3'>
               {row.original.imageUrl && (
-                <img
-                  src={row.original.imageUrl}
-                  alt={row.original.title}
-                  className='h-12 w-12 shrink-0 rounded-full object-cover'
+                <NewsImageCell
+                  imageUrl={row.original.imageUrl}
+                  title={row.original.title}
+                  id={row.original.id}
                 />
               )}
               <div className='flex min-w-0 flex-1 flex-col justify-center'>
@@ -60,10 +160,9 @@ export const getColumns = (
           <TooltipContent className='max-w-md'>
             <div className='space-y-2'>
               {row.original.imageUrl && (
-                <img
-                  src={row.original.imageUrl}
-                  alt={row.original.title}
-                  className='w-full rounded object-cover'
+                <NewsTooltipImage
+                  imageUrl={row.original.imageUrl}
+                  title={row.original.title}
                 />
               )}
               <h4 className='font-semibold'>{row.original.title}</h4>
@@ -79,8 +178,9 @@ export const getColumns = (
     ),
     enableSorting: true,
     enableHiding: false,
-    size: 300
+    size: 200 // Increased size for title
   },
+
   {
     accessorKey: 'symbol',
     header: ({ column }) => (
@@ -169,6 +269,31 @@ export const getColumns = (
         </div>
       );
     }
+  },
+  {
+    accessorKey: 'hasImage',
+    id: 'hasImage', // Positioned before Status as requested
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Has Image' />
+    ),
+    cell: ({ row }) => {
+      return null; // Hidden column, or could show an icon
+    },
+    enableSorting: false,
+    enableHiding: true,
+    filterFn: (row, id, value) => {
+      return value.includes(String(row.getValue(id)));
+    },
+    accessorFn: (row) => (row.imageUrl ? 'true' : 'false'),
+    meta: {
+      label: 'Image',
+      variant: 'select',
+      options: [
+        { label: 'Has Image', value: 'true' },
+        { label: 'No Image', value: 'false' }
+      ]
+    },
+    enableColumnFilter: true
   },
   {
     accessorKey: 'isActive',

@@ -2,6 +2,7 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 import { formatDateApp } from '@/lib/format';
+import { DateCell } from '@/components/ui/date-cell';
 import { Post } from '../../services/posts.service';
 import {
   DropdownMenu,
@@ -40,7 +41,7 @@ export const getColumns = (
       </div>
     ),
     size: 280,
-    enableSorting: false,
+    enableSorting: true,
     enableHiding: false,
     enableColumnFilter: true
   },
@@ -57,16 +58,16 @@ export const getColumns = (
               className='cursor-pointer truncate'
               title={row.getValue('content')}
             >
-              {row.getValue('content') || 'No content (Media only)'}
+              {row.getValue('content') || '-'}
             </div>
           </TooltipTrigger>
           <TooltipContent className='max-w-md break-words'>
-            <p>{row.getValue('content') || 'No content (Media only)'}</p>
+            <p>{row.getValue('content') || '-'}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
     ),
-    enableSorting: false,
+    enableSorting: true,
     enableHiding: false,
     enableColumnFilter: true
   },
@@ -187,13 +188,10 @@ export const getColumns = (
       <DataTableColumnHeader column={column} title='Created At' />
     ),
     cell: ({ row }) => {
-      return (
-        <div className='text-xs whitespace-nowrap'>
-          {formatDateApp(row.getValue('created_at'))}
-        </div>
-      );
+      return <DateCell date={row.getValue('created_at')} className='text-xs' />;
     },
     size: 150,
+    enableSorting: true,
     enableColumnFilter: true,
     meta: {
       variant: 'dateRange'

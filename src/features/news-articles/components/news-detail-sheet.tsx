@@ -2,13 +2,7 @@
 
 import * as React from 'react';
 import { NewsArticle } from '../services/news.service';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription
-} from '@/components/ui/sheet';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -25,14 +19,68 @@ import {
   Eye,
   Building
 } from 'lucide-react';
+import Image from 'next/image';
+import { Skeleton } from '@/components/ui/skeleton';
 import ReactMarkdown from 'react-markdown';
 import { useEffect, useState } from 'react';
+import { DetailSheetHeader } from '@/components/ui/detail-sheet-header';
+import { DetailInfoRow } from '@/components/ui/detail-info-row';
+import { DetailContentBox } from '@/components/ui/detail-content-box';
 
 interface NewsDetailSheetProps {
   isOpen: boolean;
   onClose: () => void;
   news: NewsArticle | null;
 }
+
+const isValidUrl = (url: string) => {
+  try {
+    new URL(url);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
+const NewsDetailImage = ({
+  imageUrl,
+  title
+}: {
+  imageUrl: string;
+  title: string;
+}) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  if (error || !imageUrl || !isValidUrl(imageUrl)) {
+    return (
+      <div className='bg-muted flex h-64 w-full items-center justify-center rounded-lg border'>
+        <Building className='text-muted-foreground h-16 w-16' />
+      </div>
+    );
+  }
+
+  return (
+    <div className='relative h-64 w-full overflow-hidden rounded-lg border'>
+      {isLoading && <Skeleton className='absolute inset-0 h-full w-full' />}
+      <Image
+        src={imageUrl}
+        alt={title}
+        fill
+        className={`object-cover transition-opacity duration-300 ${
+          isLoading ? 'opacity-0' : 'opacity-100'
+        }`}
+        sizes='(max-width: 768px) 100vw, 600px'
+        priority
+        onLoad={() => setIsLoading(false)}
+        onError={() => {
+          setError(true);
+          setIsLoading(false);
+        }}
+      />
+    </div>
+  );
+};
 
 export function NewsDetailSheet({
   isOpen,
@@ -61,54 +109,59 @@ export function NewsDetailSheet({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className='w-full p-0 sm:max-w-xl' side='right'>
         <div className='flex h-full flex-col'>
-          <SheetHeader className='p-6 pb-2'>
-            <div className='flex items-start justify-between gap-4'>
-              <SheetTitle className='text-xl leading-tight font-bold'>
-                {activeTab === 'thai' && thaiTranslation
-                  ? thaiTranslation.title
-                  : news.title}
-              </SheetTitle>
-            </div>
-            <div className='mt-2 flex flex-wrap gap-2'>
-              <Badge variant={news.isActive ? 'default' : 'secondary'}>
-                {news.isActive ? 'Active' : 'Hidden'}
-              </Badge>
-              {news.isFeatured && (
-                <Badge
-                  variant='outline'
-                  className='border-yellow-500 bg-yellow-50 text-yellow-600'
-                >
-                  Featured
+          <DetailSheetHeader
+            title={
+              activeTab === 'thai' && thaiTranslation
+                ? thaiTranslation.title
+                : news.title
+            }
+            badges={
+              <>
+                <Badge variant={news.isActive ? 'default' : 'secondary'}>
+                  {news.isActive ? 'Active' : 'Hidden'}
                 </Badge>
-              )}
-              {news.isHot && (
-                <Badge
-                  variant='outline'
-                  className='border-red-500 bg-red-50 text-red-600'
-                >
-                  Hot
+                {news.isFeatured && (
+                  <Badge
+                    variant='outline'
+                    className='border-yellow-500 bg-yellow-50 text-yellow-600'
+                  >
+                    Featured
+                  </Badge>
+                )}
+                {news.isHot && (
+                  <Badge
+                    variant='outline'
+                    className='border-red-500 bg-red-50 text-red-600'
+                  >
+                    Hot
+                  </Badge>
+                )}
+                <Badge variant='outline' className='capitalize'>
+                  {activeTab === 'thai'
+                    ? 'Thai'
+                    : news.language || 'Unknown Language'}
                 </Badge>
-              )}
-              <Badge variant='outline' className='capitalize'>
-                {activeTab === 'thai'
-                  ? 'Thai'
-                  : news.language || 'Unknown Language'}
-              </Badge>
-              {thaiTranslation && (
-                <Badge
-                  variant='outline'
-                  className='border-blue-500 text-blue-600'
-                >
-                  TH Available
-                </Badge>
-              )}
-            </div>
-            <SheetDescription className='sr-only'>
-              Detailed view of the news article
-            </SheetDescription>
-          </SheetHeader>
+                {thaiTranslation && (
+                  <Badge
+                    variant='outline'
+                    className='border-blue-500 text-blue-600'
+                  >
+                    TH Available
+                  </Badge>
+                )}
+              </>
+            }
+            description='Detailed view of the news article'
+          />
 
           <div className='flex-1 overflow-y-auto px-6'>
+            {/* Hero Image - Always Visible */}
+            {news.imageUrl && (
+              <div className='pt-6 pb-6'>
+                <NewsDetailImage imageUrl={news.imageUrl} title={news.title} />
+              </div>
+            )}
+
             {thaiTranslation ? (
               <Tabs
                 defaultValue='original'
@@ -116,7 +169,7 @@ export function NewsDetailSheet({
                 onValueChange={setActiveTab}
                 className='w-full'
               >
-                <div className='py-4'>
+                <div className='pb-4'>
                   <TabsList className='grid w-full grid-cols-2'>
                     <TabsTrigger value='original'>
                       Original ({news.language || 'EN'})
@@ -126,48 +179,29 @@ export function NewsDetailSheet({
                 </div>
 
                 <div className='space-y-6 pb-6'>
-                  {/* Image */}
-                  {news.imageUrl && (
-                    <div className='relative h-64 w-full overflow-hidden rounded-lg border'>
-                      <img
-                        src={news.imageUrl}
-                        alt={news.title}
-                        className='h-full w-full object-cover'
-                      />
-                    </div>
-                  )}
-
                   {/* Meta Info */}
                   <div className='grid grid-cols-2 gap-4 text-sm'>
-                    <div className='text-muted-foreground flex items-center gap-2'>
-                      <Building className='h-4 w-4' />
-                      <span className='text-foreground font-medium'>
-                        Symbol:
-                      </span>
-                      {news.symbol}
-                    </div>
-                    <div className='text-muted-foreground flex items-center gap-2'>
-                      <Globe className='h-4 w-4' />
-                      <span className='text-foreground font-medium'>
-                        Publisher:
-                      </span>
-                      {news.publisher || 'N/A'}
-                    </div>
-                    <div className='text-muted-foreground flex items-center gap-2'>
-                      <CalendarDays className='h-4 w-4' />
-                      <span className='text-foreground font-medium'>
-                        Published:
-                      </span>
-                      {format(new Date(news.publishedDate), 'PP p')}
-                    </div>
+                    <DetailInfoRow
+                      icon={Building}
+                      label='Symbol'
+                      value={news.symbol}
+                    />
+                    <DetailInfoRow
+                      icon={Globe}
+                      label='Publisher'
+                      value={news.publisher || 'N/A'}
+                    />
+                    <DetailInfoRow
+                      icon={CalendarDays}
+                      label='Published'
+                      value={format(new Date(news.publishedDate), 'PP p')}
+                    />
                     {news.exchange && (
-                      <div className='text-muted-foreground flex items-center gap-2'>
-                        <Building className='h-4 w-4' />
-                        <span className='text-foreground font-medium'>
-                          Exchange:
-                        </span>
-                        {news.exchange}
-                      </div>
+                      <DetailInfoRow
+                        icon={Building}
+                        label='Exchange'
+                        value={news.exchange}
+                      />
                     )}
                   </div>
 
@@ -268,46 +302,44 @@ export function NewsDetailSheet({
                   <Separator />
 
                   <TabsContent value='original' className='mt-0 space-y-4'>
-                    <div>
-                      <h4 className='mb-2 font-semibold'>Summary</h4>
-                      <div className='prose prose-sm dark:prose-invert text-muted-foreground max-w-none text-sm leading-relaxed'>
+                    <DetailContentBox
+                      label='Summary'
+                      content={
                         <ReactMarkdown>
                           {news.summary || 'No summary available.'}
                         </ReactMarkdown>
-                      </div>
-                    </div>
+                      }
+                    />
 
                     {news.content && (
-                      <div>
-                        <h4 className='mb-2 font-semibold'>Content</h4>
-                        <div className='prose prose-sm dark:prose-invert text-muted-foreground max-w-none text-sm leading-relaxed whitespace-pre-wrap'>
-                          <ReactMarkdown>{news.content}</ReactMarkdown>
-                        </div>
-                      </div>
+                      <DetailContentBox
+                        label='Content'
+                        content={<ReactMarkdown>{news.content}</ReactMarkdown>}
+                      />
                     )}
                   </TabsContent>
 
                   <TabsContent value='thai' className='mt-0 space-y-4'>
                     {/* Title is displayed in Header now */}
-                    <div>
-                      <h4 className='mb-2 font-semibold'>Summary (TH)</h4>
-                      <div className='prose prose-sm dark:prose-invert text-muted-foreground max-w-none text-sm leading-relaxed'>
+                    <DetailContentBox
+                      label='Summary (TH)'
+                      content={
                         <ReactMarkdown>
                           {thaiTranslation.summary ||
                             'No Thai summary available.'}
                         </ReactMarkdown>
-                      </div>
-                    </div>
+                      }
+                    />
 
                     {thaiTranslation.content && (
-                      <div>
-                        <h4 className='mb-2 font-semibold'>Content (TH)</h4>
-                        <div className='prose prose-sm dark:prose-invert text-muted-foreground max-w-none text-sm leading-relaxed whitespace-pre-wrap'>
+                      <DetailContentBox
+                        label='Content (TH)'
+                        content={
                           <ReactMarkdown>
                             {thaiTranslation.content}
                           </ReactMarkdown>
-                        </div>
-                      </div>
+                        }
+                      />
                     )}
                   </TabsContent>
 
@@ -342,47 +374,30 @@ export function NewsDetailSheet({
                 </div>
               </Tabs>
             ) : (
-              <div className='space-y-6 pt-6 pb-6'>
-                {/* Image */}
-                {news.imageUrl && (
-                  <div className='relative h-64 w-full overflow-hidden rounded-lg border'>
-                    <img
-                      src={news.imageUrl}
-                      alt={news.title}
-                      className='h-full w-full object-cover'
-                    />
-                  </div>
-                )}
-
+              <div className='space-y-6 pb-6'>
                 {/* Meta Info */}
                 <div className='grid grid-cols-2 gap-4 text-sm'>
-                  <div className='text-muted-foreground flex items-center gap-2'>
-                    <Building className='h-4 w-4' />
-                    <span className='text-foreground font-medium'>Symbol:</span>
-                    {news.symbol}
-                  </div>
-                  <div className='text-muted-foreground flex items-center gap-2'>
-                    <Globe className='h-4 w-4' />
-                    <span className='text-foreground font-medium'>
-                      Publisher:
-                    </span>
-                    {news.publisher || 'N/A'}
-                  </div>
-                  <div className='text-muted-foreground flex items-center gap-2'>
-                    <CalendarDays className='h-4 w-4' />
-                    <span className='text-foreground font-medium'>
-                      Published:
-                    </span>
-                    {format(new Date(news.publishedDate), 'PP p')}
-                  </div>
+                  <DetailInfoRow
+                    icon={Building}
+                    label='Symbol'
+                    value={news.symbol}
+                  />
+                  <DetailInfoRow
+                    icon={Globe}
+                    label='Publisher'
+                    value={news.publisher || 'N/A'}
+                  />
+                  <DetailInfoRow
+                    icon={CalendarDays}
+                    label='Published'
+                    value={format(new Date(news.publishedDate), 'PP p')}
+                  />
                   {news.exchange && (
-                    <div className='text-muted-foreground flex items-center gap-2'>
-                      <Building className='h-4 w-4' />
-                      <span className='text-foreground font-medium'>
-                        Exchange:
-                      </span>
-                      {news.exchange}
-                    </div>
+                    <DetailInfoRow
+                      icon={Building}
+                      label='Exchange'
+                      value={news.exchange}
+                    />
                   )}
                 </div>
 
@@ -484,22 +499,20 @@ export function NewsDetailSheet({
 
                 {/* Content */}
                 <div className='space-y-4'>
-                  <div>
-                    <h4 className='mb-2 font-semibold'>Summary</h4>
-                    <div className='prose prose-sm dark:prose-invert text-muted-foreground max-w-none text-sm leading-relaxed'>
+                  <DetailContentBox
+                    label='Summary'
+                    content={
                       <ReactMarkdown>
                         {news.summary || 'No summary available.'}
                       </ReactMarkdown>
-                    </div>
-                  </div>
+                    }
+                  />
 
                   {news.content && (
-                    <div>
-                      <h4 className='mb-2 font-semibold'>Content</h4>
-                      <div className='prose prose-sm dark:prose-invert text-muted-foreground max-w-none text-sm leading-relaxed whitespace-pre-wrap'>
-                        <ReactMarkdown>{news.content}</ReactMarkdown>
-                      </div>
-                    </div>
+                    <DetailContentBox
+                      label='Content'
+                      content={<ReactMarkdown>{news.content}</ReactMarkdown>}
+                    />
                   )}
                 </div>
 

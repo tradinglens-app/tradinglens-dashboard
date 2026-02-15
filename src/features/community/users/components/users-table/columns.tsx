@@ -2,8 +2,12 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 import { formatDateApp } from '@/lib/format';
+import { DateCell } from '@/components/ui/date-cell';
 import { Badge } from '@/components/ui/badge';
-import { CommunityUser } from '../../services/community-users.service';
+import {
+  CommunityUserSummary,
+  CommunityUser
+} from '../../services/community-users.service';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,10 +33,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toLabel, toOptions } from '@/lib/db-enums.utils';
 
 export const getColumns = (
-  onDetail: (user: CommunityUser) => void,
-  onStatusChange: (user: CommunityUser, status: string) => void,
+  onDetail: (user: CommunityUserSummary) => void,
+  onStatusChange: (user: CommunityUserSummary, status: string) => void,
   enumValues?: Record<string, string[]>
-): ColumnDef<CommunityUser>[] => [
+): ColumnDef<CommunityUserSummary>[] => [
   {
     accessorKey: 'id',
     header: ({ column }) => (
@@ -118,11 +122,7 @@ export const getColumns = (
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Joined At' />
     ),
-    cell: ({ row }) => (
-      <div className='whitespace-nowrap'>
-        {formatDateApp(row.original.created_at)}
-      </div>
-    ),
+    cell: ({ row }) => <DateCell date={row.original.created_at} />,
     enableSorting: true,
 
     meta: {

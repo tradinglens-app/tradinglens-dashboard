@@ -10,8 +10,21 @@ import {
   updateNews,
   deleteNews,
   toggleNewsActive,
-  CreateNewsInput
+  CreateNewsInput,
+  invalidateNewsImage
 } from '../services/news.service';
+
+export async function invalidateNewsImageAction(id: string) {
+  try {
+    await invalidateNewsImage(id);
+    revalidatePath('/dashboard/news');
+    revalidatePath('/dashboard/news-articles');
+    return { success: true };
+  } catch (error: any) {
+    console.error('invalidateNewsImageAction error:', error);
+    return { success: false, error: error.message };
+  }
+}
 
 export async function getNewsAction(params: GetNewsParams) {
   try {

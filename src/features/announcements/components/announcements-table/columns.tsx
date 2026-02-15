@@ -17,6 +17,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { formatDateApp } from '@/lib/format';
+import { DateCell } from '@/components/ui/date-cell';
 import { AnnouncementsDeleteDialog } from '@/features/announcements/components/announcements-delete-dialog';
 import { toLabel, toOptions } from '@/lib/db-enums.utils';
 
@@ -119,14 +120,7 @@ export const getColumns = (
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Start' />
     ),
-    cell: ({ row }) => {
-      const date = row.getValue('start_at') as Date | null;
-      return (
-        <div className='whitespace-nowrap'>
-          {date ? formatDateApp(date) : '-'}
-        </div>
-      );
-    },
+    cell: ({ row }) => <DateCell date={row.getValue('start_at')} />,
     size: 140
   },
   {

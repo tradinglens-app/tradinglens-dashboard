@@ -6,8 +6,8 @@ import { SymbolData } from '../../services/symbol.service';
 import { getColumns } from './columns';
 import { useDataTable } from '@/hooks/use-data-table';
 import { DataTable } from '@/components/ui/table/data-table';
-import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
 import { SymbolFormModal } from '../symbol-form-modal';
+import { SymbolTableToolbar } from './symbol-table-toolbar';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { DEFAULT_PAGE_SIZE } from '@/constants/data-table-config';
 import { AlertModal } from '@/components/modal/alert-modal';
@@ -93,7 +93,8 @@ export function SymbolListing({
         symbol: true,
         name: true,
         exchange: true,
-        type: true
+        type: true,
+        hasLogo: false
       }
     }
   });
@@ -101,7 +102,7 @@ export function SymbolListing({
   return (
     <div className='flex flex-1 flex-col space-y-4'>
       <DataTable table={table}>
-        <DataTableToolbar table={table} searchKey='symbol'>
+        <SymbolTableToolbar table={table} enumValues={enumValues}>
           <Button
             size='sm'
             variant='default'
@@ -110,7 +111,7 @@ export function SymbolListing({
           >
             <Icons.add className='mr-2 h-4 w-4' /> Add Symbol
           </Button>
-        </DataTableToolbar>
+        </SymbolTableToolbar>
       </DataTable>
       <SymbolFormModal
         open={isFormOpen}

@@ -54,7 +54,9 @@ import {
   IconEyeOff,
   IconEye,
   IconBuildingCommunity,
-  IconShieldCheck
+  IconShieldCheck,
+  IconDiscountCheck,
+  IconAd
 } from '@tabler/icons-react';
 
 export type Icon = React.ComponentType<IconProps>;
@@ -106,8 +108,8 @@ export const Icons = {
   article: IconArticle,
   posts: IconMessage,
   comments: IconMessageCircle,
-  badge: IconId,
-  adsManager: IconSpeakerphone,
+  badge: IconDiscountCheck,
+  adsManager: IconAd,
   database: IconDatabase,
   campaign: IconFlag,
   notification: IconBell,
@@ -121,5 +123,6 @@ export const Icons = {
   eye: IconEye,
   fileText: IconFileText,
   community: IconBuildingCommunity,
-  verification: IconShieldCheck
+  verification: IconShieldCheck,
+  announcement: IconSpeakerphone
 };

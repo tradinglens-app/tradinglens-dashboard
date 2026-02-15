@@ -24,6 +24,7 @@ export default async function PostsPage({
   const type = searchParamsCache.get('type');
   const createdAt = searchParamsCache.get('created_at');
   const pageSize = searchParamsCache.get('perPage');
+  const sort = searchParamsCache.get('sort');
 
   const [{ data, totalCount }, enumValues] = await Promise.all([
     getPosts({
@@ -33,7 +34,8 @@ export default async function PostsPage({
       id,
       visibility,
       type,
-      created_at: createdAt
+      created_at: createdAt,
+      sort
     }),
     getPostEnumValues()
   ]);

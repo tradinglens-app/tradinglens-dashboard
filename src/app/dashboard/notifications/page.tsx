@@ -18,13 +18,15 @@ export default async function NotificationsPage(props: pageProps) {
   const pageLimit = searchParamsCache.get('perPage');
   const search = searchParamsCache.get('q');
   const type = searchParamsCache.get('type');
-  const status = searchParamsCache.get('status');
+
+  const isRead = searchParamsCache.get('is_read');
   const createdAt = searchParamsCache.get('created_at');
 
   const from = createdAt?.[0]
     ? new Date(createdAt[0]).toISOString()
     : undefined;
   const to = createdAt?.[1] ? new Date(createdAt[1]).toISOString() : undefined;
+  const sort = searchParamsCache.get('sort');
 
   const [{ data, totalCount }, enumValues] = await Promise.all([
     getNotificationsAction({
@@ -32,9 +34,10 @@ export default async function NotificationsPage(props: pageProps) {
       pageSize: pageLimit,
       search: search || undefined,
       type: type && type.length > 0 ? type : undefined,
-      is_read: status && status.length > 0 ? status : undefined,
+      is_read: isRead && isRead.length > 0 ? isRead : undefined,
       created_at_from: from,
-      created_at_to: to
+      created_at_to: to,
+      sort
     }),
     getNotificationEnumValues()
   ]);

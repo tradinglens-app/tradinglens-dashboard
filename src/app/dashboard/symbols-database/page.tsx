@@ -16,20 +16,27 @@ export default async function SymbolsDatabasePage({
   searchParamsCache.parse(params);
 
   const page = searchParamsCache.get('page');
-  const search = searchParamsCache.get('name'); // Using 'name' as searchKey in Listing
+  const symbolParam = searchParamsCache.get('symbol');
+  const nameParam = searchParamsCache.get('name');
+  // const search = nameParam || symbolParam;
   const type = searchParamsCache.get('type');
   const exchange = searchParamsCache.get('exchange');
   const pageSize = searchParamsCache.get('perPage');
   const createdAt = searchParamsCache.get('createdAt');
+  const hasLogo = searchParamsCache.get('hasLogo');
+  const sort = searchParamsCache.get('sort');
 
   const [{ data, totalCount }, enumValues] = await Promise.all([
     getSymbols({
       page,
       pageSize,
-      search: search || undefined,
+      name: nameParam || undefined,
+      symbol: symbolParam || undefined,
       type,
       exchange: exchange || undefined,
-      createdAt: createdAt || undefined
+      createdAt: createdAt || undefined,
+      hasLogo: hasLogo || undefined,
+      sort
     }),
     getSymbolEnumValues()
   ]);

@@ -23,6 +23,7 @@ export default async function NewsArticlesPage({
   const publisher = searchParamsCache.get('publisher');
   const createdAt = searchParamsCache.get('createdAt');
   const isActiveParam = searchParamsCache.get('isActive');
+  const hasImageParam = searchParamsCache.get('hasImage');
 
   // Handle isActive array
   // If both are present or neither, we want undefined (show all)
@@ -33,6 +34,12 @@ export default async function NewsArticlesPage({
   if (isActiveParam && isActiveParam.length === 1) {
     if (isActiveParam.includes('true')) isActive = true;
     if (isActiveParam.includes('false')) isActive = false;
+  }
+
+  let hasImage: boolean | undefined = undefined;
+  if (hasImageParam && hasImageParam.length === 1) {
+    if (hasImageParam.includes('true')) hasImage = true;
+    if (hasImageParam.includes('false')) hasImage = false;
   }
 
   // Extract date range from createdAt
@@ -50,6 +57,7 @@ export default async function NewsArticlesPage({
     from,
     to,
     isActive,
+    hasImage,
     sort
   });
 
