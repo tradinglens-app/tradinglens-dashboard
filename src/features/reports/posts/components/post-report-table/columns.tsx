@@ -2,11 +2,8 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import { Button } from '@/components/ui/button';
-import { Eye, MoreHorizontal, X } from 'lucide-react';
-import { formatDateApp } from '@/lib/format';
+import { Eye, MoreHorizontal, X, FileText } from 'lucide-react';
 import { DateCell } from '@/components/ui/date-cell';
 import { useState } from 'react';
 import { ReportReasonsModal } from '../report-reasons-modal';
@@ -14,9 +11,19 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
 import { RejectDialog } from '@/components/ui/reject-dialog';
+import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
+import { Post } from '@/features/community/posts/services/posts.service';
+import { PostDetailSheet } from '@/features/community/posts/components/post-detail-sheet';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
 
 interface ReportReason {
   titleEn?: string;
@@ -32,6 +39,7 @@ export type PostReport = {
   reportCount: number;
   date: string;
   created_at: string;
+  postDetails: Post;
 };
 
 export const columns: ColumnDef<PostReport>[] = [
@@ -50,9 +58,24 @@ export const columns: ColumnDef<PostReport>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Post Title' />
     ),
-    cell: ({ row }) => (
-      <div className='truncate font-medium'>{row.getValue('postTitle')}</div>
-    ),
+    cell: ({ row }) => {
+      const title = row.getValue('postTitle') as string;
+      const fullContent = row.original.postDetails.content;
+
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className='cursor-pointer truncate font-medium'>{title}</div>
+          </TooltipTrigger>
+          <TooltipContent
+            className='max-w-[300px] border-none bg-[#6EE7B7] px-3 py-2 font-normal text-[#064E3B] shadow-md'
+            side='top'
+          >
+            {fullContent || title}
+          </TooltipContent>
+        </Tooltip>
+      );
+    },
     size: 200,
     enableSorting: true
   },
@@ -98,13 +121,6 @@ export const columns: ColumnDef<PostReport>[] = [
       );
     }
   },
-  // {
-  //   accessorKey: 'status',
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader column={column} title='Status' />
-  //   ),
-  //   cell: ({ row }) => <div>{row.getValue('status')}</div>
-  // },
   {
     accessorKey: 'created_at',
     header: ({ column }) => (
@@ -123,6 +139,7 @@ export const columns: ColumnDef<PostReport>[] = [
     id: 'actions',
     cell: function ActionsCell({ row }) {
       const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
+      const [isDetailOpen, setIsDetailOpen] = useState(false);
 
       const handleReject = async (note: string) => {
         // TODO: Implement reject logic here
@@ -140,6 +157,12 @@ export const columns: ColumnDef<PostReport>[] = [
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => setIsDetailOpen(true)}>
+                <FileText className='mr-2 h-4 w-4' />
+                View Detail
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => setIsRejectDialogOpen(true)}
                 className='text-destructive focus:text-destructive'
@@ -149,6 +172,13 @@ export const columns: ColumnDef<PostReport>[] = [
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          <PostDetailSheet
+            open={isDetailOpen}
+            onOpenChange={setIsDetailOpen}
+            post={row.original.postDetails}
+          />
+
           <RejectDialog
             open={isRejectDialogOpen}
             onOpenChange={setIsRejectDialogOpen}

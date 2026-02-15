@@ -154,6 +154,43 @@ export function PostDetailSheet({
                 </div>
               </div>
 
+              {/* Media Section */}
+              {post.media && post.media.length > 0 && (
+                <>
+                  <Separator />
+                  <div className='grid gap-4 py-4'>
+                    <h4 className='text-sm font-semibold'>
+                      Media ({post.media.length})
+                    </h4>
+                    <div className='grid grid-cols-2 gap-4'>
+                      {post.media.map((item) => (
+                        <div
+                          key={item.id}
+                          className='bg-muted relative aspect-square overflow-hidden rounded-md border'
+                        >
+                          {item.media_type?.startsWith('video') ? (
+                            <video
+                              src={item.media_url || ''}
+                              className='h-full w-full object-cover'
+                              controls
+                            />
+                          ) : (
+                            <img
+                              src={item.media_url || item.thumbnail_url || ''}
+                              alt='Post media'
+                              className='h-full w-full cursor-pointer object-cover transition-transform hover:scale-105'
+                              onClick={() =>
+                                window.open(item.media_url || '', '_blank')
+                              }
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
               <Separator />
 
               {/* Additional Information (Grid) */}

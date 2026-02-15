@@ -28,6 +28,12 @@ export interface Post {
     profile_pic: string | null;
   };
   type: string;
+  media?: Array<{
+    id: string;
+    media_url: string | null;
+    media_type: string | null;
+    thumbnail_url: string | null;
+  }>;
 }
 
 export interface GetPostsParams {
@@ -157,6 +163,29 @@ export async function getPosts(params: GetPostsParams = {}) {
     prismaThread.threads.count({ where })
   ]);
 
+  const threadIds = threads.map((t) => t.id);
+  const media = await prismaThread.threadMedia.findMany({
+    where: {
+      threads_id: { in: threadIds },
+      deleted_at: null
+    },
+    select: {
+      id: true,
+      threads_id: true,
+      media_url: true,
+      media_type: true,
+      thumbnail_url: true
+    }
+  });
+
+  const mediaMap = new Map<string, typeof media>();
+  media.forEach((m) => {
+    if (!mediaMap.has(m.threads_id)) {
+      mediaMap.set(m.threads_id, []);
+    }
+    mediaMap.get(m.threads_id)!.push(m);
+  });
+
   const userIds = Array.from(new Set(threads.map((t) => t.user_id)));
 
   const users: Array<{
@@ -193,7 +222,8 @@ export async function getPosts(params: GetPostsParams = {}) {
         name: 'Unknown User',
         username: 'unknown',
         profile_pic: null
-      }
+      },
+      media: mediaMap.get(thread.id) || []
     };
   });
 

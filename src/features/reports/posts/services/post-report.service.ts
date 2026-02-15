@@ -1,7 +1,9 @@
 import { Prisma } from '@/generated/prisma-client-thread';
 import { prismaThread } from '@/lib/prisma-thread';
+import { prisma } from '@/lib/prisma';
 import { format } from 'date-fns';
 import { PostReport } from '../components/post-report-table/columns';
+import { Post } from '@/features/community/posts/services/posts.service';
 
 export interface GetPostReportsParams {
   page?: number;
@@ -130,8 +132,58 @@ export const getPostReports = async (
     },
     select: {
       id: true,
-      content: true
+      user_id: true,
+      content: true,
+      visibility: true,
+      created_at: true,
+      updated_at: true,
+      poll_id: true,
+      company_info_id: true,
+      quoted_thread_id: true,
+      news_id: true,
+      parent_thread_id: true,
+      parent_level: true,
+      start_thread_id: true
     }
+  });
+
+  const userIds = Array.from(new Set(threads.map((t) => t.user_id)));
+  const threadIdList = threads.map((t) => t.id);
+
+  const [users, media] = await Promise.all([
+    prisma.users.findMany({
+      where: {
+        user_id: { in: userIds }
+      },
+      select: {
+        user_id: true,
+        name: true,
+        username: true,
+        profile_pic: true
+      }
+    }),
+    prismaThread.threadMedia.findMany({
+      where: {
+        threads_id: { in: threadIdList },
+        deleted_at: null
+      },
+      select: {
+        id: true,
+        threads_id: true,
+        media_url: true,
+        media_type: true,
+        thumbnail_url: true
+      }
+    })
+  ]);
+
+  const userMap = new Map(users.map((u) => [u.user_id, u]));
+  const mediaMap = new Map<string, typeof media>();
+  media.forEach((m) => {
+    if (!mediaMap.has(m.threads_id)) {
+      mediaMap.set(m.threads_id, []);
+    }
+    mediaMap.get(m.threads_id)!.push(m);
   });
 
   const reasonIds = allReports
@@ -159,6 +211,46 @@ export const getPostReports = async (
     const thread = threadMap.get(grouped.threads_id);
     const content = thread?.content || 'Content not found';
     const threadReports = reportsByThread.get(grouped.threads_id) || [];
+
+    let postDetails: Post | undefined;
+
+    if (thread) {
+      let type = 'default';
+      if (thread.poll_id) type = 'poll';
+      else if (thread.company_info_id) type = 'company_info';
+      else if (thread.quoted_thread_id) type = 'quote';
+      else if (thread.news_id) type = 'news';
+
+      postDetails = {
+        ...thread,
+        type,
+        user: userMap.get(thread.user_id) || {
+          name: 'Unknown User',
+          username: 'unknown',
+          profile_pic: null
+        },
+        media: mediaMap.get(thread.id) || []
+      };
+    } else {
+      // Fallback if thread not found, though it should be
+      postDetails = {
+        id: grouped.threads_id,
+        user_id: 0,
+        content: 'Content not found',
+        visibility: 'public',
+        created_at: new Date(),
+        type: 'default',
+        poll_id: null,
+        company_info_id: null,
+        quoted_thread_id: null,
+        news_id: null,
+        user: {
+          name: 'Unknown',
+          username: 'unknown',
+          profile_pic: null
+        }
+      };
+    }
 
     const uniqueReasonIds = Array.from(
       new Set(
@@ -200,7 +292,8 @@ export const getPostReports = async (
         : 'N/A',
       created_at: grouped._max.created_at
         ? grouped._max.created_at.toISOString()
-        : ''
+        : '',
+      postDetails
     };
   });
 
