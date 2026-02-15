@@ -21,13 +21,26 @@ export interface GetSymbolsParams {
   page?: number;
   pageSize?: number;
   search?: string;
+  name?: string;
+  symbol?: string;
   type?: string[];
   exchange?: string;
   createdAt?: number[];
+  hasLogo?: string[];
 }
 
 export async function getSymbols(params: GetSymbolsParams = {}) {
-  const { page = 1, pageSize = 10, search, type, exchange, createdAt } = params;
+  const {
+    page = 1,
+    pageSize = 10,
+    search,
+    name,
+    symbol,
+    type,
+    exchange,
+    createdAt,
+    hasLogo
+  } = params;
 
   const where: any = {};
 
@@ -38,10 +51,12 @@ export async function getSymbols(params: GetSymbolsParams = {}) {
     ];
   }
 
-  if (type && type.length > 0) {
-    where.type = {
-      in: type
-    };
+  if (name) {
+    where.company_name = { contains: name, mode: 'insensitive' };
+  }
+
+  if (symbol) {
+    where.symbol = { contains: symbol, mode: 'insensitive' };
   }
 
   if (exchange) {
@@ -53,6 +68,17 @@ export async function getSymbols(params: GetSymbolsParams = {}) {
       gte: new Date(createdAt[0]),
       lte: new Date(createdAt[1])
     };
+  }
+
+  if (hasLogo && hasLogo.length > 0) {
+    const hasLogoBool = hasLogo.includes('true');
+    const noLogoBool = hasLogo.includes('false');
+
+    if (hasLogoBool && !noLogoBool) {
+      where.company_logo = { not: null };
+    } else if (!hasLogoBool && noLogoBool) {
+      where.company_logo = null;
+    }
   }
 
   const [symbols, totalCount] = await Promise.all([

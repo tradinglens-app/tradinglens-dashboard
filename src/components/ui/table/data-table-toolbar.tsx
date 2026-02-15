@@ -15,6 +15,7 @@ import { Cross2Icon } from '@radix-ui/react-icons';
 interface DataTableToolbarProps<TData> extends React.ComponentProps<'div'> {
   table: Table<TData>;
   searchKey?: string;
+  placeholder?: string;
 }
 
 export function DataTableToolbar<TData>({
@@ -22,6 +23,7 @@ export function DataTableToolbar<TData>({
   children,
   className,
   searchKey,
+  placeholder,
   ...props
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
@@ -51,7 +53,7 @@ export function DataTableToolbar<TData>({
       <div className='flex flex-1 flex-wrap items-center gap-2'>
         {searchKey && table.getColumn(searchKey) && (
           <Input
-            placeholder={`Filter ${searchKey}...`}
+            placeholder={placeholder ?? `Filter ${searchKey}...`}
             value={
               (table.getColumn(searchKey)?.getFilterValue() as string) ?? ''
             }

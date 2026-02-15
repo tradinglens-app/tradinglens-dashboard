@@ -19,6 +19,8 @@ import {
   Eye,
   Building
 } from 'lucide-react';
+import Image from 'next/image';
+import { Skeleton } from '@/components/ui/skeleton';
 import ReactMarkdown from 'react-markdown';
 import { useEffect, useState } from 'react';
 import { DetailSheetHeader } from '@/components/ui/detail-sheet-header';
@@ -30,6 +32,55 @@ interface NewsDetailSheetProps {
   onClose: () => void;
   news: NewsArticle | null;
 }
+
+const isValidUrl = (url: string) => {
+  try {
+    new URL(url);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
+const NewsDetailImage = ({
+  imageUrl,
+  title
+}: {
+  imageUrl: string;
+  title: string;
+}) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  if (error || !imageUrl || !isValidUrl(imageUrl)) {
+    return (
+      <div className='bg-muted flex h-64 w-full items-center justify-center rounded-lg border'>
+        <Building className='text-muted-foreground h-16 w-16' />
+      </div>
+    );
+  }
+
+  return (
+    <div className='relative h-64 w-full overflow-hidden rounded-lg border'>
+      {isLoading && <Skeleton className='absolute inset-0 h-full w-full' />}
+      <Image
+        src={imageUrl}
+        alt={title}
+        fill
+        className={`object-cover transition-opacity duration-300 ${
+          isLoading ? 'opacity-0' : 'opacity-100'
+        }`}
+        sizes='(max-width: 768px) 100vw, 600px'
+        priority
+        onLoad={() => setIsLoading(false)}
+        onError={() => {
+          setError(true);
+          setIsLoading(false);
+        }}
+      />
+    </div>
+  );
+};
 
 export function NewsDetailSheet({
   isOpen,
@@ -123,13 +174,10 @@ export function NewsDetailSheet({
                 <div className='space-y-6 pb-6'>
                   {/* Image */}
                   {news.imageUrl && (
-                    <div className='relative h-64 w-full overflow-hidden rounded-lg border'>
-                      <img
-                        src={news.imageUrl}
-                        alt={news.title}
-                        className='h-full w-full object-cover'
-                      />
-                    </div>
+                    <NewsDetailImage
+                      imageUrl={news.imageUrl}
+                      title={news.title}
+                    />
                   )}
 
                   {/* Meta Info */}
@@ -330,13 +378,10 @@ export function NewsDetailSheet({
               <div className='space-y-6 pt-6 pb-6'>
                 {/* Image */}
                 {news.imageUrl && (
-                  <div className='relative h-64 w-full overflow-hidden rounded-lg border'>
-                    <img
-                      src={news.imageUrl}
-                      alt={news.title}
-                      className='h-full w-full object-cover'
-                    />
-                  </div>
+                  <NewsDetailImage
+                    imageUrl={news.imageUrl}
+                    title={news.title}
+                  />
                 )}
 
                 {/* Meta Info */}

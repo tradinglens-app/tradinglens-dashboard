@@ -42,7 +42,9 @@ export const searchParams = {
   content: parseAsString.withDefault(''),
   accountStatus: parseAsArrayOf(parseAsString).withDefault([]),
   visibility: parseAsArrayOf(parseAsString).withDefault([]),
-  is_read: parseAsArrayOf(parseAsString).withDefault([])
+  is_read: parseAsArrayOf(parseAsString).withDefault([]),
+  hasImage: parseAsArrayOf(parseAsString).withDefault([]),
+  hasLogo: parseAsArrayOf(parseAsString).withDefault([])
 };
 
 export const searchParamsCache = createSearchParamsCache(searchParams);

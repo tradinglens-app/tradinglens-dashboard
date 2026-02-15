@@ -4,7 +4,7 @@ import { DataTable } from '@/components/ui/table/data-table';
 import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
 import { useDataTable } from '@/hooks/use-data-table';
 import { parseAsInteger, useQueryState } from 'nuqs';
-import { CommunityUser } from '../../services/community-users.service';
+import { CommunityUserSummary } from '../../services/community-users.service';
 import { getColumns } from './columns';
 import { UserDetailSheet } from '../user-detail-sheet';
 import { useState } from 'react';
@@ -15,7 +15,7 @@ import { UserTableToolbar } from './user-table-toolbar';
 import { DEFAULT_PAGE_SIZE } from '@/constants/data-table-config';
 
 interface UsersTableProps {
-  data: CommunityUser[];
+  data: CommunityUserSummary[];
   totalItems: number;
   enumValues?: Record<string, string[]>;
 }
@@ -28,15 +28,20 @@ export function UsersTable({ data, totalItems, enumValues }: UsersTableProps) {
   const pageCount = Math.ceil(totalItems / pageSize);
   const router = useRouter();
 
-  const [selectedUser, setSelectedUser] = useState<CommunityUser | null>(null);
+  const [selectedUser, setSelectedUser] = useState<CommunityUserSummary | null>(
+    null
+  );
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-  const handleDetail = (user: CommunityUser) => {
+  const handleDetail = (user: CommunityUserSummary) => {
     setSelectedUser(user);
     setIsDetailOpen(true);
   };
 
-  const handleStatusChange = async (user: CommunityUser, status: string) => {
+  const handleStatusChange = async (
+    user: CommunityUserSummary,
+    status: string
+  ) => {
     const result = await updateUserAccountStatusAction(user.id, status);
     if (result.success) {
       toast.success(`User account status updated to ${status}`);

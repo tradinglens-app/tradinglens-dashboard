@@ -11,7 +11,6 @@ export interface VerificationRequest {
   created_at: string;
   accountStatus: string | null;
   lastLogin: string | null;
-  // Additional fields
   googleId: string | null;
   profilePic: string | null;
   updatedAt: string | null;
@@ -39,7 +38,7 @@ export interface GetVerificationRequestsParams {
   status?: string | string[];
   from?: string;
   to?: string;
-  sort?: string; // Format: "column.order" or JSON array
+  sort?: string;
 }
 
 export async function getVerificationRequests(
@@ -49,8 +48,6 @@ export async function getVerificationRequests(
   totalCount: number;
   pageCount: number;
 }> {
-  // ... (params destructuring and where clause logic remains same) ...
-
   const {
     page = 1,
     pageSize = 10,
@@ -131,20 +128,14 @@ export async function getVerificationRequests(
       if (includeVerified && !includePending && !includeUnverified) {
         where.is_verified = true;
       } else if (!includeVerified && includePending && !includeUnverified) {
-        // For now, Pending is same as Unverified (is_verified = false)
-        // You can add additional logic here if you have a separate pending field
         where.is_verified = false;
       } else if (!includeVerified && !includePending && includeUnverified) {
         where.is_verified = false;
       } else if (includeVerified && includePending && !includeUnverified) {
-        // Verified OR Pending (true OR false) - no filter needed
       } else if (includeVerified && !includePending && includeUnverified) {
-        // Verified OR Unverified - no practical filter
       } else if (!includeVerified && includePending && includeUnverified) {
-        // Pending OR Unverified - both are false
         where.is_verified = false;
       }
-      // If all three are selected, no filter is applied
     }
   }
 
@@ -158,12 +149,12 @@ export async function getVerificationRequests(
     date: 'created_at',
     created_at: 'created_at',
     createdAt: 'created_at',
-    id: 'user_id'
+    id: 'user_id',
+    status: 'is_verified'
   };
 
   if (sort) {
     try {
-      // Try parsing as JSON first (standard for useDataTable)
       const parsedSort = JSON.parse(sort);
       if (Array.isArray(parsedSort) && parsedSort.length > 0) {
         const { id, desc } = parsedSort[0];
@@ -207,7 +198,6 @@ export async function getVerificationRequests(
     lastLogin: user.last_login_at
       ? format(new Date(user.last_login_at), 'yyyy-MM-dd HH:mm')
       : 'N/A',
-    // Mapping additional fields
     googleId: user.google_id,
     profilePic: user.profile_pic,
     updatedAt: user.updated_at

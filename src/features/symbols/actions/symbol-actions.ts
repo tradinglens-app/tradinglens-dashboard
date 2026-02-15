@@ -6,6 +6,7 @@ import {
   upsertSymbol,
   deleteSymbol
 } from '../services/symbol.service';
+import { prisma } from '@/lib/prisma';
 
 export async function saveSymbolAction(data: Partial<SymbolData>) {
   try {

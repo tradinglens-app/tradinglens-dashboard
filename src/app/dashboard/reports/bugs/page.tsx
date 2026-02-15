@@ -21,6 +21,7 @@ export default async function BugReportsPage(props: pageProps) {
   const topic = searchParamsCache.get('topic');
   const status = searchParamsCache.get('status');
   const createdAt = searchParamsCache.get('created_at');
+  const sort = searchParamsCache.get('sort');
 
   const from = createdAt?.[0]
     ? new Date(createdAt[0]).toISOString()
@@ -36,7 +37,8 @@ export default async function BugReportsPage(props: pageProps) {
       topic,
       status: status ? (Array.isArray(status) ? status : [status]) : undefined,
       from,
-      to
+      to,
+      sort
     }),
     getBugReportEnumValues()
   ]);

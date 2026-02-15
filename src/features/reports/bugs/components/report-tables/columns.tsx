@@ -56,6 +56,7 @@ export const getColumns = (
       );
     },
     size: 250,
+    enableSorting: true,
     enableColumnFilter: true,
     meta: {
       placeholder: 'Search Topic'
@@ -84,6 +85,7 @@ export const getColumns = (
         </TooltipProvider>
       );
     },
+    enableSorting: true,
     enableColumnFilter: true,
     meta: {
       placeholder: 'Search Details'

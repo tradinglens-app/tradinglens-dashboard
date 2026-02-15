@@ -53,7 +53,8 @@ export const columns: ColumnDef<PostReport>[] = [
     cell: ({ row }) => (
       <div className='truncate font-medium'>{row.getValue('postTitle')}</div>
     ),
-    size: 200
+    size: 200,
+    enableSorting: true
   },
   {
     id: 'reasons',
@@ -87,6 +88,7 @@ export const columns: ColumnDef<PostReport>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Reports' />
     ),
+    enableSorting: true,
     cell: ({ row }) => {
       const count = row.getValue('reportCount') as number;
       return (

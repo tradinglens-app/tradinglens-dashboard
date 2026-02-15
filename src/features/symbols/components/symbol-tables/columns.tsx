@@ -14,7 +14,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { Icons } from '@/components/icons';
 
 import { toOptions } from '@/lib/db-enums.utils';
 
@@ -110,7 +109,6 @@ export const getColumns = (
       variant: 'dateRange'
     }
   },
-
   {
     id: 'actions',
     header: ({ column }) => <DataTableColumnHeader column={column} title='' />,

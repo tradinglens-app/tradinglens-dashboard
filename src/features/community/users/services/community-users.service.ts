@@ -13,28 +13,21 @@ export async function getCommunityUserEnumValues(): Promise<
   return { accountStatus };
 }
 
-export interface CommunityUser {
-  id: string; // user_id as string
+export interface CommunityUserSummary {
+  id: string;
   userName: string;
   username: string;
   email: string;
   status: 'Verified' | 'Pending' | 'Rejected' | 'Unverified';
   date: string;
   created_at: string;
-  accountStatus:
-    | 'NORMAL'
-    | 'WARNING'
-    | 'LIMITED'
-    | 'RESTRICTED'
-    | 'SUSPENDED'
-    | 'BANNED'
-    | 'UNDER_REVIEW'
-    | string
-    | null;
-  lastLogin: string | null;
-  // Additional fields
-  googleId: string | null;
+  accountStatus: string | null;
+  lastLogin: string | 'N/A';
   profilePic: string | null;
+}
+
+export interface CommunityUser extends CommunityUserSummary {
+  googleId: string | null;
   updatedAt: string | null;
   stripeCustomerId: string | null;
   hasUsedTrial: boolean;
@@ -54,20 +47,20 @@ export interface GetCommunityUsersParams {
   page?: number;
   pageSize?: number;
   userName?: string;
-  username?: string; // New
-  email?: string; // Existing
+  username?: string;
+  email?: string;
   search?: string;
-  status?: string | string[]; // Verified status
-  accountStatus?: string | string[]; // Account status
-  from?: string; // Date range start
-  to?: string; // Date range end
+  status?: string | string[];
+  accountStatus?: string | string[];
+  from?: string;
+  to?: string;
   sort?: string;
 }
 
 export async function getCommunityUsers(
   params: GetCommunityUsersParams = {}
 ): Promise<{
-  data: CommunityUser[];
+  data: CommunityUserSummary[];
   totalCount: number;
   pageCount: number;
 }> {
@@ -76,7 +69,7 @@ export async function getCommunityUsers(
     pageSize = 10,
     search,
     userName,
-    username, // New param
+    username,
     email,
     status,
     accountStatus,
@@ -85,6 +78,7 @@ export async function getCommunityUsers(
     sort
   } = params;
 
+  // ... (keeping existing filter logic construction unchanged for brevity in this diff, assuming it remains same) ...
   const where: any = {};
   const andConditions: any[] = [];
 
@@ -195,7 +189,8 @@ export async function getCommunityUsers(
     lastLogin: 'last_login_at',
     date: 'created_at',
     createdAt: 'created_at',
-    id: 'user_id'
+    id: 'user_id',
+    status: 'account_status'
   };
 
   if (sort) {
@@ -232,27 +227,14 @@ export async function getCommunityUsers(
         created_at: true,
         account_status: true,
         last_login_at: true,
-        profile_pic: true,
-        google_id: true,
-        updated_at: true,
-        stripe_customer_id: true,
-        has_used_trial: true,
-        trial_used_at: true,
-        bio: true,
-        status_message: true,
-        birthdate: true,
-        language_preference: true,
-        theme_preference: true,
-        onboarding_completed: true,
-        active_watchlist_id: true,
-        is_private: true,
-        apple_id: true
+        profile_pic: true
+        // Exclude heavy/unused fields for list view
       }
     }),
     prisma.users.count({ where })
   ]);
 
-  const data = users.map((user) => ({
+  const data: CommunityUserSummary[] = users.map((user) => ({
     id: user.user_id.toString(),
     userName: user.name || 'N/A',
     username: user.username || 'N/A',
@@ -268,13 +250,48 @@ export async function getCommunityUsers(
     lastLogin: user.last_login_at
       ? format(new Date(user.last_login_at), 'yyyy-MM-dd HH:mm')
       : 'N/A',
-    googleId: user.google_id,
+    profilePic: user.profile_pic
+  }));
+
+  return {
+    data,
+    totalCount,
+    pageCount: Math.ceil(totalCount / pageSize)
+  };
+}
+
+export async function getCommunityUserById(
+  userId: string
+): Promise<CommunityUser | null> {
+  const user = await prisma.users.findUnique({
+    where: { user_id: parseInt(userId) }
+  });
+
+  if (!user) return null;
+
+  return {
+    id: user.user_id.toString(),
+    userName: user.name || 'N/A',
+    username: user.username || 'N/A',
+    email: user.email || 'N/A',
+    status: (user.is_verified
+      ? 'Verified'
+      : 'Unverified') as CommunityUser['status'],
+    date: user.created_at
+      ? format(new Date(user.created_at), 'yyyy-MM-dd')
+      : 'N/A',
+    created_at: user.created_at ? user.created_at.toISOString() : '',
+    accountStatus: user.account_status,
+    lastLogin: user.last_login_at
+      ? format(new Date(user.last_login_at), 'yyyy-MM-dd HH:mm')
+      : 'N/A',
     profilePic: user.profile_pic,
+    googleId: user.google_id,
     updatedAt: user.updated_at
       ? format(new Date(user.updated_at), 'yyyy-MM-dd HH:mm')
       : null,
     stripeCustomerId: user.stripe_customer_id,
-    hasUsedTrial: user.has_used_trial,
+    hasUsedTrial: user.has_used_trial || false,
     trialUsedAt: user.trial_used_at
       ? format(new Date(user.trial_used_at), 'yyyy-MM-dd HH:mm')
       : null,
@@ -283,18 +300,12 @@ export async function getCommunityUsers(
     birthdate: user.birthdate
       ? format(new Date(user.birthdate), 'yyyy-MM-dd')
       : null,
-    languagePreference: user.language_preference,
+    languagePreference: user.language_preference || 'en',
     themePreference: user.theme_preference,
-    onboardingCompleted: user.onboarding_completed,
+    onboardingCompleted: user.onboarding_completed || false,
     activeWatchlistId: user.active_watchlist_id,
-    isPrivate: user.is_private,
+    isPrivate: user.is_private || false,
     appleId: user.apple_id
-  }));
-
-  return {
-    data,
-    totalCount,
-    pageCount: Math.ceil(totalCount / pageSize)
   };
 }
 
