@@ -95,10 +95,12 @@ export async function getBugReportsService(params: GetBugReportsParams = {}) {
           topic: 'topic',
           details: 'details',
           status: 'status',
-          created_at: 'created_at'
+          created_at: 'created_at',
+          createdAt: 'created_at',
+          updatedAt: 'updated_at'
         };
         const dbField = fieldMapping[id] || id;
-        orderBy = { [dbField]: desc ? 'desc' : 'asc' };
+        orderBy = { [dbField]: desc ? 'desc' : 'asc' }; // Corrected line 101 to be a single assignment
       }
     } catch (e) {
       // Keep default sorting

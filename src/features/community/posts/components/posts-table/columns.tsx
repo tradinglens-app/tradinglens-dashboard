@@ -55,7 +55,7 @@ export const getColumns = (
         <Tooltip>
           <TooltipTrigger asChild>
             <div
-              className='cursor-pointer truncate'
+              className='max-w-[300px] cursor-pointer truncate'
               title={row.getValue('content')}
             >
               {row.getValue('content') || '-'}
