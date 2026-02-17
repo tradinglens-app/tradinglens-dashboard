@@ -32,7 +32,9 @@ interface DuplicateFilterProps {
 export function DuplicateFilter({ title }: DuplicateFilterProps) {
   const [value, setValue] = useQueryState(
     'showDuplicates',
-    parseAsArrayOf(parseAsString).withDefault([])
+    parseAsArrayOf(parseAsString)
+      .withDefault([])
+      .withOptions({ shallow: false })
   );
   const selectedValues = new Set(value);
 

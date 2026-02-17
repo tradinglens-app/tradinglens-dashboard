@@ -250,7 +250,12 @@ export const getColumns = (
         </div>
       );
     },
-    enableSorting: true
+    enableSorting: true,
+    meta: {
+      label: 'Published',
+      variant: 'dateRange'
+    },
+    enableColumnFilter: true
   },
   {
     accessorKey: 'language',

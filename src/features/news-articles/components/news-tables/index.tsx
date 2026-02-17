@@ -34,7 +34,9 @@ import { DEFAULT_PAGE_SIZE } from '@/constants/data-table-config';
 export function NewsListing({ data, totalCount }: NewsListingProps) {
   const [pageSize] = useQueryState(
     'perPage',
-    parseAsInteger.withDefault(DEFAULT_PAGE_SIZE)
+    parseAsInteger
+      .withDefault(DEFAULT_PAGE_SIZE)
+      .withOptions({ shallow: false })
   );
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);

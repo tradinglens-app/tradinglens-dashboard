@@ -46,6 +46,8 @@ export interface GetNewsParams {
   sort?: string;
   hasImage?: boolean;
   showDuplicates?: string[];
+  publishedFrom?: Date;
+  publishedTo?: Date;
 }
 
 export async function getNews(params: GetNewsParams = {}) {
@@ -62,7 +64,9 @@ export async function getNews(params: GetNewsParams = {}) {
     isHot,
     isActive,
     sort,
-    hasImage
+    hasImage,
+    publishedFrom,
+    publishedTo
   } = params;
 
   const where: any = {};
@@ -103,6 +107,17 @@ export async function getNews(params: GetNewsParams = {}) {
     }
     if (to) {
       where.created_at.lte = to;
+    }
+  }
+
+  // Published date range filter
+  if (publishedFrom || publishedTo) {
+    where.published_date = {};
+    if (publishedFrom) {
+      where.published_date.gte = publishedFrom;
+    }
+    if (publishedTo) {
+      where.published_date.lte = publishedTo;
     }
   }
 
