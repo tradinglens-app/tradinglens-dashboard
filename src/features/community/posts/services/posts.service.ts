@@ -34,6 +34,44 @@ export interface Post {
     media_type: string | null;
     thumbnail_url: string | null;
   }>;
+  poll?: {
+    id: string;
+    question: string;
+    total_voted: number;
+    expires_at: Date;
+    options: Array<{
+      id: string;
+      option_text: string;
+      voted_count: number;
+    }>;
+  } | null;
+  metrics?: {
+    viewed_count: number;
+    replied_count: number;
+    reposted_count: number;
+    quoted_count: number;
+    liked_count: number;
+    reported_count: number;
+  } | null;
+  hashtags?: string[];
+  symbols?: string[];
+  mentions?: Array<{
+    user_id: number;
+    name: string | null;
+    username: string | null;
+  }>;
+  companyInfo?: {
+    symbol: string;
+    name: string;
+    market_state: string;
+    regular_market_price: number;
+    regular_market_change: number;
+    regular_market_change_percent: number;
+    sector: string;
+    industry: string;
+    exchange_name: string | null;
+    currency: string;
+  } | null;
 }
 
 export interface GetPostsParams {
@@ -205,8 +243,123 @@ export async function getPosts(params: GetPostsParams = {}) {
     }
   });
 
-  //Map Users to Threads
+  // Map Users to Threads
   const userMap = new Map(users.map((u) => [u.user_id, u]));
+
+  // Fetch Polls if any
+  const polls = await prismaThread.threadPolls.findMany({
+    where: {
+      threads_id: { in: threadIds },
+      deleted_at: null
+    }
+  });
+
+  const pollIds = polls.map((p) => p.id);
+  const pollOptions = await prismaThread.threadPollOptions.findMany({
+    where: {
+      poll_id: { in: pollIds },
+      deleted_at: null
+    }
+  });
+
+  const pollOptionsMap = new Map<string, typeof pollOptions>();
+  pollOptions.forEach((opt) => {
+    if (!pollOptionsMap.has(opt.poll_id)) {
+      pollOptionsMap.set(opt.poll_id, []);
+    }
+    pollOptionsMap.get(opt.poll_id)!.push(opt);
+  });
+
+  const pollMap = new Map<string, any>();
+  polls.forEach((p) => {
+    pollMap.set(p.threads_id, {
+      ...p,
+      options: pollOptionsMap.get(p.id) || []
+    });
+  });
+
+  // Fetch Metrics, Hashtags, Mentions, and Company Info
+  const [
+    engagementMetrics,
+    threadHashtags,
+    threadMentions,
+    threadCompaniesInfo
+  ] = await Promise.all([
+    prismaThread.threadEngagementMetrics.findMany({
+      where: { threads_id: { in: threadIds }, deleted_at: null }
+    }),
+    prismaThread.threadHashtags.findMany({
+      where: { threads_id: { in: threadIds }, deleted_at: null }
+    }),
+    prismaThread.threadMentions.findMany({
+      where: { threads_id: { in: threadIds }, deleted_at: null }
+    }),
+    prismaThread.companiesInfo.findMany({
+      where: { threads_id: { in: threadIds }, deleted_at: null }
+    })
+  ]);
+
+  const companyInfoMap = new Map(
+    threadCompaniesInfo.map((c) => [
+      c.threads_id,
+      {
+        symbol: c.symbol,
+        name: c.name,
+        market_state: c.market_state,
+        regular_market_price: c.regular_market_price,
+        regular_market_change: c.regular_market_change,
+        regular_market_change_percent: c.regular_market_change_percent,
+        sector: c.sector,
+        industry: c.industry,
+        exchange_name: c.exchange_name,
+        currency: c.currency
+      }
+    ])
+  );
+
+  const metricsMap = new Map(
+    engagementMetrics.map((m) => [
+      m.threads_id,
+      {
+        viewed_count: Number(m.viewed_count),
+        replied_count: m.replied_count,
+        reposted_count: m.reposted_count,
+        quoted_count: m.quoted_count,
+        liked_count: m.liked_count,
+        reported_count: m.reported_count
+      }
+    ])
+  );
+
+  const hashtagMap = new Map<string, string[]>();
+  const symbolMap = new Map<string, string[]>();
+  threadHashtags.forEach((h) => {
+    if (h.type === 'hashtag') {
+      if (!hashtagMap.has(h.threads_id)) hashtagMap.set(h.threads_id, []);
+      hashtagMap.get(h.threads_id)!.push(h.tag);
+    } else if (h.type === 'symbol') {
+      if (!symbolMap.has(h.threads_id)) symbolMap.set(h.threads_id, []);
+      symbolMap.get(h.threads_id)!.push(h.tag);
+    }
+  });
+
+  const mentionedUserIds = Array.from(
+    new Set(threadMentions.map((m) => m.mentioned_user_id))
+  );
+  const mentionedUsers = await prismaMain.users.findMany({
+    where: { user_id: { in: mentionedUserIds } },
+    select: { user_id: true, name: true, username: true }
+  });
+  const mentionedUserMap = new Map(mentionedUsers.map((u) => [u.user_id, u]));
+
+  const mentionMap = new Map<string, any[]>();
+  threadMentions.forEach((m) => {
+    if (!mentionMap.has(m.threads_id)) mentionMap.set(m.threads_id, []);
+    const userData = mentionedUserMap.get(m.mentioned_user_id);
+    if (userData) {
+      mentionMap.get(m.threads_id)!.push(userData);
+    }
+  });
 
   const data: Post[] = threads.map((thread) => {
     let type = 'default';
@@ -223,7 +376,13 @@ export async function getPosts(params: GetPostsParams = {}) {
         username: 'unknown',
         profile_pic: null
       },
-      media: mediaMap.get(thread.id) || []
+      media: mediaMap.get(thread.id) || [],
+      poll: pollMap.get(thread.id) || null,
+      metrics: metricsMap.get(thread.id) || null,
+      hashtags: hashtagMap.get(thread.id) || [],
+      symbols: symbolMap.get(thread.id) || [],
+      mentions: mentionMap.get(thread.id) || [],
+      companyInfo: companyInfoMap.get(thread.id) || null
     };
   });
 
