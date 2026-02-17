@@ -20,6 +20,7 @@ import {
 import { format } from 'date-fns';
 import { DetailSheetHeader } from '@/components/ui/detail-sheet-header';
 import { DetailInfoRow } from '@/components/ui/detail-info-row';
+import ReactMarkdown from 'react-markdown';
 
 interface PostDetailSheetProps {
   open: boolean;
@@ -145,8 +146,12 @@ export function PostDetailSheet({
               {/* Content Section */}
               <div className='grid gap-4 py-4'>
                 <h4 className='text-sm font-semibold'>Content</h4>
-                <div className='rounded-md border p-4 text-sm'>
-                  {post.content || (
+                <div className='bg-muted/50 rounded-md border p-4 text-sm'>
+                  {post.content ? (
+                    <div className='prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap'>
+                      <ReactMarkdown>{post.content}</ReactMarkdown>
+                    </div>
+                  ) : (
                     <span className='text-muted-foreground italic'>
                       No text content (Media only)
                     </span>
@@ -201,11 +206,7 @@ export function PostDetailSheet({
                     <DetailInfoRow
                       icon={Hash}
                       label='Start Thread'
-                      value={
-                        <p className='truncate' title={post.start_thread_id}>
-                          {post.start_thread_id}
-                        </p>
-                      }
+                      value={<p className='truncate'>{post.start_thread_id}</p>}
                     />
                   )}
                   {post.parent_thread_id && (
@@ -213,9 +214,7 @@ export function PostDetailSheet({
                       icon={MessageSquare}
                       label='Parent Thread'
                       value={
-                        <p className='truncate' title={post.parent_thread_id}>
-                          {post.parent_thread_id}
-                        </p>
+                        <p className='truncate'>{post.parent_thread_id}</p>
                       }
                     />
                   )}
@@ -224,9 +223,7 @@ export function PostDetailSheet({
                       icon={MessageSquare}
                       label='Quoted Thread'
                       value={
-                        <p className='truncate' title={post.quoted_thread_id}>
-                          {post.quoted_thread_id}
-                        </p>
+                        <p className='truncate'>{post.quoted_thread_id}</p>
                       }
                     />
                   )}
@@ -234,33 +231,21 @@ export function PostDetailSheet({
                     <DetailInfoRow
                       icon={BarChart2}
                       label='Poll ID'
-                      value={
-                        <p className='truncate' title={post.poll_id}>
-                          {post.poll_id}
-                        </p>
-                      }
+                      value={<p className='truncate'>{post.poll_id}</p>}
                     />
                   )}
                   {post.company_info_id && (
                     <DetailInfoRow
                       icon={Building2}
                       label='Company Info'
-                      value={
-                        <p className='truncate' title={post.company_info_id}>
-                          {post.company_info_id}
-                        </p>
-                      }
+                      value={<p className='truncate'>{post.company_info_id}</p>}
                     />
                   )}
                   {post.news_id && (
                     <DetailInfoRow
                       icon={FileText}
                       label='News ID'
-                      value={
-                        <p className='truncate' title={post.news_id}>
-                          {post.news_id}
-                        </p>
-                      }
+                      value={<p className='truncate'>{post.news_id}</p>}
                     />
                   )}
                 </div>

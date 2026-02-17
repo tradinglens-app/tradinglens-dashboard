@@ -24,6 +24,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip';
+import ReactMarkdown from 'react-markdown';
 
 interface ReportReason {
   titleEn?: string;
@@ -68,10 +69,12 @@ export const columns: ColumnDef<PostReport>[] = [
             <div className='cursor-pointer truncate font-medium'>{title}</div>
           </TooltipTrigger>
           <TooltipContent
-            className='max-w-[300px] border-none bg-[#6EE7B7] px-3 py-2 font-normal text-[#064E3B] shadow-md'
+            className='max-w-[450px] border-none bg-[#6EE7B7] px-4 py-3 font-normal text-[#064E3B] shadow-md'
             side='top'
           >
-            {fullContent || title}
+            <div className='prose prose-sm prose-emerald leading-relaxed whitespace-pre-wrap'>
+              <ReactMarkdown>{fullContent || title}</ReactMarkdown>
+            </div>
           </TooltipContent>
         </Tooltip>
       );
