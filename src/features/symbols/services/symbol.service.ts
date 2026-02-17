@@ -65,6 +65,10 @@ export async function getSymbols(params: GetSymbolsParams = {}) {
     where.exchange_short_name = { contains: exchange, mode: 'insensitive' };
   }
 
+  if (type && type.length > 0) {
+    where.type = { in: type };
+  }
+
   if (createdAt && createdAt.length === 2) {
     where.created_at = {
       gte: new Date(createdAt[0]),
@@ -76,11 +80,8 @@ export async function getSymbols(params: GetSymbolsParams = {}) {
     const hasLogoBool = hasLogo.includes('true');
     const noLogoBool = hasLogo.includes('false');
 
-    if (hasLogoBool && !noLogoBool) {
-      where.company_logo = { not: null };
-    } else if (!hasLogoBool && noLogoBool) {
-      where.company_logo = null;
-    }
+    if (hasLogoBool && !noLogoBool) where.company_logo = { not: null };
+    else if (!hasLogoBool && noLogoBool) where.company_logo = null;
   }
 
   // Sorting logic

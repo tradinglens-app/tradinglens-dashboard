@@ -154,11 +154,17 @@ export async function getCommunityUsers(
         : [];
 
     if (statusArray.length > 0) {
-      andConditions.push({
-        OR: statusArray.map((s) => ({
-          account_status: { equals: s, mode: 'insensitive' }
-        }))
-      });
+      if (statusArray.length === 1) {
+        andConditions.push({
+          account_status: { equals: statusArray[0], mode: 'insensitive' }
+        });
+      } else {
+        andConditions.push({
+          OR: statusArray.map((s) => ({
+            account_status: { equals: s, mode: 'insensitive' }
+          }))
+        });
+      }
     }
   }
 

@@ -116,57 +116,55 @@ export const getPostReports = async (
 
   const threadIds = groupedReports.map((r) => r.threads_id);
 
-  const allReports = await prismaThread.threadReports.findMany({
-    where: {
-      threads_id: { in: threadIds }
-    },
-    select: {
-      threads_id: true,
-      reason: true
-    }
-  });
-
-  const threads = await prismaThread.threads.findMany({
-    where: {
-      id: { in: threadIds }
-    },
-    select: {
-      id: true,
-      user_id: true,
-      content: true,
-      visibility: true,
-      created_at: true,
-      updated_at: true,
-      poll_id: true,
-      company_info_id: true,
-      quoted_thread_id: true,
-      news_id: true,
-      parent_thread_id: true,
-      parent_level: true,
-      start_thread_id: true
-    }
-  });
+  // Fetch grouped results metadata in parallel
+  const [allReports, threads] = await Promise.all([
+    prismaThread.threadReports.findMany({
+      where: { threads_id: { in: threadIds } },
+      select: { threads_id: true, reason: true }
+    }),
+    prismaThread.threads.findMany({
+      where: { id: { in: threadIds } },
+      select: {
+        id: true,
+        user_id: true,
+        content: true,
+        visibility: true,
+        created_at: true,
+        updated_at: true,
+        poll_id: true,
+        company_info_id: true,
+        quoted_thread_id: true,
+        news_id: true,
+        parent_thread_id: true,
+        parent_level: true,
+        start_thread_id: true
+      }
+    })
+  ]);
 
   const userIds = Array.from(new Set(threads.map((t) => t.user_id)));
   const threadIdList = threads.map((t) => t.id);
+  const reasonIds = Array.from(
+    new Set(allReports.map((r) => r.reason).filter((r): r is string => !!r))
+  );
 
-  const [users, media] = await Promise.all([
+  // Parallel fetch all metadata
+  const [
+    users,
+    media,
+    polls,
+    engagementMetrics,
+    threadHashtags,
+    threadMentions,
+    threadCompaniesInfo,
+    reportReasons
+  ] = await Promise.all([
     prisma.users.findMany({
-      where: {
-        user_id: { in: userIds }
-      },
-      select: {
-        user_id: true,
-        name: true,
-        username: true,
-        profile_pic: true
-      }
+      where: { user_id: { in: userIds } },
+      select: { user_id: true, name: true, username: true, profile_pic: true }
     }),
     prismaThread.threadMedia.findMany({
-      where: {
-        threads_id: { in: threadIdList },
-        deleted_at: null
-      },
+      where: { threads_id: { in: threadIdList }, deleted_at: null },
       select: {
         id: true,
         threads_id: true,
@@ -174,47 +172,10 @@ export const getPostReports = async (
         media_type: true,
         thumbnail_url: true
       }
-    })
-  ]);
-
-  const polls = await prismaThread.threadPolls.findMany({
-    where: {
-      threads_id: { in: threadIdList },
-      deleted_at: null
-    }
-  });
-
-  const pollIds = polls.map((p) => p.id);
-  const pollOptions = await prismaThread.threadPollOptions.findMany({
-    where: {
-      poll_id: { in: pollIds },
-      deleted_at: null
-    }
-  });
-
-  const pollOptionsMap = new Map<string, typeof pollOptions>();
-  pollOptions.forEach((opt) => {
-    if (!pollOptionsMap.has(opt.poll_id)) {
-      pollOptionsMap.set(opt.poll_id, []);
-    }
-    pollOptionsMap.get(opt.poll_id)!.push(opt);
-  });
-
-  const pollMap = new Map<string, any>();
-  polls.forEach((p) => {
-    pollMap.set(p.threads_id, {
-      ...p,
-      options: pollOptionsMap.get(p.id) || []
-    });
-  });
-
-  // Fetch Metrics, Hashtags, Mentions, and Company Info
-  const [
-    engagementMetrics,
-    threadHashtags,
-    threadMentions,
-    threadCompaniesInfo
-  ] = await Promise.all([
+    }),
+    prismaThread.threadPolls.findMany({
+      where: { threads_id: { in: threadIdList }, deleted_at: null }
+    }),
     prismaThread.threadEngagementMetrics.findMany({
       where: { threads_id: { in: threadIdList }, deleted_at: null }
     }),
@@ -226,8 +187,46 @@ export const getPostReports = async (
     }),
     prismaThread.companiesInfo.findMany({
       where: { threads_id: { in: threadIdList }, deleted_at: null }
+    }),
+    prismaThread.threadReportReasons.findMany({
+      where: { id: { in: reasonIds } }
     })
   ]);
+
+  // Secondary metadata parallel fetch
+  const pollIds = polls.map((p) => p.id);
+  const mentionedUserIds = Array.from(
+    new Set(threadMentions.map((m) => m.mentioned_user_id))
+  );
+
+  const [pollOptions, mentionedUsers] = await Promise.all([
+    pollIds.length > 0
+      ? prismaThread.threadPollOptions.findMany({
+          where: { poll_id: { in: pollIds }, deleted_at: null }
+        })
+      : Promise.resolve([]),
+    mentionedUserIds.length > 0
+      ? prisma.users.findMany({
+          where: { user_id: { in: mentionedUserIds } },
+          select: { user_id: true, name: true, username: true }
+        })
+      : Promise.resolve([])
+  ]);
+
+  // Mappings
+  const pollOptionsMap = new Map<string, any[]>();
+  (pollOptions as any[]).forEach((opt) => {
+    if (!pollOptionsMap.has(opt.poll_id)) pollOptionsMap.set(opt.poll_id, []);
+    pollOptionsMap.get(opt.poll_id)!.push(opt);
+  });
+
+  const pollMap = new Map<string, any>();
+  polls.forEach((p) => {
+    pollMap.set(p.threads_id, {
+      ...p,
+      options: pollOptionsMap.get(p.id) || []
+    });
+  });
 
   const companyInfoMap = new Map(
     threadCompaniesInfo.map((c) => [
@@ -273,20 +272,15 @@ export const getPostReports = async (
     }
   });
 
-  const mentionedUserIds = Array.from(
-    new Set(threadMentions.map((m) => m.mentioned_user_id))
+  const mentionedUserMap = new Map(
+    (mentionedUsers as any[]).map((u) => [u.user_id, u])
   );
-  const mentionedUsers = await prisma.users.findMany({
-    where: { user_id: { in: mentionedUserIds } },
-    select: { user_id: true, name: true, username: true }
-  });
-  const mentionedUserMap = new Map(mentionedUsers.map((u) => [u.user_id, u]));
 
   const mentionMap = new Map<string, any[]>();
   threadMentions.forEach((m) => {
-    if (!mentionMap.has(m.threads_id)) mentionMap.set(m.threads_id, []);
     const userData = mentionedUserMap.get(m.mentioned_user_id);
     if (userData) {
+      if (!mentionMap.has(m.threads_id)) mentionMap.set(m.threads_id, []);
       mentionMap.get(m.threads_id)!.push(userData);
     }
   });
@@ -294,20 +288,8 @@ export const getPostReports = async (
   const userMap = new Map(users.map((u) => [u.user_id, u]));
   const mediaMap = new Map<string, typeof media>();
   media.forEach((m) => {
-    if (!mediaMap.has(m.threads_id)) {
-      mediaMap.set(m.threads_id, []);
-    }
+    if (!mediaMap.has(m.threads_id)) mediaMap.set(m.threads_id, []);
     mediaMap.get(m.threads_id)!.push(m);
-  });
-
-  const reasonIds = allReports
-    .map((r) => r.reason)
-    .filter((reason): reason is string => !!reason);
-
-  const reportReasons = await prismaThread.threadReportReasons.findMany({
-    where: {
-      id: { in: reasonIds }
-    }
   });
 
   const threadMap = new Map(threads.map((t) => [t.id, t]));

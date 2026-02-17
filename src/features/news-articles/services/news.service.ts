@@ -120,20 +120,12 @@ export async function getNews(params: GetNewsParams = {}) {
   if (hasImage !== undefined) {
     if (hasImage) {
       where.AND = [
+        ...(where.AND || []),
         { image_url: { not: null } },
-        { image_url: { not: '' } },
-        { image_url: { contains: 'http' } }
+        { image_url: { not: '' } }
       ];
     } else {
-      where.OR = [
-        { image_url: null },
-        { image_url: '' },
-        {
-          NOT: {
-            image_url: { contains: 'http' }
-          }
-        }
-      ];
+      where.OR = [...(where.OR || []), { image_url: null }, { image_url: '' }];
     }
   }
 

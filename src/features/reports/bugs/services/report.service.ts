@@ -79,7 +79,6 @@ export async function getBugReportsService(params: GetBugReportsParams = {}) {
 
   if (from || to) {
     where.created_at = {};
-    if (from) where.created_at.gte = new Date(from);
     if (to) where.created_at.lte = new Date(to);
   }
 
