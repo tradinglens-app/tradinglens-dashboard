@@ -17,11 +17,12 @@ import {
 } from '@tabler/icons-react';
 import React, { Suspense } from 'react';
 import { StatsCard } from '@/features/overview/components/stats-card';
-import { getDashboardStats } from '@/features/overview/services/dashboard-stats.service';
+import { getOverviewData } from '@/features/overview/services/overview-data.service';
 import { AreaGraphSkeleton } from '@/features/overview/components/area-graph-skeleton';
 import { BarGraphSkeleton } from '@/features/overview/components/bar-graph-skeleton';
 import { PieGraphSkeleton } from '@/features/overview/components/pie-graph-skeleton';
 import { RecentSalesSkeleton } from '@/features/overview/components/recent-sales-skeleton';
+import { DashboardRefresh } from '@/features/overview/components/dashboard-refresh';
 
 export default async function OverViewLayout({
   sales,
@@ -36,10 +37,11 @@ export default async function OverViewLayout({
   area_stats: React.ReactNode;
   new_customers: React.ReactNode;
 }) {
-  const stats = await getDashboardStats();
+  const { stats } = await getOverviewData();
 
   return (
     <PageContainer>
+      <DashboardRefresh />
       <div className='flex flex-1 flex-col space-y-2'>
         <div className='flex items-center justify-between space-y-2'>
           <h2 className='text-2xl font-bold tracking-tight'>

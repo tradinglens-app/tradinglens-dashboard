@@ -9,10 +9,8 @@ import {
   CardTitle,
   CardDescription
 } from '@/components/ui/card';
-import { RecentUser } from '../services/recent-users.service';
+import { RecentUser } from '../services/overview-data.service';
 import { useEffect, useState } from 'react';
-import { getRecentUsersAction } from '@/features/overview/actions/registration-actions';
-import { Loader2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -27,32 +25,17 @@ export function RecentRegistrationsClient({
 }: RecentRegistrationsClientProps) {
   const [users, setUsers] = useState<RecentUser[]>(initialUsers);
   const [todayCount, setTodayCount] = useState<number>(initialTodayCount);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // Auto-refresh every 15 seconds
+  // Sync state with props when they change (e.g. via global router.refresh())
   useEffect(() => {
-    const fetchUsers = async () => {
-      setIsRefreshing(true);
-      try {
-        const { users: newUsers, todayCount: newCount } =
-          await getRecentUsersAction();
-        setUsers(newUsers);
-        setTodayCount(newCount);
-      } catch (error) {
-        console.error('Error fetching recent users:', error);
-      } finally {
-        setIsRefreshing(false);
-      }
-    };
-
-    const interval = setInterval(fetchUsers, 15000);
-    return () => clearInterval(interval);
-  }, []);
+    setUsers(initialUsers);
+    setTodayCount(initialTodayCount);
+  }, [initialUsers, initialTodayCount]);
 
   if (!isMounted) {
     return null; // Prevent hydration mismatch by not rendering anything initially
@@ -71,9 +54,6 @@ export function RecentRegistrationsClient({
             </div>
             <CardDescription>Latest users joined the platform.</CardDescription>
           </div>
-          {isRefreshing && (
-            <Loader2 className='text-muted-foreground h-4 w-4 animate-spin' />
-          )}
         </div>
       </CardHeader>
       <CardContent>

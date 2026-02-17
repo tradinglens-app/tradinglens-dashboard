@@ -20,7 +20,9 @@ import {
   Repeat,
   MessageCircle,
   Share2,
-  AtSign
+  AtSign,
+  Quote,
+  Flag
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { DetailSheetHeader } from '@/components/ui/detail-sheet-header';
@@ -210,7 +212,7 @@ export function PostDetailSheet({
                         </span>
                       </div>
                       <div className='bg-muted/30 flex flex-col items-center justify-center rounded-lg border p-3 text-center'>
-                        <Share2 className='mb-1 size-4 text-purple-500' />
+                        <Quote className='mb-1 size-4 text-purple-500' />
                         <span className='text-sm font-semibold'>
                           {post.metrics.quoted_count.toLocaleString()}
                         </span>
@@ -219,12 +221,7 @@ export function PostDetailSheet({
                         </span>
                       </div>
                       <div className='bg-muted/30 flex flex-col items-center justify-center rounded-lg border p-3 text-center'>
-                        <Badge
-                          variant='outline'
-                          className='mb-1 h-4 border-rose-200 px-1 text-[8px] text-rose-600'
-                        >
-                          Reported
-                        </Badge>
+                        <Flag className='mb-1 size-4 text-rose-500' />
                         <span className='text-sm font-semibold text-rose-600'>
                           {post.metrics.reported_count.toLocaleString()}
                         </span>
