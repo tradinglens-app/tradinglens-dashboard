@@ -22,9 +22,9 @@ import { PostDetailSheet } from '../post-detail-sheet';
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip';
+import ReactMarkdown from 'react-markdown';
 import { toOptions } from '@/lib/db-enums.utils';
 
 export const getColumns = (
@@ -50,23 +50,24 @@ export const getColumns = (
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Content' />
     ),
-    cell: ({ row }) => (
-      <TooltipProvider>
+    cell: ({ row }) => {
+      const content = (row.getValue('content') as string) || '';
+
+      return (
         <Tooltip>
           <TooltipTrigger asChild>
-            <div
-              className='max-w-[300px] cursor-pointer truncate'
-              title={row.getValue('content')}
-            >
-              {row.getValue('content') || '-'}
+            <div className='max-w-[300px] cursor-pointer truncate'>
+              {content || '-'}
             </div>
           </TooltipTrigger>
-          <TooltipContent className='max-w-md break-words'>
-            <p>{row.getValue('content') || '-'}</p>
+          <TooltipContent className='max-w-[450px] leading-relaxed whitespace-pre-wrap shadow-md'>
+            <div className='prose prose-sm dark:prose-invert'>
+              <ReactMarkdown>{content || '-'}</ReactMarkdown>
+            </div>
           </TooltipContent>
         </Tooltip>
-      </TooltipProvider>
-    ),
+      );
+    },
     enableSorting: true,
     enableHiding: false,
     enableColumnFilter: true
