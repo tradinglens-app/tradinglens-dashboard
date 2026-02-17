@@ -42,6 +42,8 @@ export default async function NewsArticlesPage({
     if (hasImageParam.includes('false')) hasImage = false;
   }
 
+  const showDuplicates = searchParamsCache.get('showDuplicates');
+
   // Extract date range from createdAt
   const from = createdAt?.[0] ? new Date(createdAt[0]) : undefined;
   const to = createdAt?.[1] ? new Date(createdAt[1]) : undefined;
@@ -58,7 +60,9 @@ export default async function NewsArticlesPage({
     to,
     isActive,
     hasImage,
-    sort
+    sort,
+    showDuplicates:
+      showDuplicates && showDuplicates.length > 0 ? showDuplicates : undefined
   });
 
   return (

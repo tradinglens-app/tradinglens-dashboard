@@ -39,6 +39,7 @@ export function DataTable<TData>({
                         key={header.id}
                         colSpan={header.colSpan}
                         style={{
+                          width: header.column.getSize(),
                           ...getCommonPinningStyles({ column: header.column })
                         }}
                       >
@@ -64,6 +65,7 @@ export function DataTable<TData>({
                         <TableCell
                           key={cell.id}
                           style={{
+                            width: cell.column.getSize(),
                             ...getCommonPinningStyles({ column: cell.column })
                           }}
                         >

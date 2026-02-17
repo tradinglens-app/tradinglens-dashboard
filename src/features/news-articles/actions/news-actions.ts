@@ -9,6 +9,7 @@ import {
   createNews,
   updateNews,
   deleteNews,
+  deleteManyNews,
   toggleNewsActive,
   CreateNewsInput,
   invalidateNewsImage
@@ -80,6 +81,17 @@ export async function deleteNewsAction(id: string) {
     return { success: true };
   } catch (error: any) {
     console.error('deleteNewsAction error:', error);
+    return { success: false, error: error.message };
+  }
+}
+export async function deleteManyNewsAction(ids: string[]) {
+  try {
+    await deleteManyNews(ids);
+    revalidatePath('/dashboard/news');
+    revalidatePath('/dashboard/news-articles');
+    return { success: true };
+  } catch (error: any) {
+    console.error('deleteManyNewsAction error:', error);
     return { success: false, error: error.message };
   }
 }

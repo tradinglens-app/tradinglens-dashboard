@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useState } from 'react';
+import { Checkbox } from '@/components/ui/checkbox';
 
 import Image from 'next/image';
 
@@ -129,55 +130,79 @@ export const getColumns = (
   onDelete?: (news: NewsArticle) => void
 ): ColumnDef<NewsArticle>[] => [
   {
+    id: 'select',
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && 'indeterminate')
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label='Select all'
+        className='translate-y-[2px]'
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label='Select row'
+        className='translate-y-[2px]'
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+    size: 40
+  },
+  {
     accessorKey: 'title',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Title' />
     ),
     cell: ({ row }) => (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className='flex max-w-[300px] cursor-pointer gap-3'>
-              {row.original.imageUrl && (
-                <NewsImageCell
-                  imageUrl={row.original.imageUrl}
-                  title={row.original.title}
-                  id={row.original.id}
-                />
-              )}
-              <div className='flex min-w-0 flex-1 flex-col justify-center'>
-                <div className='truncate text-sm leading-tight font-medium'>
-                  {row.getValue('title')}
-                </div>
-                {row.original.summary && (
-                  <div className='text-muted-foreground mt-1 truncate text-xs'>
-                    {row.original.summary}
-                  </div>
-                )}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className='flex max-w-[300px] cursor-pointer gap-3'>
+            {row.original.imageUrl && (
+              <NewsImageCell
+                imageUrl={row.original.imageUrl}
+                title={row.original.title}
+                id={row.original.id}
+              />
+            )}
+            <div className='flex min-w-0 flex-1 flex-col justify-center'>
+              <div className='truncate text-sm leading-tight font-medium'>
+                {row.getValue('title')}
               </div>
-            </div>
-          </TooltipTrigger>
-          <TooltipContent className='max-w-md'>
-            <div className='space-y-2'>
-              {row.original.imageUrl && (
-                <NewsTooltipImage
-                  imageUrl={row.original.imageUrl}
-                  title={row.original.title}
-                />
-              )}
-              <h4 className='font-semibold'>{row.original.title}</h4>
               {row.original.summary && (
-                <p className='text-muted-foreground text-sm'>
+                <div className='text-muted-foreground mt-1 truncate text-xs'>
                   {row.original.summary}
-                </p>
+                </div>
               )}
             </div>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent className='max-w-md'>
+          <div className='space-y-2'>
+            {row.original.imageUrl && (
+              <NewsTooltipImage
+                imageUrl={row.original.imageUrl}
+                title={row.original.title}
+              />
+            )}
+            <h4 className='font-semibold'>{row.original.title}</h4>
+            {row.original.summary && (
+              <p className='text-muted-foreground text-sm'>
+                {row.original.summary}
+              </p>
+            )}
+          </div>
+        </TooltipContent>
+      </Tooltip>
     ),
     enableSorting: true,
     enableHiding: false,
+    enableColumnFilter: true,
     size: 200 // Increased size for title
   },
 

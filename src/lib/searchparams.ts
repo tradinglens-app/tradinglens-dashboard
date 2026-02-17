@@ -44,7 +44,8 @@ export const searchParams = {
   visibility: parseAsArrayOf(parseAsString).withDefault([]),
   is_read: parseAsArrayOf(parseAsString).withDefault([]),
   hasImage: parseAsArrayOf(parseAsString).withDefault([]),
-  hasLogo: parseAsArrayOf(parseAsString).withDefault([])
+  hasLogo: parseAsArrayOf(parseAsString).withDefault([]),
+  showDuplicates: parseAsArrayOf(parseAsString).withDefault([])
 };
 
 export const searchParamsCache = createSearchParamsCache(searchParams);
