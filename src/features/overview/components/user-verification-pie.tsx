@@ -18,10 +18,10 @@ import {
   ChartTooltip,
   ChartTooltipContent
 } from '@/components/ui/chart';
-import { VerificationStats } from '../services/user-verification.service';
+import { OverviewData } from '../services/overview-data.service';
 
 interface UserVerificationPieProps {
-  stats: VerificationStats;
+  stats: OverviewData['verification'];
 }
 
 const chartConfig = {
