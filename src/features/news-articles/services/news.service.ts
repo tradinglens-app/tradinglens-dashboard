@@ -45,6 +45,9 @@ export interface GetNewsParams {
   isActive?: boolean;
   sort?: string;
   hasImage?: boolean;
+  showDuplicates?: string[];
+  publishedFrom?: Date;
+  publishedTo?: Date;
 }
 
 export async function getNews(params: GetNewsParams = {}) {
@@ -61,7 +64,9 @@ export async function getNews(params: GetNewsParams = {}) {
     isHot,
     isActive,
     sort,
-    hasImage
+    hasImage,
+    publishedFrom,
+    publishedTo
   } = params;
 
   const where: any = {};
@@ -73,11 +78,15 @@ export async function getNews(params: GetNewsParams = {}) {
 
   // Search filter
   if (search) {
-    where.OR = [
-      { title: { contains: search, mode: 'insensitive' } },
-      { content: { contains: search, mode: 'insensitive' } },
-      { summary: { contains: search, mode: 'insensitive' } }
-    ];
+    const terms = search.trim().split(/\s+/).filter(Boolean);
+    if (terms.length > 0) {
+      where.AND = [
+        ...(where.AND || []),
+        ...terms.map((term) => ({
+          title: { contains: term, mode: 'insensitive' }
+        }))
+      ];
+    }
   }
 
   // Symbol filter
@@ -101,6 +110,17 @@ export async function getNews(params: GetNewsParams = {}) {
     }
   }
 
+  // Published date range filter
+  if (publishedFrom || publishedTo) {
+    where.published_date = {};
+    if (publishedFrom) {
+      where.published_date.gte = publishedFrom;
+    }
+    if (publishedTo) {
+      where.published_date.lte = publishedTo;
+    }
+  }
+
   // Language filter
   if (language) {
     where.language = language;
@@ -120,20 +140,79 @@ export async function getNews(params: GetNewsParams = {}) {
   if (hasImage !== undefined) {
     if (hasImage) {
       where.AND = [
+        ...(where.AND || []),
         { image_url: { not: null } },
-        { image_url: { not: '' } },
-        { image_url: { contains: 'http' } }
+        { image_url: { not: '' } }
       ];
     } else {
-      where.OR = [
-        { image_url: null },
-        { image_url: '' },
-        {
-          NOT: {
-            image_url: { contains: 'http' }
+      // Logic for hasImage = false: Image is null OR empty
+      const imageMissingCondition = {
+        OR: [{ image_url: null }, { image_url: '' }]
+      };
+
+      // If we already have OR conditions (from search), we must AND them with this new condition
+      // However, Prisma structure for AND is: AND: [ { OR: [...] }, { OR: [...] } ]
+      if (where.OR && where.OR.length > 0) {
+        // Move existing OR to an AND group
+        where.AND = [
+          ...(where.AND || []),
+          { OR: where.OR },
+          imageMissingCondition
+        ];
+        delete where.OR;
+      } else {
+        where.OR = [{ image_url: null }, { image_url: '' }];
+      }
+    }
+  }
+
+  // Duplicate filter
+  if (params.showDuplicates && params.showDuplicates.length > 0) {
+    const duplicateConditions: any[] = [];
+
+    if (params.showDuplicates.includes('title')) {
+      const duplicates = await prisma.stock_news.groupBy({
+        by: ['title'],
+        having: {
+          title: {
+            _count: {
+              gt: 1
+            }
           }
         }
-      ];
+      });
+      const titles = duplicates.map((d) => d.title);
+      duplicateConditions.push({ title: { in: titles } });
+    }
+
+    if (params.showDuplicates.includes('url')) {
+      const duplicates = await prisma.stock_news.groupBy({
+        by: ['source_url'],
+        where: {
+          source_url: { not: null }
+        },
+        having: {
+          source_url: {
+            _count: {
+              gt: 1
+            }
+          }
+        }
+      });
+      const urls = duplicates
+        .map((d) => d.source_url)
+        .filter((url): url is string => url !== null);
+      duplicateConditions.push({ source_url: { in: urls } });
+    }
+
+    if (duplicateConditions.length > 0) {
+      if (duplicateConditions.length === 1) {
+        // Single condition - merge into where
+        Object.assign(where, duplicateConditions[0]);
+      } else {
+        // Multiple conditions - use OR to show articles that match either type of duplicate
+        where.AND = [...(where.AND || []), { OR: duplicateConditions }];
+      }
     }
   }
 
@@ -162,6 +241,13 @@ export async function getNews(params: GetNewsParams = {}) {
       }
     } catch (e) {
       // Keep default sorting
+    }
+  } else if (params.showDuplicates && params.showDuplicates.length > 0) {
+    // Default sorting for duplicate view to group them together
+    if (params.showDuplicates.includes('title')) {
+      orderBy = [{ title: 'asc' }, { created_at: 'desc' }];
+    } else if (params.showDuplicates.includes('url')) {
+      orderBy = [{ source_url: 'asc' }, { created_at: 'desc' }];
     }
   }
 
@@ -392,6 +478,14 @@ export async function toggleNewsActive(id: string, isActive: boolean) {
 export async function deleteNews(id: string) {
   return prisma.stock_news.delete({
     where: { id }
+  });
+}
+
+export async function deleteManyNews(ids: string[]) {
+  return prisma.stock_news.deleteMany({
+    where: {
+      id: { in: ids }
+    }
   });
 }
 

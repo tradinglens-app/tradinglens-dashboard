@@ -22,6 +22,7 @@ export default async function NewsArticlesPage({
   const symbol = searchParamsCache.get('symbol');
   const publisher = searchParamsCache.get('publisher');
   const createdAt = searchParamsCache.get('createdAt');
+  const publishedDate = searchParamsCache.get('publishedDate');
   const isActiveParam = searchParamsCache.get('isActive');
   const hasImageParam = searchParamsCache.get('hasImage');
 
@@ -42,9 +43,19 @@ export default async function NewsArticlesPage({
     if (hasImageParam.includes('false')) hasImage = false;
   }
 
+  const showDuplicates = searchParamsCache.get('showDuplicates');
+
   // Extract date range from createdAt
   const from = createdAt?.[0] ? new Date(createdAt[0]) : undefined;
   const to = createdAt?.[1] ? new Date(createdAt[1]) : undefined;
+
+  // Extract date range from publishedDate
+  const publishedFrom = publishedDate?.[0]
+    ? new Date(publishedDate[0])
+    : undefined;
+  const publishedTo = publishedDate?.[1]
+    ? new Date(publishedDate[1])
+    : undefined;
 
   const sort = searchParamsCache.get('sort');
 
@@ -56,9 +67,13 @@ export default async function NewsArticlesPage({
     publisher: publisher || undefined,
     from,
     to,
+    publishedFrom,
+    publishedTo,
     isActive,
     hasImage,
-    sort
+    sort,
+    showDuplicates:
+      showDuplicates && showDuplicates.length > 0 ? showDuplicates : undefined
   });
 
   return (

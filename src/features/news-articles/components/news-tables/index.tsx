@@ -4,7 +4,8 @@ import { Icons } from '@/components/icons';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
 
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { NewsArticle } from '../../services/news.service';
 import { getColumns } from './columns';
 import { useDataTable } from '@/hooks/use-data-table';
@@ -14,10 +15,14 @@ import { parseAsInteger, useQueryState } from 'nuqs';
 import { AlertModal } from '@/components/modal/alert-modal';
 import {
   deleteNewsAction,
+  deleteManyNewsAction,
   toggleNewsActiveAction
 } from '../../actions/news-actions';
 import { toast } from 'sonner';
 import { NewsDetailSheet } from '../news-detail-sheet';
+import { DuplicateFilter } from '../duplicate-filter';
+import { Trash } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface NewsListingProps {
   data: NewsArticle[];
@@ -29,39 +34,48 @@ import { DEFAULT_PAGE_SIZE } from '@/constants/data-table-config';
 export function NewsListing({ data, totalCount }: NewsListingProps) {
   const [pageSize] = useQueryState(
     'perPage',
-    parseAsInteger.withDefault(DEFAULT_PAGE_SIZE)
+    parseAsInteger
+      .withDefault(DEFAULT_PAGE_SIZE)
+      .withOptions({ shallow: false })
   );
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [actionType, setActionType] = useState<'toggle' | 'delete'>('delete');
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [actionType, setActionType] = useState<
+    'toggle' | 'delete' | 'bulk-delete'
+  >('delete');
   const [toggleToActive, setToggleToActive] = useState(false);
 
   // Sheet state
   const [selectedNews, setSelectedNews] = useState<NewsArticle | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-  const handleToggleActive = (news: NewsArticle) => {
+  const handleToggleActive = useCallback((news: NewsArticle) => {
     setDeleteId(news.id);
     setActionType('toggle');
     setToggleToActive(!news.isActive); // Toggle to opposite state
     setOpen(true);
-  };
+  }, []);
 
-  const handleDelete = (news: NewsArticle) => {
+  const handleDelete = useCallback((news: NewsArticle) => {
     setDeleteId(news.id);
     setActionType('delete');
     setOpen(true);
-  };
+  }, []);
 
   const onConfirm = async () => {
     try {
       setLoading(true);
-      if (deleteId) {
-        const result =
-          actionType === 'toggle'
-            ? await toggleNewsActiveAction(deleteId, toggleToActive)
-            : await deleteNewsAction(deleteId);
+      if (deleteId || selectedIds.length > 0) {
+        let result;
+        if (actionType === 'toggle') {
+          result = await toggleNewsActiveAction(deleteId!, toggleToActive);
+        } else if (actionType === 'delete') {
+          result = await deleteNewsAction(deleteId!);
+        } else {
+          result = await deleteManyNewsAction(selectedIds);
+        }
 
         if (result.success) {
           toast.success(
@@ -69,10 +83,14 @@ export function NewsListing({ data, totalCount }: NewsListingProps) {
               ? toggleToActive
                 ? 'News article unhidden successfully.'
                 : 'News article hidden successfully.'
-              : 'News article deleted successfully.'
+              : actionType === 'bulk-delete'
+                ? `${selectedIds.length} news articles deleted successfully.`
+                : 'News article deleted successfully.'
           );
           setOpen(false);
           setDeleteId(null);
+          setSelectedIds([]);
+          table.toggleAllPageRowsSelected(false);
         } else {
           toast.error(result.error || 'Failed to update news article.');
         }
@@ -84,12 +102,15 @@ export function NewsListing({ data, totalCount }: NewsListingProps) {
     }
   };
 
-  const handleDetail = (news: NewsArticle) => {
+  const handleDetail = useCallback((news: NewsArticle) => {
     setSelectedNews(news);
     setIsDetailOpen(true);
-  };
+  }, []);
 
-  const columns = getColumns(handleDetail, handleToggleActive, handleDelete);
+  const columns = useMemo(
+    () => getColumns(handleDetail, handleToggleActive, handleDelete),
+    [handleDetail, handleToggleActive, handleDelete]
+  );
 
   const { table } = useDataTable({
     data,
@@ -98,6 +119,7 @@ export function NewsListing({ data, totalCount }: NewsListingProps) {
     rowCount: totalCount,
     shallow: false,
     debounceMs: 500,
+    getRowId: (row) => row.id,
     enableAdvancedFilter: false,
     initialState: {
       columnVisibility: {
@@ -116,49 +138,77 @@ export function NewsListing({ data, totalCount }: NewsListingProps) {
     }
   });
 
+  const handleBulkDelete = useCallback(() => {
+    const ids = Object.keys(table.getState().rowSelection);
+    setSelectedIds(ids);
+    setActionType('bulk-delete');
+    setOpen(true);
+  }, [table]);
+
   return (
-    <div className='flex flex-1 flex-col space-y-4'>
-      <DataTable table={table}>
-        <DataTableToolbar table={table} searchKey='title'>
-          <Link
-            href='/dashboard/news/new'
-            className={cn(
-              buttonVariants({ variant: 'default', size: 'sm' }),
-              'h-8'
-            )}
+    <TooltipProvider delayDuration={300}>
+      <div className='flex flex-1 flex-col space-y-4'>
+        <DataTable table={table}>
+          <DataTableToolbar
+            table={table}
+            searchKey='title'
+            filterChildren={<DuplicateFilter title='Duplicates' />}
           >
-            <Icons.add className='mr-2 h-4 w-4' /> Create New
-          </Link>
-        </DataTableToolbar>
-      </DataTable>
-      <AlertModal
-        isOpen={open}
-        onClose={() => {
-          setOpen(false);
-          setDeleteId(null);
-        }}
-        onConfirm={onConfirm}
-        loading={loading}
-        title={
-          actionType === 'toggle'
-            ? toggleToActive
-              ? 'Unhide News Article'
-              : 'Hide News Article'
-            : 'Delete News Article'
-        }
-        description={
-          actionType === 'toggle'
-            ? toggleToActive
-              ? 'Are you sure you want to unhide this news article? It will become visible to users again.'
-              : 'Are you sure you want to hide this news article? It will no longer be visible to users but can be restored later.'
-            : 'Are you sure you want to permanently delete this news article? This action cannot be undone.'
-        }
-      />
-      <NewsDetailSheet
-        isOpen={isDetailOpen}
-        onClose={() => setIsDetailOpen(false)}
-        news={selectedNews}
-      />
-    </div>
+            {Object.keys(table.getState().rowSelection).length > 0 && (
+              <Button
+                variant='outline'
+                size='sm'
+                className='h-8 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700'
+                onClick={handleBulkDelete}
+              >
+                <Trash className='mr-2 h-4 w-4' />
+                Delete ({Object.keys(table.getState().rowSelection).length})
+              </Button>
+            )}
+            <Link
+              href='/dashboard/news-articles/new'
+              className={cn(
+                buttonVariants({ variant: 'default', size: 'sm' }),
+                'h-8'
+              )}
+            >
+              <Icons.add className='mr-2 h-4 w-4' /> Create New
+            </Link>
+          </DataTableToolbar>
+        </DataTable>
+        <AlertModal
+          isOpen={open}
+          onClose={() => {
+            setOpen(false);
+            setDeleteId(null);
+          }}
+          onConfirm={onConfirm}
+          loading={loading}
+          title={
+            actionType === 'toggle'
+              ? toggleToActive
+                ? 'Unhide News Article'
+                : 'Hide News Article'
+              : actionType === 'bulk-delete'
+                ? 'Bulk Delete News Articles'
+                : 'Delete News Article'
+          }
+          description={
+            actionType === 'toggle'
+              ? toggleToActive
+                ? 'Are you sure you want to unhide this news article? It will become visible to users again.'
+                : 'Are you sure you want to hide this news article? It will no longer be visible to users but can be restored later.'
+              : actionType === 'bulk-delete'
+                ? `Are you sure you want to permanently delete these ${selectedIds.length} news articles? This action cannot be undone.`
+                : 'Are you sure you want to permanently delete this news article? This action cannot be undone.'
+          }
+        />
+        <NewsDetailSheet
+          isOpen={isDetailOpen}
+          onClose={() => setIsDetailOpen(false)}
+          news={selectedNews}
+        />
+      </div>
+    </TooltipProvider>
   );
 }

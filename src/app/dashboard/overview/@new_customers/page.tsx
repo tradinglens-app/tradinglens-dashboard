@@ -1,18 +1,15 @@
-import { delay } from '@/constants/mock-api';
 import { StatsCard } from '@/features/overview/components/stats-card';
-import { getNewCustomersStats } from '@/features/overview/services/new-customers.service';
+import { getOverviewData } from '@/features/overview/services/overview-data.service';
 
 export default async function NewCustomers() {
-  await delay(1000);
-
-  const stats = await getNewCustomersStats();
+  const { newCustomers } = await getOverviewData();
 
   return (
     <StatsCard
       title='New Users'
-      value={stats.currentMonth}
-      percentageChange={stats.percentageChange}
-      trend={stats.trend}
+      value={newCustomers.currentMonth}
+      percentageChange={newCustomers.percentageChange}
+      trend={newCustomers.trend}
       description='New user registrations in the current period'
     />
   );

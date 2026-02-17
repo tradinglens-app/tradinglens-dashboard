@@ -26,6 +26,7 @@ export const searchParams = {
   symbol: parseAsString.withDefault(''),
   publisher: parseAsString.withDefault(''),
   createdAt: parseAsArrayOf(parseAsInteger).withDefault([]),
+  publishedDate: parseAsArrayOf(parseAsInteger).withDefault([]),
   created_at: parseAsArrayOf(parseAsInteger).withDefault([]),
   start_at: parseAsArrayOf(parseAsInteger).withDefault([]),
   end_at: parseAsArrayOf(parseAsInteger).withDefault([]),
@@ -44,7 +45,8 @@ export const searchParams = {
   visibility: parseAsArrayOf(parseAsString).withDefault([]),
   is_read: parseAsArrayOf(parseAsString).withDefault([]),
   hasImage: parseAsArrayOf(parseAsString).withDefault([]),
-  hasLogo: parseAsArrayOf(parseAsString).withDefault([])
+  hasLogo: parseAsArrayOf(parseAsString).withDefault([]),
+  showDuplicates: parseAsArrayOf(parseAsString).withDefault([])
 };
 
 export const searchParamsCache = createSearchParamsCache(searchParams);

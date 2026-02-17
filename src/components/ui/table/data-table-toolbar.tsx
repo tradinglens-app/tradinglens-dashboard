@@ -16,6 +16,7 @@ interface DataTableToolbarProps<TData> extends React.ComponentProps<'div'> {
   table: Table<TData>;
   searchKey?: string;
   placeholder?: string;
+  filterChildren?: React.ReactNode;
 }
 
 export function DataTableToolbar<TData>({
@@ -24,6 +25,7 @@ export function DataTableToolbar<TData>({
   className,
   searchKey,
   placeholder,
+  filterChildren,
   ...props
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
@@ -66,6 +68,7 @@ export function DataTableToolbar<TData>({
         {columns.map((column) => (
           <DataTableToolbarFilter key={column.id} column={column} />
         ))}
+        {filterChildren}
         {isFiltered && (
           <Button
             aria-label='Reset filters'

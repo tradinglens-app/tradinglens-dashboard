@@ -241,6 +241,11 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
   const [columnFilters, setColumnFilters] =
     React.useState<ColumnFiltersState>(initialColumnFilters);
 
+  // Reset row selection only when filters change (not on pagination)
+  React.useEffect(() => {
+    setRowSelection({});
+  }, [columnFilters]);
+
   const onColumnFiltersChange = React.useCallback(
     (updaterOrValue: Updater<ColumnFiltersState>) => {
       if (enableAdvancedFilter) return;

@@ -1,14 +1,12 @@
-import { delay } from '@/constants/mock-api';
 import { RecentRegistrationsClient } from '@/features/overview/components/recent-registrations-client';
-import { getRecentUsers } from '@/features/overview/services/recent-users.service';
+import { getOverviewData } from '@/features/overview/services/overview-data.service';
 
 export default async function Sales() {
-  await delay(1000);
-  const { users, todayCount } = await getRecentUsers();
+  const { recentUsers } = await getOverviewData();
   return (
     <RecentRegistrationsClient
-      initialUsers={users}
-      initialTodayCount={todayCount}
+      initialUsers={recentUsers.users}
+      initialTodayCount={recentUsers.todayCount}
     />
   );
 }
