@@ -498,3 +498,27 @@ export async function invalidateNewsImage(id: string) {
     }
   });
 }
+
+export async function updateManyNews(
+  ids: string[],
+  data: Partial<NewsArticle>
+) {
+  // Filter out undefined values to avoid overwriting with null/undefined
+  const updateData: any = {};
+  if (data.isActive !== undefined) updateData.is_active = data.isActive;
+  if (data.imageUrl !== undefined) updateData.image_url = data.imageUrl;
+  if (data.sourceUrl !== undefined) updateData.source_url = data.sourceUrl;
+  // Add other fields here as needed, e.g. isFeatured, isHot
+
+  if (Object.keys(updateData).length === 0) return { count: 0 };
+
+  return prisma.stock_news.updateMany({
+    where: {
+      id: { in: ids }
+    },
+    data: {
+      ...updateData,
+      updated_at: new Date()
+    }
+  });
+}

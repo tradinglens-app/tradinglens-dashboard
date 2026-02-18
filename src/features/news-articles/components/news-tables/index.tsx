@@ -23,6 +23,8 @@ import { NewsDetailSheet } from '../news-detail-sheet';
 import { DuplicateFilter } from '../duplicate-filter';
 import { Trash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { BulkEditNewsDialog } from '../bulk-edit-news-dialog';
+import { updateManyNewsAction } from '../../actions/news-actions';
 
 interface NewsListingProps {
   data: NewsArticle[];
@@ -42,6 +44,7 @@ export function NewsListing({ data, totalCount }: NewsListingProps) {
   const [loading, setLoading] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isBulkEditOpen, setIsBulkEditOpen] = useState(false);
   const [actionType, setActionType] = useState<
     'toggle' | 'delete' | 'bulk-delete'
   >('delete');
@@ -145,6 +148,12 @@ export function NewsListing({ data, totalCount }: NewsListingProps) {
     setOpen(true);
   }, [table]);
 
+  const handleBulkEdit = useCallback(() => {
+    const ids = Object.keys(table.getState().rowSelection);
+    setSelectedIds(ids);
+    setIsBulkEditOpen(true);
+  }, [table]);
+
   return (
     <TooltipProvider delayDuration={300}>
       <div className='flex flex-1 flex-col space-y-4'>
@@ -155,15 +164,26 @@ export function NewsListing({ data, totalCount }: NewsListingProps) {
             filterChildren={<DuplicateFilter title='Duplicates' />}
           >
             {Object.keys(table.getState().rowSelection).length > 0 && (
-              <Button
-                variant='outline'
-                size='sm'
-                className='h-8 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700'
-                onClick={handleBulkDelete}
-              >
-                <Trash className='mr-2 h-4 w-4' />
-                Delete ({Object.keys(table.getState().rowSelection).length})
-              </Button>
+              <div className='flex items-center gap-2'>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  className='h-8'
+                  onClick={handleBulkEdit}
+                >
+                  <Icons.edit className='mr-2 h-4 w-4' />
+                  Edit ({Object.keys(table.getState().rowSelection).length})
+                </Button>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  className='h-8 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700'
+                  onClick={handleBulkDelete}
+                >
+                  <Trash className='mr-2 h-4 w-4' />
+                  Delete ({Object.keys(table.getState().rowSelection).length})
+                </Button>
+              </div>
             )}
             <Link
               href='/dashboard/news-articles/new'
@@ -207,6 +227,15 @@ export function NewsListing({ data, totalCount }: NewsListingProps) {
           isOpen={isDetailOpen}
           onClose={() => setIsDetailOpen(false)}
           news={selectedNews}
+        />
+        <BulkEditNewsDialog
+          isOpen={isBulkEditOpen}
+          onClose={() => setIsBulkEditOpen(false)}
+          selectedIds={selectedIds}
+          onSuccess={() => {
+            table.toggleAllPageRowsSelected(false);
+            // Optionally refresh data if needed, but revalidatePath in action handles it
+          }}
         />
       </div>
     </TooltipProvider>
