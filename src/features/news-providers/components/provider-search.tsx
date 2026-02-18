@@ -2,7 +2,7 @@
 
 import { Input } from '@/components/ui/input';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useDebouncedCallback } from 'use-debounce';
+import { useDebouncedCallback } from '@/hooks/use-debounced-callback';
 
 export function ProviderSearch() {
   const searchParams = useSearchParams();
