@@ -144,12 +144,6 @@ export const navItems: NavItem[] = [
     items: []
   },
   {
-    title: 'News Providers',
-    url: '/dashboard/news-providers',
-    icon: 'plug',
-    items: []
-  },
-  {
     title: 'Ads Manager',
     url: '/dashboard/ads-manager',
     icon: 'adsManager',
@@ -173,6 +167,12 @@ export const navItems: NavItem[] = [
   //   icon: 'campaign',
   //   items: []
   // },
+  {
+    title: 'News Providers',
+    url: '/dashboard/news-providers',
+    icon: 'plug',
+    items: []
+  },
   {
     title: 'Notifications',
     url: '/dashboard/notifications',
