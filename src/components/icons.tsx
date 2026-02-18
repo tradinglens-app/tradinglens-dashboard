@@ -124,5 +124,6 @@ export const Icons = {
   fileText: IconFileText,
   community: IconBuildingCommunity,
   verification: IconShieldCheck,
-  announcement: IconSpeakerphone
+  announcement: IconSpeakerphone,
+  plug: IconPlug
 };

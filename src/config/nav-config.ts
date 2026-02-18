@@ -144,6 +144,12 @@ export const navItems: NavItem[] = [
     items: []
   },
   {
+    title: 'News Providers',
+    url: '/dashboard/news-providers',
+    icon: 'plug',
+    items: []
+  },
+  {
     title: 'Ads Manager',
     url: '/dashboard/ads-manager',
     icon: 'adsManager',
