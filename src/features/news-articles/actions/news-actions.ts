@@ -12,7 +12,8 @@ import {
   deleteManyNews,
   toggleNewsActive,
   CreateNewsInput,
-  invalidateNewsImage
+  invalidateNewsImage,
+  updateManyNews
 } from '../services/news.service';
 
 export async function invalidateNewsImageAction(id: string) {
@@ -92,6 +93,21 @@ export async function deleteManyNewsAction(ids: string[]) {
     return { success: true };
   } catch (error: any) {
     console.error('deleteManyNewsAction error:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateManyNewsAction(
+  ids: string[],
+  data: Partial<NewsArticle>
+) {
+  try {
+    await updateManyNews(ids, data);
+    revalidatePath('/dashboard/news');
+    revalidatePath('/dashboard/news-articles');
+    return { success: true };
+  } catch (error: any) {
+    console.error('updateManyNewsAction error:', error);
     return { success: false, error: error.message };
   }
 }

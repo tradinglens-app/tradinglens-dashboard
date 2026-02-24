@@ -168,6 +168,12 @@ export const navItems: NavItem[] = [
   //   items: []
   // },
   {
+    title: 'News Providers',
+    url: '/dashboard/news-providers',
+    icon: 'plug',
+    items: []
+  },
+  {
     title: 'Notifications',
     url: '/dashboard/notifications',
     icon: 'notification',
