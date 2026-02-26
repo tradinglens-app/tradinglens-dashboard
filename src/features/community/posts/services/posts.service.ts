@@ -83,6 +83,10 @@ export interface GetPostsParams {
   visibility?: string[];
   type?: string[];
   sort?: string;
+  /** Filter by resolved user_id (numeric) */
+  userId?: number;
+  /** Exclude posts by @tradinglens.bot */
+  excludeBot?: boolean;
 }
 
 export async function getPosts(params: GetPostsParams = {}) {
@@ -94,12 +98,26 @@ export async function getPosts(params: GetPostsParams = {}) {
     created_at,
     visibility,
     type,
-    sort
+    sort,
+    userId,
+    excludeBot
   } = params;
+
+  // Resolve bot user_id once if needed
+  let botUserId: number | undefined;
+  if (excludeBot) {
+    const botUser = await prismaMain.users.findFirst({
+      where: { username: 'tradinglens.bot' },
+      select: { user_id: true }
+    });
+    botUserId = botUser?.user_id;
+  }
 
   const where: any = {
     deleted_at: null,
-    parent_thread_id: null
+    parent_thread_id: null,
+    ...(userId !== undefined ? { user_id: userId } : {}),
+    ...(botUserId !== undefined ? { user_id: { not: botUserId } } : {})
   };
 
   if (search) {
@@ -444,4 +462,40 @@ export async function getPosts(params: GetPostsParams = {}) {
     totalCount,
     pageCount: Math.ceil(totalCount / pageSize)
   };
+}
+
+// ---------------------------------------------------------------------------
+// Bot posts helpers
+// ---------------------------------------------------------------------------
+
+/** Returns only posts authored by @tradinglens.bot */
+export async function getBotPosts(params: GetPostsParams = {}) {
+  // Resolve the user_id of tradinglens.bot first
+  const botUser = await prismaMain.users.findFirst({
+    where: { username: 'tradinglens.bot' },
+    select: { user_id: true }
+  });
+
+  if (!botUser) {
+    return { data: [], totalCount: 0, pageCount: 0 };
+  }
+
+  return getPosts({ ...params, userId: botUser.user_id });
+}
+
+/** Update content and/or visibility of a thread post */
+export async function updateBotPost(
+  id: string,
+  data: { content?: string; visibility?: string }
+): Promise<void> {
+  await prismaThread.threads.updateMany({
+    where: { id },
+    data: {
+      ...(data.content !== undefined ? { content: data.content } : {}),
+      ...(data.visibility !== undefined
+        ? { visibility: data.visibility as any }
+        : {}),
+      updated_at: new Date()
+    }
+  });
 }

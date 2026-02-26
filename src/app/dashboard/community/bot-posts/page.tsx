@@ -2,13 +2,13 @@ import PageContainer from '@/components/layout/page-container';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 import {
-  getPosts,
+  getBotPosts,
   getPostEnumValues
 } from '@/features/community/posts/services/posts.service';
-import { PostsTable } from '@/features/community/posts/components/posts-table';
+import { BotPostsTable } from '@/features/community/posts/components/bot-posts-table';
 import { searchParamsCache } from '@/lib/searchparams';
 
-export default async function PostsPage({
+export default async function BotPostsPage({
   searchParams
 }: {
   searchParams: Promise<any>;
@@ -27,7 +27,7 @@ export default async function PostsPage({
   const sort = searchParamsCache.get('sort');
 
   const [{ data, totalCount }, enumValues] = await Promise.all([
-    getPosts({
+    getBotPosts({
       page,
       pageSize,
       search: content || search,
@@ -35,8 +35,7 @@ export default async function PostsPage({
       visibility,
       type,
       created_at: createdAt,
-      sort,
-      excludeBot: true
+      sort
     }),
     getPostEnumValues()
   ]);
@@ -44,16 +43,16 @@ export default async function PostsPage({
   return (
     <PageContainer
       scrollable={false}
-      pageTitle='Posts'
-      pageDescription='Moderate community posts'
+      pageTitle='Bot Posts'
+      pageDescription='Manage posts by @tradinglens.bot'
     >
       <div className='flex flex-1 flex-col space-y-4'>
         <Card className='flex flex-1 flex-col'>
           <CardHeader>
-            <CardTitle>Community Posts</CardTitle>
+            <CardTitle>Bot Posts</CardTitle>
           </CardHeader>
           <CardContent className='flex flex-1 flex-col'>
-            <PostsTable
+            <BotPostsTable
               data={data}
               totalItems={totalCount}
               enumValues={enumValues}
