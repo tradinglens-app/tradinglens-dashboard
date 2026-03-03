@@ -94,7 +94,7 @@ export const navItems: NavItem[] = [
       {
         title: 'Bot Posts',
         url: '/dashboard/community/bot-posts',
-        icon: 'posts',
+        icon: 'bot',
         shortcut: ['b', 'p']
       },
       // {

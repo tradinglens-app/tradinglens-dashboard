@@ -128,10 +128,7 @@ export async function getPosts(params: GetPostsParams = {}) {
   }
 
   if (id) {
-    where.id = {
-      contains: id,
-      mode: 'insensitive'
-    };
+    where.id = id;
   }
 
   if (visibility && visibility.length > 0) {
@@ -291,7 +288,16 @@ export async function getPosts(params: GetPostsParams = {}) {
   const threadIds = threads.map((t) => t.id);
   const userIds = Array.from(new Set(threads.map((t) => t.user_id)));
 
-  // Parallel fetch all related data
+  // Skip all related queries if there are no threads
+  if (threadIds.length === 0) {
+    return {
+      data: [],
+      totalCount,
+      pageCount: Math.ceil(totalCount / pageSize)
+    };
+  }
+
+  // Parallel fetch ALL related data in a single round-trip
   const [
     media,
     users,
@@ -483,7 +489,6 @@ export async function getBotPosts(params: GetPostsParams = {}) {
   return getPosts({ ...params, userId: botUser.user_id });
 }
 
-/** Update content and/or visibility of a thread post */
 export async function updateBotPost(
   id: string,
   data: { content?: string; visibility?: string }
@@ -497,5 +502,13 @@ export async function updateBotPost(
         : {}),
       updated_at: new Date()
     }
+  });
+}
+
+/** Soft delete a bot post */
+export async function deleteBotPost(id: string): Promise<void> {
+  await prismaThread.threads.updateMany({
+    where: { id },
+    data: { deleted_at: new Date() }
   });
 }

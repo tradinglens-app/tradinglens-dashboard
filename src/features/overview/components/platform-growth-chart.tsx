@@ -24,12 +24,8 @@ interface PlatformGrowthChartProps {
 }
 
 const chartConfig = {
-  ios: {
-    label: 'iOS',
-    color: 'var(--chart-2)'
-  },
-  android: {
-    label: 'Android',
+  users: {
+    label: 'Users',
     color: 'var(--chart-1)'
   }
 } satisfies ChartConfig;
@@ -40,7 +36,7 @@ export function PlatformGrowthChart({ data }: PlatformGrowthChartProps) {
       <CardHeader>
         <CardTitle>Platform Growth</CardTitle>
         <CardDescription>
-          New devices active on iOS vs Android (Last 6 Months)
+          Total new users per month ({new Date().getFullYear()})
         </CardDescription>
       </CardHeader>
       <CardContent className='flex-1 px-2 pt-4 sm:px-6 sm:pt-6'>
@@ -57,27 +53,15 @@ export function PlatformGrowthChart({ data }: PlatformGrowthChartProps) {
               }}
             >
               <defs>
-                <linearGradient id='fillIos' x1='0' y1='0' x2='0' y2='1'>
+                <linearGradient id='fillUsers' x1='0' y1='0' x2='0' y2='1'>
                   <stop
                     offset='5%'
-                    stopColor='var(--color-ios)'
-                    stopOpacity={1}
-                  />
-                  <stop
-                    offset='95%'
-                    stopColor='var(--color-ios)'
-                    stopOpacity={0.1}
-                  />
-                </linearGradient>
-                <linearGradient id='fillAndroid' x1='0' y1='0' x2='0' y2='1'>
-                  <stop
-                    offset='5%'
-                    stopColor='var(--color-android)'
+                    stopColor='var(--color-users)'
                     stopOpacity={0.8}
                   />
                   <stop
                     offset='95%'
-                    stopColor='var(--color-android)'
+                    stopColor='var(--color-users)'
                     stopOpacity={0.1}
                   />
                 </linearGradient>
@@ -96,18 +80,10 @@ export function PlatformGrowthChart({ data }: PlatformGrowthChartProps) {
                 content={<ChartTooltipContent indicator='dot' />}
               />
               <Area
-                dataKey='android'
+                dataKey='users'
                 type='monotone'
-                fill='url(#fillAndroid)'
-                stroke='var(--color-android)'
-                stackId='a'
-              />
-              <Area
-                dataKey='ios'
-                type='monotone'
-                fill='url(#fillIos)'
-                stroke='var(--color-ios)'
-                stackId='a'
+                fill='url(#fillUsers)'
+                stroke='var(--color-users)'
               />
             </AreaChart>
           </ChartContainer>
@@ -121,11 +97,10 @@ export function PlatformGrowthChart({ data }: PlatformGrowthChartProps) {
         <div className='flex w-full items-start gap-2 text-sm'>
           <div className='grid gap-2'>
             <div className='flex items-center gap-2 leading-none font-medium'>
-              Tracking real-time device activations{' '}
-              <IconTrendingUp className='h-4 w-4' />
+              Tracking user registrations <IconTrendingUp className='h-4 w-4' />
             </div>
             <div className='text-muted-foreground flex items-center gap-2 leading-none'>
-              Last 6 months
+              Year {new Date().getFullYear()}
             </div>
           </div>
         </div>

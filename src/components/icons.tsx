@@ -56,7 +56,8 @@ import {
   IconBuildingCommunity,
   IconShieldCheck,
   IconDiscountCheck,
-  IconAd
+  IconAd,
+  IconRobot
 } from '@tabler/icons-react';
 
 export type Icon = React.ComponentType<IconProps>;
@@ -125,5 +126,6 @@ export const Icons = {
   community: IconBuildingCommunity,
   verification: IconShieldCheck,
   announcement: IconSpeakerphone,
-  plug: IconPlug
+  plug: IconPlug,
+  bot: IconRobot
 };

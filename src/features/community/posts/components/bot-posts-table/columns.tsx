@@ -11,12 +11,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal, Trash, Copy, Eye, Pencil } from 'lucide-react';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { PostDetailSheet } from '../post-detail-sheet';
 import { BotPostEditSheet } from '../bot-post-edit-sheet';
 import {
@@ -26,6 +36,8 @@ import {
 } from '@/components/ui/tooltip';
 import ReactMarkdown from 'react-markdown';
 import { toOptions } from '@/lib/db-enums.utils';
+import { deleteBotPostAction } from '../../actions/bot-posts-actions';
+import { toast } from 'sonner';
 
 export const getBotPostColumns = (
   enumValues?: Record<string, string[]>
@@ -202,6 +214,19 @@ function BotActionCell({
 }) {
   const [showDetailSheet, setShowDetailSheet] = useState(false);
   const [showEditSheet, setShowEditSheet] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  const confirmDelete = () => {
+    startTransition(async () => {
+      const result = await deleteBotPostAction(post.id);
+      if (result.success) {
+        toast.success('Post deleted successfully');
+      } else {
+        toast.error(result.error ?? 'Failed to delete post');
+      }
+    });
+  };
 
   return (
     <>
@@ -216,6 +241,30 @@ function BotActionCell({
         post={post}
         enumValues={enumValues}
       />
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete this
+              post from the platform.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                confirmDelete();
+              }}
+              disabled={isPending}
+              className='bg-red-600 hover:bg-red-700 focus:ring-red-600'
+            >
+              {isPending ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant='ghost' className='h-8 w-8 p-0'>
@@ -237,8 +286,13 @@ function BotActionCell({
             <Copy className='mr-2 h-4 w-4' /> Copy ID
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className='text-red-600 focus:text-red-600'>
-            <Trash className='mr-2 h-4 w-4' /> Delete (Coming Soon)
+          <DropdownMenuItem
+            className='text-red-600 focus:text-red-600'
+            onClick={() => setShowDeleteDialog(true)}
+            disabled={isPending}
+          >
+            <Trash className='mr-2 h-4 w-4' />{' '}
+            {isPending ? 'Deleting...' : 'Delete'}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
