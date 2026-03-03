@@ -91,6 +91,12 @@ export const navItems: NavItem[] = [
         icon: 'posts',
         shortcut: ['p', 'o']
       },
+      {
+        title: 'Bot Posts',
+        url: '/dashboard/community/bot-posts',
+        icon: 'posts',
+        shortcut: ['b', 'p']
+      },
       // {
       //   title: 'Comments',
       //   url: '/dashboard/community/comments',
