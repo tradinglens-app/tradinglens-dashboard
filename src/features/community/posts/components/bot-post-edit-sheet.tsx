@@ -153,7 +153,7 @@ export function BotPostEditSheet({
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder='Post content...'
-              className='min-h-[300px] resize font-mono text-sm'
+              className='min-h-[300px] resize-y font-mono text-sm'
               disabled={isPending || isDeleting}
             />
             <p className='text-muted-foreground text-xs'>
