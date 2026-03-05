@@ -3,6 +3,7 @@ import { withSentryConfig } from '@sentry/nextjs';
 
 // Define the base Next.js configuration
 const baseConfig: NextConfig = {
+  serverExternalPackages: ['ws'],
   images: {
     unoptimized: true,
     remotePatterns: [

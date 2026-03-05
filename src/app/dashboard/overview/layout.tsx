@@ -29,13 +29,13 @@ export default async function OverViewLayout({
   pie_stats,
   bar_stats,
   area_stats,
-  new_customers
+  active_users
 }: {
   sales: React.ReactNode;
   pie_stats: React.ReactNode;
   bar_stats: React.ReactNode;
   area_stats: React.ReactNode;
-  new_customers: React.ReactNode;
+  active_users: React.ReactNode;
 }) {
   const { stats } = await getOverviewData();
 
@@ -57,7 +57,7 @@ export default async function OverViewLayout({
             trend={stats.totalUsers.trend}
             description='Total registered users across all platforms'
           />
-          {new_customers}
+          {active_users}
           <StatsCard
             title='iOS Users'
             value={stats.iosUsers.current}
